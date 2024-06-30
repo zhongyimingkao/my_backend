@@ -12,3 +12,15 @@
     warehouseCode: string;
     warehouseName: string;
   }
+
+  export interface WarehouseInventory {
+    id: number;
+    materialCode: string;
+    materialId: number;
+    materialName: string;
+    position: string;
+    sl: number;
+    warehouseId: number;
+    warehouseName: string;
+  }
+  

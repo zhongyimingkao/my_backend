@@ -22,7 +22,7 @@ const getNavList = (t: any) => {
       ],
     },
     {
-      key: '/warehouse',
+      key: '/storeManage',
       icon: (
         <Image
           src="/cangku.svg"
@@ -31,7 +31,46 @@ const getNavList = (t: any) => {
           alt=""
         />
       ),
-      label: t('warehouseManage'),
+      label: t('warehouse'),
+      children: [
+        {
+          key: '/storeManage/warehouse',
+          icon: (
+            <Image
+              src="/cangkuxinxi.svg"
+              width={14}
+              height={14}
+              alt=""
+            />
+          ),
+          label: t('warehouseInfo'),
+        },
+        {
+            key: '/storeManage/in',
+            icon: (
+              <Image
+                src="/store-in.svg"
+                width={14}
+                height={14}
+                alt=""
+              />
+            ),
+            label: t('storeIn'),
+          },
+          {
+            key: '/storeManage/out',
+            icon: (
+              <Image
+                src="/store-out.svg"
+                width={14}
+                height={14}
+                alt=""
+              />
+            ),
+            label: t('storeOut'),
+          },
+        
+      ],
     },
   ];
 };
