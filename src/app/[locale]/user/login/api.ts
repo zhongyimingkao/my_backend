@@ -1,5 +1,5 @@
 import req from '@/utils/req';
+import { FieldType } from './page';
 
-export const loginApi = (email: string, pwd: string) => req.post('/user/login', {email, pwd})
-
-export const registerApi = (email: string, pwd: string) => req.post('/user/register', {email, pwd})
+export const loginApi = (params: FieldType): any =>
+  req.post('/userController/login', { ...params });

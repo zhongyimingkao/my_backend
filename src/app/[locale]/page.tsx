@@ -1,67 +1,29 @@
-import Image from "next/image";
-import Link from "next/link";
-import { Button, Timeline } from "antd";
-import {useTranslations} from 'next-intl';
-import styles from './page.module.css';
+'use client'
 
-export default function Home() {
-  const t = useTranslations('index');
-  return (
-    <main className={styles.home}>
-        <Image
-          src="/favicon.png"
-          alt="next-admin"
-          width={120}
-          height={60}
-          style={{borderRadius: 6}}
-          priority
-        />
-        <div className={styles.content}>
-          <p>
-            {t('desc')}
-          </p>
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
-          <h2>{t('log.title')}</h2>
 
-          <div className={styles.timeBox}>
-            <Timeline
-              items={[
-                {
-                  children: t('log.1'),
-                },
-                {
-                  children: t('log.2'),
-                },
-                {
-                  children: t('log.3'),
-                },
-                {
-                  color: 'orange',
-                  children: t('log.4'),
-                },
-                {
-                  color: 'orange',
-                  children: t('log.5'),
-                },
-                {
-                  color: 'orange',
-                  children: t('log.6'),
-                },
-                {
-                  color: 'orange',
-                  children: t('log.7'),
-                }
-              ]}
-            />
-          </div>
+const IndexPage: React.FC = () => {
+  const router = useRouter();
 
-          <div>
-            <Link href="/dashboard" style={{marginRight: 20}}><Button type="primary">{t('try')}</Button></Link>
-            <Link href="http://wep.turntip.cn" target="_blank"><Button type="primary">{t('wep')}</Button></Link>
-          </div>
-        </div>
-        
-      
-    </main>
-  );
-}
+  useEffect(() => {
+    const checkCookieAndNavigate = async () => {
+      const cookieValue = localStorage.getItem('token'); // 替换为你的cookie名称
+
+      if (cookieValue) {
+        // 如果有cookie，重定向到./dashboard
+        router.push('/dashboard');
+      } else {
+        // 如果没有cookie，重定向到./login
+        router.push('user/login');
+      }
+    };
+
+    checkCookieAndNavigate();
+  }, []); // 空数组作为依赖，确保只在组件挂载时执行一次
+
+  return <div>正在处理...</div>; // 这个返回值只会在页面加载时显示，之后会被重定向覆盖
+};
+
+export default IndexPage;

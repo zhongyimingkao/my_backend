@@ -12,8 +12,8 @@ import { queryWareHouse } from './api';
 
 const PAGE_SIZE = 10;
 
-export default function User() {
-  const t = useTranslations('user');
+export default function WareHouse() {
+  const t = useTranslations('warehouse');
   const { token } = theme.useToken();
   const [data, setData] = useState<Warehouse[]>([]);
   const [current, setCurrent] = useState<number>(1);
@@ -43,7 +43,7 @@ export default function User() {
   }, [current]);
 
   return (
-    <Layout curActive="/user">
+    <Layout curActive="/warehouse">
       <main className={styles.userWrap}>
         <div className={styles.content}>
           <AvaForm onSearch={queryWareHouseData} />

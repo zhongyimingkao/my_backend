@@ -1,5 +1,5 @@
 import createMiddleware from 'next-intl/middleware';
-import {locales, pathnames, localePrefix, defaultLocale} from './navigation';
+import { locales, pathnames, localePrefix, defaultLocale } from './navigation';
 
 export default createMiddleware({
   defaultLocale,
@@ -10,5 +10,5 @@ export default createMiddleware({
 
 export const config = {
   // Skip all paths that should not be internationalized
-  matcher: ['/((?!_next|.*\\..*).*)']
+  matcher: ['/((?!_next|api|.*\\..*).*)'],
 };

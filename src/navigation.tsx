@@ -13,6 +13,7 @@ import {
   export const pathnames = {
     '/': '/',
     '/user': '/user',
+    '/warehouse': '/warehouse',
     '/dashboard': '/dashboard',
     // '/client': '/client',
     // '/client/redirect': '/client/redirect',

@@ -17,7 +17,6 @@ export async function generateMetadata({
   params: {locale}
 }: Omit<Props, 'children'>): Promise<Metadata> {
   const t = await getTranslations({locale, namespace: 'index'});
-
   return {
     // metadataBase: new URL('http://localhost:3000'),
     title: t('title'),

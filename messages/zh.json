@@ -23,6 +23,7 @@
         "drawio": "流程图编辑器",
         "monitor": "数据监控",
         "userManage": "用户管理",
+        "warehouseManage":"仓库管理",
         "formEngine": "表单引擎",
         "board": "办公白板",
         "orderList": "订单列表",
@@ -37,5 +38,7 @@
     "404": {
         "tip": "next-admin: 您访问的页面不存在",
         "goBack": "返回首页"
+    },
+    "warehouse":{
     }
 }

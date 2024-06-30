@@ -26,6 +26,13 @@ const nextConfig = {
       "JWT_SECRET": "next-admin",
       "BASE_API_URL": "/api"
     },
+    async rewrites(){
+      return [ 
+        //接口请求 前缀带上/api-text/
+         { source: '/api/:path*', destination: `http://8.130.141.252:8140/:path*` }, 
+   
+       ]
+    },
     async headers() {
         // 跨域配置
         return [

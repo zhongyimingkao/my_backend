@@ -1,34 +1,64 @@
-import axios from 'axios';
+// api.ts
+// api.ts
 import { message } from 'antd';
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import { useRouter } from 'next/navigation';
 
-const instance = axios.create({
-    baseURL: process.env.BASE_API_URL,
-    timeout: 10000
+// 创建axios实例，配置通用基本URL
+const instance: AxiosInstance = axios.create({
+  baseURL: '/api/', // 将此替换为您的API地址
 });
 
-instance.interceptors.request.use(function (config) {
+// 从localStorage获取token
+
+
+// 设置请求拦截器
+instance.interceptors.request.use(
+  (config: any) => {
+    const token = localStorage.getItem('token');
+    // 如果存在token，则将其添加到请求头的Authorization中
+    if (token) {
+      config.headers = {
+        ...config.headers,
+        Authorization: `Bearer ${token}`,
+      };
+    }
     return config;
-  }, function (error) {
+  },
+  (error) => {
+    // 处理请求错误
+    console.error('Request Error:', error);
     return Promise.reject(error);
-  });
+  }
+);
 
-  instance.interceptors.response.use(function (response) {
-    if(response.data.msg) {
-      message.success(response.data.msg)
-    }
+// 设置响应拦截器
+instance.interceptors.response.use(
+  function (response) {
     return response.data;
-  }, function (error) {
-    if(error && error.response) {
-        switch(error.response.status) {
-            case 401:
-                // 客户端环境
-                window && (location.href = '/user/login');
-            case 500:
-              message.error(error.response.data.msg)
-
-        }
+  },
+  function (error) {
+    if (error && error.response) {
+      switch (error.response.status) {
+        case 401:
+          // 客户端环境
+          message.warning('登录状态过期');
+          location.replace('/user/login');
+      }
     }
     return Promise.reject(error);
-  });
+  }
+);
 
-  export default instance
+export interface CommonResp<T>{
+  code:number;
+  data:T;
+  msg:string;
+}
+
+export type PageType={
+  pageSize:number;
+  pageNum:number;
+}
+
+export default instance;

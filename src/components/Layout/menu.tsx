@@ -1,85 +1,39 @@
-import { 
-    FundOutlined, 
-    LayoutOutlined, 
-    BarChartOutlined, 
-    DesktopOutlined, 
-    ScheduleOutlined, 
-    CalculatorOutlined, 
-    UserOutlined, 
-    WalletOutlined,
-    BuildOutlined,
-    OpenAIOutlined,
-    PartitionOutlined,
-    FileExcelOutlined
+import {
+  FundOutlined,
+  BarChartOutlined,
+  DesktopOutlined,
+  UserOutlined,
 } from '@ant-design/icons';
+import Image from 'next/image';
 import React from 'react';
 
 const getNavList = (t: any) => {
-    return [
+  return [
+    {
+      key: '/',
+      icon: <DesktopOutlined />,
+      label: t('dashboard'),
+      children: [
         {
-            key: '/',
-            icon: <DesktopOutlined />,
-            label: t('dashboard'),
-            children: [
-                {
-                    key: '/dashboard',
-                    icon: <BarChartOutlined />,
-                    label: t('customChart')
-                },
-                {
-                    key: '/dashboard/monitor',
-                    icon: <FundOutlined />,
-                    label: t('monitor')
-                },
-                {
-                    key: '/dashboard/rpa',
-                    icon: <PartitionOutlined />,
-                    label: t('rpa')
-                }
-            ]
+          key: '/dashboard',
+          icon: <BarChartOutlined />,
+          label: t('customChart'),
         },
-        {
-            key: '/user',
-            icon: <UserOutlined />,
-            label: t('userManage')
-        },
-        {
-            key: '/agents',
-            icon: <OpenAIOutlined />,
-            label: t('agents')
-        },
-        {
-            key: '/excel',
-            icon: <FileExcelOutlined />,
-            label: t('excel')
-        },
-        {
-            key: '/formEngine',
-            icon: <CalculatorOutlined />,
-            label: t('formEngine')
-        },
-        {
-            key: '/dragMode',
-            icon: <BuildOutlined />,
-            label: t('dragMode')
-        },
-        {
-            key: '/board',
-            icon: <LayoutOutlined />,
-            label: t('board')
-        },
-        {
-            key: '/order',
-            icon: <ScheduleOutlined />,
-            label: t('orderList')
-        },
-        {
-            key: '/resource',
-            icon: <WalletOutlined />,
-            label: t('resource')
-        },
-        
-    ]
-}
+      ],
+    },
+    {
+      key: '/warehouse',
+      icon: (
+        <Image
+          src="/cangku.svg"
+          width={14}
+          height={14}
+          alt=""
+        />
+      ),
+      label: t('warehouseManage'),
+    },
+  ];
+};
 
-export default getNavList
+export default getNavList;
