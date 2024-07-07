@@ -59,8 +59,8 @@ export default function StoreInList() {
     },
     {
       title: '入库时间',
-      dataIndex: 'ckTime',
-      key: 'ckTime',
+      dataIndex: 'rkTime',
+      key: 'rkTime',
     },
   ];
 
@@ -69,10 +69,17 @@ export default function StoreInList() {
   }, [current]);
 
   return (
-    <Layout curActive="/storeManage/in" defaultOpen={["/storeManage"]} >
+    <Layout
+      curActive="/storeManage/in"
+      defaultOpen={['/storeManage']}
+    >
       <main className={styles.warehouseWrap}>
         <div className={styles.content}>
-          <StoreSearchForm onSearch={() => {}} />
+          <StoreSearchForm
+            onSearch={(searchParams) => {
+              queryStoreInData(searchParams);
+            }}
+          />
           <div style={listStyle}>
             <h3>入库信息列表</h3>
             <Table

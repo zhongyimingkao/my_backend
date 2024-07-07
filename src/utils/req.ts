@@ -11,7 +11,6 @@ const instance: AxiosInstance = axios.create({
 
 // 从localStorage获取token
 
-
 // 设置请求拦截器
 instance.interceptors.request.use(
   (config: any) => {
@@ -34,31 +33,23 @@ instance.interceptors.request.use(
 
 // 设置响应拦截器
 instance.interceptors.response.use(
-  function (response) {
+  function (response: any) {
     return response.data;
   },
   function (error) {
-    if (error && error.response) {
-      switch (error.response.status) {
-        case 401:
-          // 客户端环境
-          message.warning('登录状态过期');
-          location.replace('/user/login');
-      }
-    }
     return Promise.reject(error);
   }
 );
 
-export interface CommonResp<T>{
-  code:number;
-  data:T;
-  msg:string;
+export interface CommonResp<T> {
+  code: number;
+  data: T;
+  msg: string;
 }
 
-export type PageType={
-  pageSize:number;
-  pageNum:number;
-}
+export type PageType = {
+  pageSize: number;
+  pageNum: number;
+};
 
 export default instance;

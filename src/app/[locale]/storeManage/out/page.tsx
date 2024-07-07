@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 import { StoreOut } from '../common/type';
 import { Table, TableProps, theme } from 'antd';
 import StoreSearchForm from '../common/Search';
-import {  QueryPageOutboundReq, queryPageOutbound } from '../common/api';
+import { QueryPageOutboundReq, queryPageOutbound } from '../common/api';
 
 const PAGE_SIZE = 10;
 
@@ -69,10 +69,17 @@ export default function StoreOutList() {
   }, [current]);
 
   return (
-    <Layout curActive="/storeManage/out" defaultOpen={["/storeManage"]}>
+    <Layout
+      curActive="/storeManage/out"
+      defaultOpen={['/storeManage']}
+    >
       <main className={styles.warehouseWrap}>
         <div className={styles.content}>
-          <StoreSearchForm onSearch={() => {}} />
+          <StoreSearchForm
+            onSearch={(searchParams) => {
+              queryStoreOutData(searchParams);
+            }}
+          />
           <div style={listStyle}>
             <h3>出库信息列表</h3>
             <Table

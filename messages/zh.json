@@ -27,6 +27,9 @@
         "warehouseInfo":"仓库主信息",
         "storeIn":"入库信息",
         "storeOut":"出库信息",
+        "material":"物料管理",
+        "materialInfo":"物料信息",
+        "materialType":"物料类型",
         "formEngine": "表单引擎",
         "board": "办公白板",
         "orderList": "订单列表",
@@ -43,5 +46,7 @@
         "goBack": "返回首页"
     },
     "warehouse":{
+    },
+    "material":{
     }
 }

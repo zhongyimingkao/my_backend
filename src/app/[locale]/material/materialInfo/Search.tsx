@@ -2,20 +2,20 @@
 import {
   Button,
   Col,
-  DatePicker,
   Form,
+  Input,
   Row,
   Space,
   theme,
 } from 'antd';
 import React from 'react';
-import { QueryPageInboundReq, QueryPageOutboundReq } from './api';
+import { QueryMaterialInfoReq } from '../common/api';
 
 interface Props {
-  onSearch: (searchParams?: QueryPageInboundReq | QueryPageOutboundReq) => void;
+  onSearch: (searchParams?:QueryMaterialInfoReq ) => void;
 }
 
-const StoreSearchForm: React.FC<Props> = ({ onSearch }) => {
+const MaterialInfoSearchForm: React.FC<Props> = ({ onSearch }) => {
   const { token } = theme.useToken();
   const [form] = Form.useForm();
 
@@ -29,7 +29,7 @@ const StoreSearchForm: React.FC<Props> = ({ onSearch }) => {
   return (
     <Form
       form={form}
-      name="storeManage_search"
+      name="material_info_search"
       style={formStyle}
     >
       <Row gutter={24}>
@@ -38,13 +38,10 @@ const StoreSearchForm: React.FC<Props> = ({ onSearch }) => {
           key={1}
         >
           <Form.Item
-            name="timeRange"
-            label="时间范围"
+            name='material'
+            label="物料"
           >
-            <DatePicker.RangePicker
-              showTime={{ format: 'HH:mm' }}
-              format="YYYY-MM-DD HH:mm"
-            />
+            <Input/>
           </Form.Item>
         </Col>
       </Row>
@@ -72,4 +69,4 @@ const StoreSearchForm: React.FC<Props> = ({ onSearch }) => {
   );
 };
 
-export default StoreSearchForm;
+export default MaterialInfoSearchForm;

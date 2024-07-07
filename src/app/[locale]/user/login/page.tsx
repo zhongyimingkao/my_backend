@@ -25,6 +25,7 @@ export default function Login() {
     const { loginName, password } = values;
     loginApi({ loginName, password })
       .then((res: any) => {
+        console.log('res',res);
         if (res?.code === 200) {
           localStorage.setItem('token', res.data);
           message.success('登录成功');

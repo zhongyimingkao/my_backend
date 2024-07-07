@@ -72,6 +72,45 @@ const getNavList = (t: any) => {
         
       ],
     },
+    {
+        key: '/material',
+        icon: (
+          <Image
+            src="/wuliaoxianxing.svg"
+            width={14}
+            height={14}
+            alt=""
+          />
+        ),
+        label: t('material'),
+        children: [
+          {
+            key: '/material/materialInfo',
+            icon: (
+              <Image
+                src="/wuliaoxinxi.svg"
+                width={14}
+                height={14}
+                alt=""
+              />
+            ),
+            label: t('materialInfo'),
+          },
+          {
+              key: '/material/materialType',
+              icon: (
+                <Image
+                  src="/wuliaoleixing.svg"
+                  width={14}
+                  height={14}
+                  alt=""
+                />
+              ),
+              label: t('materialType'),
+            },
+          
+        ],
+      },
   ];
 };
 

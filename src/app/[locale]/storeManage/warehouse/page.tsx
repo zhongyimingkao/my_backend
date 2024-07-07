@@ -1,13 +1,30 @@
 'use client';
 import { useTranslations } from 'next-intl';
-import { Button, Space, Table, TableProps, message, theme } from 'antd';
+import {
+  Button,
+  Form,
+  Input,
+  Modal,
+  Space,
+  Table,
+  TableProps,
+  message,
+  theme,
+} from 'antd';
 import { useRouter } from 'next/navigation';
 import AvaForm from './AvaForm';
 import Layout from '@/components/Layout';
 import styles from './index.module.less';
 import { useEffect, useMemo, useState } from 'react';
 import { Warehouse, WarehouseInventory } from './type';
-import { queryWareHouse, queryWarehouseInventory } from './api';
+import {
+  closeWareHouse,
+  deleteWareHouse,
+  openWareHouse,
+  queryWareHouse,
+  queryWarehouseInventory,
+  saveWareHouse,
+} from './api';
 import { LeftOutlined } from '@ant-design/icons';
 
 const PAGE_SIZE = 10;
@@ -19,7 +36,9 @@ export default function WareHouse() {
   const [current, setCurrent] = useState<number>(1);
   const [warehouseId, setWarehouseId] = useState<number | null>(null);
   const [inventoryData, setInventoryData] = useState<WarehouseInventory[]>();
-
+  const [visible, setVisible] = useState<boolean>(false);
+  const [form] = Form.useForm();
+  const [currentID, setCurrentID] = useState<number>();
   const columns: TableProps<Warehouse>['columns'] = [
     {
       title: '仓库编码',
@@ -47,10 +66,24 @@ export default function WareHouse() {
       },
     },
     {
+      title: '描述',
+      dataIndex: 'remark',
+      key: 'remark',
+    },
+    {
       title: '操作',
       key: 'action',
       render: (_, record) => (
         <Space size="middle">
+          <a
+            onClick={() => {
+              form.setFieldsValue(record);
+              setCurrentID(record.id);
+              setVisible(true);
+            }}
+          >
+            编辑信息
+          </a>
           <a
             onClick={() => {
               setWarehouseId(record.id);
@@ -58,6 +91,40 @@ export default function WareHouse() {
           >
             查询库存
           </a>
+          <a
+            onClick={() => {
+              openWareHouse(record.id).then(() => {
+                message.success('仓库打开成功');
+                queryWareHouseData();
+              });
+            }}
+          >
+            开启仓库
+          </a>
+          <a
+            onClick={() => {
+              closeWareHouse(record.id).then(() => {
+                message.success('仓库关闭成功');
+                queryWareHouseData();
+              });
+            }}
+          >
+            关闭仓库
+          </a>
+          <Popconfirm
+            title="删除仓库"
+            description="确定要删除该仓库吗?"
+            onConfirm={() => {
+              deleteWareHouse(record.id).then(() => {
+                message.success('仓库删除成功');
+                queryWareHouseData();
+              });
+            }}
+            okText="确定"
+            cancelText="取消"
+          >
+            <a style={{ color: 'red' }}>删除仓库</a>
+          </Popconfirm>
         </Space>
       ),
     },
@@ -123,7 +190,25 @@ export default function WareHouse() {
         <>
           <AvaForm onSearch={queryWareHouseData} />
           <div style={listStyle}>
-            <h3>仓库主信息列表</h3>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
+              <h3>仓库主信息列表</h3>
+              <Button
+                type="primary"
+                onClick={() => {
+                  setVisible(true);
+                  form.resetFields();
+                  setCurrentID(void 0);
+                }}
+              >
+                新建
+              </Button>
+            </div>
             <Table
               columns={columns}
               dataSource={data}
@@ -145,7 +230,7 @@ export default function WareHouse() {
             onClick={() => {
               setWarehouseId(null);
             }}
-            style={{marginBottom:10}}
+            style={{ marginBottom: 10 }}
           >
             <LeftOutlined />
           </Button>
@@ -166,9 +251,84 @@ export default function WareHouse() {
   }, [warehouseId, data, inventoryData]);
 
   return (
-    <Layout curActive="/storeManage/warehouse" defaultOpen={["/storeManage"]}>
+    <Layout
+      curActive="/storeManage/warehouse"
+      defaultOpen={['/storeManage']}
+    >
       <main className={styles.warehouseWrap}>
-        <div className={styles.content}>{renderContent}</div>
+        <div className={styles.content}>
+          <Modal
+            open={visible}
+            title={currentID ? '编辑仓库' : '创建仓库'}
+            onCancel={() => {
+              setVisible(false);
+            }}
+            footer={null}
+          >
+            <Form
+              name="basic"
+              labelCol={{ span: 6 }}
+              wrapperCol={{ span: 16 }}
+              style={{ maxWidth: 600 }}
+              form={form}
+              autoComplete="off"
+              onFinish={(values) => {
+                if (currentID) {
+                  saveWareHouse({ ...values, id: currentID }).then(() => {
+                    message.success('编辑仓库成功');
+                    queryWareHouseData();
+                  });
+                } else {
+                  saveWareHouse({ ...values }).then(() => {
+                    message.success('创建仓库成功');
+                    queryWareHouseData();
+                  });
+                }
+                setVisible(false);
+              }}
+            >
+              <Form.Item<Partial<Warehouse>>
+                label="仓库编码"
+                name="warehouseCode"
+                rules={[{ required: true, message: '请输入仓库编码!' }]}
+              >
+                <Input />
+              </Form.Item>
+              <Form.Item<Partial<Warehouse>>
+                label="仓库名称"
+                name="warehouseName"
+                rules={[{ required: true, message: '请输入仓库名称!' }]}
+              >
+                <Input />
+              </Form.Item>
+              <Form.Item<Partial<Warehouse>>
+                label="仓库地址"
+                name="warehouseAddr"
+                rules={[{ required: true, message: '请输入仓库地址!' }]}
+              >
+                <Input />
+              </Form.Item>
+              <Form.Item<Partial<Warehouse>>
+                label="描述"
+                name="remark"
+              >
+                <Input />
+              </Form.Item>
+              <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+                <Space>
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                  >
+                    提交
+                  </Button>
+                  <Button htmlType="reset">重置</Button>
+                </Space>
+              </Form.Item>
+            </Form>
+          </Modal>
+          {renderContent}
+        </div>
       </main>
     </Layout>
   );

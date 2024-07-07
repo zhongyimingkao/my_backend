@@ -1,21 +1,13 @@
 'use client';
-import {
-  Button,
-  Col,
-  DatePicker,
-  Form,
-  Row,
-  Space,
-  theme,
-} from 'antd';
+import { Button, Col, Form, Input, Row, Space, theme } from 'antd';
 import React from 'react';
-import { QueryPageInboundReq, QueryPageOutboundReq } from './api';
+import { QueryMaterialTypeReq } from '../common/api';
 
 interface Props {
-  onSearch: (searchParams?: QueryPageInboundReq | QueryPageOutboundReq) => void;
+  onSearch: (searchParams?: QueryMaterialTypeReq) => void;
 }
 
-const StoreSearchForm: React.FC<Props> = ({ onSearch }) => {
+const MaterialTypeSearchForm: React.FC<Props> = ({ onSearch }) => {
   const { token } = theme.useToken();
   const [form] = Form.useForm();
 
@@ -29,7 +21,7 @@ const StoreSearchForm: React.FC<Props> = ({ onSearch }) => {
   return (
     <Form
       form={form}
-      name="storeManage_search"
+      name="material_type_search"
       style={formStyle}
     >
       <Row gutter={24}>
@@ -38,13 +30,10 @@ const StoreSearchForm: React.FC<Props> = ({ onSearch }) => {
           key={1}
         >
           <Form.Item
-            name="timeRange"
-            label="时间范围"
+            name="typeName"
+            label="类型名称"
           >
-            <DatePicker.RangePicker
-              showTime={{ format: 'HH:mm' }}
-              format="YYYY-MM-DD HH:mm"
-            />
+            <Input placeholder="请输入类型名称" />
           </Form.Item>
         </Col>
       </Row>
@@ -72,4 +61,4 @@ const StoreSearchForm: React.FC<Props> = ({ onSearch }) => {
   );
 };
 
-export default StoreSearchForm;
+export default MaterialTypeSearchForm;

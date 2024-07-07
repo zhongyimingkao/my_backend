@@ -1,13 +1,17 @@
-import { CommonResp, PageType } from '@/utils/req';
-import { Warehouse, WarehouseInventory } from './type';
+import { PageType } from '@/utils/req';
 import req from '@/utils/req';
+import { MaterialInfo, MaterialType } from './type';
 
-type QueryWarehouseReq = Partial<Warehouse> & PageType;
+export type QueryMaterialInfoReq = Partial<MaterialInfo> & {
+  material?: string;
+} & PageType;
 
-export const queryWareHouse = (params: QueryWarehouseReq): Promise<any> => {
+export const queryMaterialInfo = (
+  params: QueryMaterialInfoReq
+): Promise<any> => {
   return new Promise((resolve, reject) => {
     req
-      .post('/warehouseController/pageWarehouse', { ...params })
+      .post('/materialController/pageMaterial', { ...params })
       .then((res: any) => {
         if (res.code === 200) {
           resolve(res.data);
@@ -21,11 +25,30 @@ export const queryWareHouse = (params: QueryWarehouseReq): Promise<any> => {
   });
 };
 
-export const queryWarehouseInventory = (warehouseId: number): Promise<any> => {
+export type SaveMaterialInfoReq = Partial<MaterialInfo>;
+
+export const saveMaterialInfo = (params: SaveMaterialInfoReq): Promise<any> => {
   return new Promise((resolve, reject) => {
     req
-      .post('/inventoryController/queryWarehouseInventory', {
-        params: { warehouseId },
+      .post('/materialController/saveMaterial', { ...params })
+      .then((res: any) => {
+        if (res.code === 200) {
+          resolve(res.data);
+        } else {
+          reject(res);
+        }
+      })
+      .catch((e) => {
+        reject(e);
+      });
+  });
+};
+
+export const deleteMaterialInfo = (id: number): Promise<any> => {
+  return new Promise((resolve, reject) => {
+    req
+      .delete('/materialController/deleteMaterialById', {
+        params: { id },
       })
       .then((res: any) => {
         if (res.code === 200) {
@@ -40,10 +63,14 @@ export const queryWarehouseInventory = (warehouseId: number): Promise<any> => {
   });
 };
 
-export const saveWareHouse = (params: Partial<Warehouse>): Promise<any> => {
+export type QueryMaterialTypeReq = Partial<MaterialType> & PageType;
+
+export const queryMaterialType = (
+  params: QueryMaterialTypeReq
+): Promise<any> => {
   return new Promise((resolve, reject) => {
     req
-      .post('/warehouseController/saveWarehouse', { ...params })
+      .post('/materialTypeController/pageMaterialType', { ...params })
       .then((res: any) => {
         if (res.code === 200) {
           resolve(res.data);
@@ -57,15 +84,17 @@ export const saveWareHouse = (params: Partial<Warehouse>): Promise<any> => {
   });
 };
 
-export const openWareHouse = (id: number): Promise<void> => {
+export type SaveMaterialTypeReq = Partial<MaterialType>;
+
+export const saveMaterialType = (params: SaveMaterialTypeReq): Promise<any> => {
   return new Promise((resolve, reject) => {
     req
-      .get('/warehouseController/openWarehouse', { params: { id } })
+      .post('/materialTypeController/saveMaterialType', { ...params })
       .then((res: any) => {
         if (res.code === 200) {
-          resolve();
+          resolve(res.data);
         } else {
-          reject();
+          reject(res);
         }
       })
       .catch((e) => {
@@ -74,27 +103,12 @@ export const openWareHouse = (id: number): Promise<void> => {
   });
 };
 
-export const closeWareHouse = (id: number): Promise<void> => {
+export const deleteMaterialType = (id: number): Promise<any> => {
   return new Promise((resolve, reject) => {
     req
-      .get('/warehouseController/closeWarehouse', { params: { id } })
-      .then((res: any) => {
-        if (res.code === 200) {
-          resolve();
-        } else {
-          reject();
-        }
+      .delete('/materialTypeController/deleteMaterialTypeById', {
+        params: { id },
       })
-      .catch((e) => {
-        reject(e);
-      });
-  });
-};
-
-export const deleteWareHouse = (id: number): Promise<any> => {
-  return new Promise((resolve, reject) => {
-    req
-      .delete('/warehouseController/deleteWarehouseById', { params: { id } })
       .then((res: any) => {
         if (res.code === 200) {
           resolve(res.data);
