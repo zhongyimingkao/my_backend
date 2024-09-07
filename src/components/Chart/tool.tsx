@@ -10,22 +10,23 @@ const createChart = (el: HTMLElement, type: string, data: any[]) => {
             type: "interval",
             autoFit: true,
             data,
-            encode: { x: "name", y: "value", color: "name", size: 60 },
+            encode: { x: "name", y: "value",  color: "name", size: 60 },
             style: {
               radiusTopLeft: 20,
               radiusTopRight: 20,
               radiusBottomRight: 0,
               radiusBottomLeft: 0,
-            },
+            }
           });
     }
+
 
     if(type === 'barline') {
         chart.data(data);
         chart
         .interval()
         .encode('x', 'time')
-        .encode('y', 'waiting');
+        .encode('y', 'orders');
 
         chart
         .line()

@@ -46,71 +46,105 @@ const getNavList = (t: any) => {
           label: t('warehouseInfo'),
         },
         {
-            key: '/storeManage/in',
-            icon: (
-              <Image
-                src="/store-in.svg"
-                width={14}
-                height={14}
-                alt=""
-              />
-            ),
-            label: t('storeIn'),
-          },
-          {
-            key: '/storeManage/out',
-            icon: (
-              <Image
-                src="/store-out.svg"
-                width={14}
-                height={14}
-                alt=""
-              />
-            ),
-            label: t('storeOut'),
-          },
-        
+          key: '/storeManage/in',
+          icon: (
+            <Image
+              src="/store-in.svg"
+              width={14}
+              height={14}
+              alt=""
+            />
+          ),
+          label: t('storeIn'),
+        },
+        {
+          key: '/storeManage/out',
+          icon: (
+            <Image
+              src="/store-out.svg"
+              width={14}
+              height={14}
+              alt=""
+            />
+          ),
+          label: t('storeOut'),
+        },
       ],
     },
     {
-        key: '/material',
-        icon: (
-          <Image
-            src="/wuliaoxianxing.svg"
-            width={14}
-            height={14}
-            alt=""
-          />
-        ),
-        label: t('material'),
-        children: [
-          {
-            key: '/material/materialInfo',
-            icon: (
-              <Image
-                src="/wuliaoxinxi.svg"
-                width={14}
-                height={14}
-                alt=""
-              />
-            ),
-            label: t('materialInfo'),
-          },
-          {
-              key: '/material/materialType',
-              icon: (
-                <Image
-                  src="/wuliaoleixing.svg"
-                  width={14}
-                  height={14}
-                  alt=""
-                />
-              ),
-              label: t('materialType'),
-            },
-          
-        ],
-      },
+      key: '/material',
+      icon: (
+        <Image
+          src="/wuliaoxianxing.svg"
+          width={14}
+          height={14}
+          alt=""
+        />
+      ),
+      label: t('material'),
+      children: [
+        {
+          key: '/material/materialInfo',
+          icon: (
+            <Image
+              src="/wuliaoxinxi.svg"
+              width={14}
+              height={14}
+              alt=""
+            />
+          ),
+          label: t('materialInfo'),
+        },
+        {
+          key: '/material/materialType',
+          icon: (
+            <Image
+              src="/wuliaoleixing.svg"
+              width={14}
+              height={14}
+              alt=""
+            />
+          ),
+          label: t('materialType'),
+        },
+      ],
+    },
+    {
+      key: '/userManage',
+      icon: (
+        <Image
+          src="/yonghuxinxi.svg"
+          width={14}
+          height={14}
+          alt=""
+        />
+      ),
+      label: t('userManage'),
+    },
+    {
+      key: '/surveillance',
+      icon: (
+        <Image
+          src="/jiankong.svg"
+          width={14}
+          height={14}
+          alt=""
+        />
+      ),
+      label: t('surveillance'),
+    },
+    {
+      key: '/door',
+      icon: (
+        <Image
+          src="/juanmen.svg"
+          width={14}
+          height={14}
+          alt=""
+        />
+      ),
+      label: t('door'),
+    },
   ];
 };
 

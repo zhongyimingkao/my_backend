@@ -31,4 +31,9 @@ div, span, img, p, main {
   flex-wrap: wrap;
 }
 
+h3{
+  font-weight: 600 !important;
+  font-size: 16px !important;
+}
+
 

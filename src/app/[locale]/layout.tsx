@@ -5,6 +5,7 @@ import {
   getTranslations
 } from 'next-intl/server';
 import "./globals.css";
+import './tailwind.css';
 
 const inter = Inter({ subsets: ["latin"] });
 

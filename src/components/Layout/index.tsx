@@ -147,7 +147,7 @@ const CommonLayout: React.FC<IProps> = ({
             <div
               style={{
                 padding: 24,
-                minHeight: 520,
+                height: '100%',
                 ...getThemeBg(curTheme),
                 borderRadius: borderRadiusLG,
               }}

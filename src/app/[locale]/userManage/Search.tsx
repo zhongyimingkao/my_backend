@@ -1,13 +1,13 @@
 'use client';
 import { Button, Col, Form, Input, Row, Space, theme } from 'antd';
 import React from 'react';
-import { QueryMaterialInfoReq } from '../common/api';
+import { QueryUserInfoReq } from './type';
 
 interface Props {
-  onSearch: (searchParams?: QueryMaterialInfoReq) => void;
+  onSearch: (searchParams?: QueryUserInfoReq) => void;
 }
 
-const MaterialInfoSearchForm: React.FC<Props> = ({ onSearch }) => {
+const UserManageSearchForm: React.FC<Props> = ({ onSearch }) => {
   const { token } = theme.useToken();
   const [form] = Form.useForm();
 
@@ -21,7 +21,7 @@ const MaterialInfoSearchForm: React.FC<Props> = ({ onSearch }) => {
   return (
     <Form
       form={form}
-      name="material_info_search"
+      name="material_type_search"
       style={formStyle}
     >
       <Row gutter={24}>
@@ -30,10 +30,10 @@ const MaterialInfoSearchForm: React.FC<Props> = ({ onSearch }) => {
           key={1}
         >
           <Form.Item
-            name="material"
-            label="物料"
+            name="nickName"
+            label="用户昵称"
           >
-            <Input placeholder="请输入物料信息" />
+            <Input placeholder="请输入用户昵称" />
           </Form.Item>
         </Col>
       </Row>
@@ -61,4 +61,4 @@ const MaterialInfoSearchForm: React.FC<Props> = ({ onSearch }) => {
   );
 };
 
-export default MaterialInfoSearchForm;
+export default UserManageSearchForm;

@@ -8,7 +8,7 @@ interface Props {
 }
 
 const AsyncPicker = ({ initData, onChange }: Props): React.ReactElement => {
-  const [options, setOptions] = useState<T>();
+  const [options, setOptions] = useState();
 
   const initOptions = async () => {
     try {

@@ -1,25 +1,23 @@
 const barData = [
-    { name: 'MODIFY', value: 138, washaway: 0.21014492753623193 },
-    { name: 'PRERELEASE', value: 109, washaway: 0.5596330275229358 },
-    { name: 'RELEASING', value: 48, washaway: 0 },
+    { name: '融雪盐', value: 138, washaway: 0.21014492753623193 },
+    { name: '草包', value: 109, washaway: 0.5596330275229358 },
+    { name: '麻袋', value: 48, washaway: 0 },
   ];
 
 const barLineData = [
-    { time: '10:10', call: 4, waiting: 2, people: 2 },
-    { time: '10:15', call: 2, waiting: 6, people: 3 },
-    { time: '10:20', call: 13, waiting: 2, people: 5 },
-    { time: '10:25', call: 9, waiting: 9, people: 1 },
-    { time: '10:30', call: 5, waiting: 2, people: 3 },
-    { time: '10:35', call: 8, waiting: 2, people: 1 },
-    { time: '10:40', call: 13, waiting: 1, people: 2 },
+    { time: '10:00', call: 4, orders: 12, people: 2 },
+    { time: '11:00', call: 2, orders: 6, people: 3 },
+    { time: '12:00', call: 13, orders: 12, people: 5 },
+    { time: '13:00', call: 9, orders: 9, people: 3 },
+    { time: '14:00', call: 5, orders: 12, people: 3 },
+    { time: '16:00', call: 8, orders: 12, people: 4 },
+    { time: '17:00', call: 13, orders: 10, people: 2 },
   ];
 
   const pieData = [
-    { item: '事例一', count: 40, percent: 0.4 },
-    { item: '事例二', count: 21, percent: 0.21 },
-    { item: '事例三', count: 17, percent: 0.17 },
-    { item: '事例四', count: 13, percent: 0.13 },
-    { item: '事例五', count: 9, percent: 0.09 },
+    { item: '融雪盐', count: 400, percent: 0.4 },
+    { item: '扫把', count: 210, percent: 0.21 },
+    { item: '麻袋', count: 170, percent: 0.17 },
   ];
 
   const choData = [
@@ -104,7 +102,8 @@ const boardList = [
         w: 'calc(34% - 16px)',
         h: 320,
         type: 'pie',
-        data: pieData
+        data: pieData,
+        title:'仓库总库存情况'
     },
     {
         id: '5',
