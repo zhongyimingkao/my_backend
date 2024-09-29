@@ -6,6 +6,7 @@ import { getVideoUrl } from './api';
 import EZUIKit from 'ezuikit-js';
 import { queryWareHouse } from '../storeManage/warehouse/api';
 
+
 export default function Surveillance() {
   const [current, setCurrent] = useState<number>(1);
   const { token } = theme.useToken();
