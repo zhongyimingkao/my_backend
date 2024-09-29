@@ -51,9 +51,10 @@ const MaterialTypeSearchForm: React.FC<Props> = ({ onSearch }) => {
           <Button
             onClick={() => {
               form.resetFields();
+              onSearch();
             }}
           >
-            清空
+            重置
           </Button>
         </Space>
       </div>

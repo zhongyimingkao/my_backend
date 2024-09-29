@@ -60,7 +60,9 @@ export const saveWareHouse = (params: Partial<Warehouse>): Promise<any> => {
 export const openWareHouse = (id: number): Promise<void> => {
   return new Promise((resolve, reject) => {
     req
-      .get('/warehouseController/openWarehouse', { params: { id } })
+      .get('/warehouseController/openWarehouse', {
+        params: { ckxxId: 403403403, warehouseId: id },
+      })
       .then((res: any) => {
         if (res.code === 200) {
           resolve();
@@ -77,7 +79,9 @@ export const openWareHouse = (id: number): Promise<void> => {
 export const closeWareHouse = (id: number): Promise<void> => {
   return new Promise((resolve, reject) => {
     req
-      .get('/warehouseController/closeWarehouse', { params: { id } })
+      .get('/warehouseController/closeWarehouse', {
+        params: { warehouseId: id },
+      })
       .then((res: any) => {
         if (res.code === 200) {
           resolve();

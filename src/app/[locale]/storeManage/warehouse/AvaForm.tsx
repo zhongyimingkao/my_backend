@@ -31,9 +31,9 @@ const AdvancedSearchForm: React.FC<Props> = ({ onSearch }) => {
         >
           <Form.Item
             name="warehouseCode"
-            label="仓库编码"
+            label="仓库信息"
           >
-            <Input placeholder="请输入仓库编码" />
+            <Input placeholder="请输入仓库信息" />
           </Form.Item>
         </Col>
         <Col
@@ -49,6 +49,7 @@ const AdvancedSearchForm: React.FC<Props> = ({ onSearch }) => {
                 { value: 0, label: '未开启' },
                 { value: 1, label: '启动中' },
               ]}
+              allowClear
             />
           </Form.Item>
         </Col>
@@ -67,9 +68,10 @@ const AdvancedSearchForm: React.FC<Props> = ({ onSearch }) => {
           <Button
             onClick={() => {
               form.resetFields();
+              onSearch();
             }}
           >
-            清空
+            重置
           </Button>
         </Space>
       </div>

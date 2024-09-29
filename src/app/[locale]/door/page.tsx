@@ -1,32 +1,17 @@
 'use client';
 import Layout from '@/components/Layout';
-import { Button, Table, TableProps, theme } from 'antd';
-import { WxUserInfo } from './type';
-import { useState } from 'react';
+import { Button, message, Table, TableProps, theme } from 'antd';
+import { useEffect, useState } from 'react';
 import DoorSearchForm from './Search';
 import { Niconne } from 'next/font/google';
+import { handleDoorInfo, QueryDoorInfoReq } from './type';
+import { queryDoorInfo } from './api';
+import { formatDate } from '@/utils';
 const PAGE_SIZE = 10;
-
-const wxUserInfoMock: WxUserInfo[] = [
-  {
-    openId: 'o6_bmjrPTlm6_2sgVt7hMZOPfL2M',
-    nickName: '张三',
-    isAdmin: false,
-  },
-  {
-    openId: 'o6_bmjrPTlm6_2sgVt7hMZOPfL3N',
-    nickName: '李四',
-    isAdmin: true,
-  },
-  {
-    openId: 'o6_bmjrPTlm6_2sgVt7hMZOPfL4M',
-    nickName: '王五',
-    isAdmin: false,
-  },
-];
 
 export default function Door() {
   const [current, setCurrent] = useState<number>(1);
+  const [doorInfo, setDoorInfo] = useState<handleDoorInfo[]>([]);
   const { token } = theme.useToken();
 
   const listStyle: React.CSSProperties = {
@@ -38,39 +23,54 @@ export default function Door() {
   const onPageChange = (page: number, pageSize: number) => {
     setCurrent(page);
   };
-  const columns: TableProps<WxUserInfo>['columns'] = [
+  const columns: TableProps<handleDoorInfo>['columns'] = [
     {
-      title: '设备名称',
-      dataIndex: 'cameraName',
-      key: 'cameraName',
+      title: '仓库名称',
+      dataIndex: 'warehouseName',
+      key: 'warehouseName',
     },
     {
-      title: '设备号',
-      dataIndex: 'cameraID',
-      key: 'cameraID',
+      title: '仓库编码',
+      dataIndex: 'warehouseCode',
+      key: 'warehouseCode',
     },
     {
-      title: '是否管理员',
-      dataIndex: 'isAdmin',
-      key: 'isAdmin',
+      title: '类型',
+      dataIndex: 'type',
+      key: 'type',
       render: (_, records) => {
-        return records.isAdmin ? '是' : '否';
+        return records.type === 'open' ? '开门' : '关门';
       },
     },
     {
-      title: '操作',
-      render: (_, record) => {
-        return (
-          <Button
-            type="primary"
-            onClick={() => {}}
-          >
-            {record.isAdmin ? '更改为用户' : '更改为管理'}
-          </Button>
-        );
-      },
+      title: '操作时间',
+      dataIndex: 'time',
+      key: 'time',
+    },
+    {
+      title: '操作人',
+      dataIndex: 'openUser',
+      key: 'openUser',
     },
   ];
+
+  const getDoorInfo = (params?: QueryDoorInfoReq) => {
+    queryDoorInfo({
+      pageNum: current,
+      pageSize: PAGE_SIZE,
+      ...params,
+    })
+      .then((res) => {
+        setDoorInfo(res.records);
+      })
+      .catch(() => {
+        message.error('查询开关门记录失败');
+      });
+  };
+
+  useEffect(() => {
+    getDoorInfo();
+  }, []);
 
   return (
     <Layout
@@ -78,9 +78,22 @@ export default function Door() {
       defaultOpen={['/door']}
     >
       <DoorSearchForm
-        onSearch={(params) => {
-          const { nickName } = params || {};
-          console.log('nickName', nickName);
+        onSearch={(searchParams) => {
+          const { timeRange } = searchParams || {};
+          const start = formatDate(new Date(timeRange?.[0] || ''));
+          const end = formatDate(new Date(timeRange?.[1] || ''));
+          delete searchParams?.timeRange;
+          const commonObj: any = {};
+          if (!!timeRange && !!start && !!end) {
+            commonObj['start'] = start;
+            commonObj['end'] = end;
+          }
+          queryDoorInfo({
+            pageNum: current,
+            pageSize: PAGE_SIZE,
+            ...commonObj,
+            ...searchParams,
+          });
         }}
       />
       <div style={listStyle}>
@@ -91,7 +104,7 @@ export default function Door() {
             alignItems: 'center',
           }}
         >
-          <h3>小程序用户信息列表</h3>
+          <h3>开关门记录</h3>
         </div>
         <Table
           pagination={{
@@ -99,7 +112,7 @@ export default function Door() {
             current,
             onChange: onPageChange,
           }}
-          dataSource={wxUserInfoMock}
+          dataSource={doorInfo}
           columns={columns}
         />
       </div>

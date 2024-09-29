@@ -1,21 +1,14 @@
 'use client';
-import {
-  Button,
-  Col,
-  DatePicker,
-  Form,
-  Row,
-  Space,
-  theme,
-} from 'antd';
+import { Button, Col, DatePicker, Form, Row, Select, Space, theme } from 'antd';
 import React from 'react';
 import { QueryPageInboundReq, QueryPageOutboundReq } from './api';
 
 interface Props {
   onSearch: (searchParams?: QueryPageInboundReq | QueryPageOutboundReq) => void;
+  type?: 'in' | 'out';
 }
 
-const StoreSearchForm: React.FC<Props> = ({ onSearch }) => {
+const StoreSearchForm: React.FC<Props> = ({ onSearch, type = 'in' }) => {
   const { token } = theme.useToken();
   const [form] = Form.useForm();
 
@@ -47,6 +40,26 @@ const StoreSearchForm: React.FC<Props> = ({ onSearch }) => {
             />
           </Form.Item>
         </Col>
+
+        {type === 'out' && (
+          <Col
+            span={8}
+            key={1}
+          >
+            <Form.Item
+              name="status"
+              label="审核状态"
+            >
+              <Select
+                options={[
+                  { label: '待审核', value: 0 },
+                  { label: '已审核', value: 1 },
+                  { label: '审核失败', value: 2 },
+                ]}
+              />
+            </Form.Item>
+          </Col>
+        )}
       </Row>
       <div style={{ textAlign: 'right' }}>
         <Space size="small">
@@ -62,9 +75,10 @@ const StoreSearchForm: React.FC<Props> = ({ onSearch }) => {
           <Button
             onClick={() => {
               form.resetFields();
+              onSearch();
             }}
           >
-            清空
+            重置
           </Button>
         </Space>
       </div>

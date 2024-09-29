@@ -1,18 +1,15 @@
 'use client';
 import { ReactNode, useEffect } from 'react';
 import { useAtom } from 'jotai';
-import { userInfo } from './[locale]/store';
-import { useRouter } from 'next/navigation';
-import { message } from 'antd';
 import { updateUserInfo } from './[locale]/api/user/[auth]/getUserInfo';
+import { userInfo } from './[locale]/store';
 
 type Props = {
   children: ReactNode;
 };
 
 export default function RootLayout({ children }: Props) {
-  const [, setUserInfo] = useAtom(userInfo);
-  const router = useRouter();
+  const [curUserInfo, setUserInfo] = useAtom(userInfo);
   useEffect(() => {
     const asPath = window.location.pathname; // 使用 window.location.pathname 获取当前页面的相对路径
 
@@ -20,7 +17,9 @@ export default function RootLayout({ children }: Props) {
     if (asPath === '/user/login') {
       return;
     }
-    updateUserInfo(setUserInfo);
+    if(!curUserInfo){
+      updateUserInfo(setUserInfo);
+    }
   }, []);
   return children;
 }

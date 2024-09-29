@@ -1,9 +1,14 @@
-export interface WxUserInfo {
-  openId: string;
-  nickName: string;
-  isAdmin: boolean;
+export interface handleDoorInfo {
+  time: string;
+  type: 'open' | 'close';
+  warehouseCode: string;
+  warehouseName: string;
+  openUser: string;
 }
 
-export interface QueryUserInfoReq {
-  nickName?: string;
+export interface QueryDoorInfoReq {
+  end?: string;
+  start?: string;
+  timeRange?: string[];
+  wareHouse?: string;
 }

@@ -1,7 +1,10 @@
 export interface WxUserInfo {
-  openId: string;
+  id:number;
+  avatarUrl:string;
+  openid: string;
   nickName: string;
-  isAdmin: boolean;
+  role: 'admin' | 'user',
+  sessionKey:string;
 }
 
 export interface QueryUserInfoReq {

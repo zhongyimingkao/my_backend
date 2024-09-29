@@ -1,33 +1,17 @@
 'use client';
 import Layout from '@/components/Layout';
-import { Button, Table, TableProps, theme } from 'antd';
+import { Button, message, Table, TableProps, theme } from 'antd';
 import { WxUserInfo } from './type';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import UserManageSearchForm from './Search';
 import { Niconne } from 'next/font/google';
+import { queryUserList, updateUser } from './api';
 const PAGE_SIZE = 10;
-
-const wxUserInfoMock: WxUserInfo[] = [
-  {
-    openId: 'o6_bmjrPTlm6_2sgVt7hMZOPfL2M',
-    nickName: '张三',
-    isAdmin: false,
-  },
-  {
-    openId: 'o6_bmjrPTlm6_2sgVt7hMZOPfL3N',
-    nickName: '李四',
-    isAdmin: true,
-  },
-  {
-    openId: 'o6_bmjrPTlm6_2sgVt7hMZOPfL4M',
-    nickName: '王五',
-    isAdmin: false,
-  },
-];
 
 export default function UserManage() {
   const [current, setCurrent] = useState<number>(1);
   const { token } = theme.useToken();
+  const [userList, setUserList] = useState<WxUserInfo[]>([]);
 
   const listStyle: React.CSSProperties = {
     background: token.colorFillAlter,
@@ -41,8 +25,8 @@ export default function UserManage() {
   const columns: TableProps<WxUserInfo>['columns'] = [
     {
       title: '微信openID',
-      dataIndex: 'openId',
-      key: 'openId',
+      dataIndex: 'openid',
+      key: 'openid',
     },
     {
       title: '微信昵称',
@@ -50,11 +34,11 @@ export default function UserManage() {
       key: 'nickName',
     },
     {
-      title: '是否管理员',
-      dataIndex: 'isAdmin',
-      key: 'isAdmin',
+      title: '用户角色',
+      dataIndex: 'role',
+      key: 'role',
       render: (_, records) => {
-        return records.isAdmin ? '是' : '否';
+        return records.role === 'admin' ? '管理员' : '用户';
       },
     },
     {
@@ -63,14 +47,37 @@ export default function UserManage() {
         return (
           <Button
             type="primary"
-            onClick={() => {}}
+            onClick={() => {
+              updateUser({
+                role: record.role === 'admin' ? 'user' : 'admin',
+                id: record.id,
+              }).then(() => {
+                message.success('角色变更成功');
+                setTimeout(() => updateUserList(), 100);
+              });
+            }}
           >
-            {record.isAdmin ? '更改为用户' : '更改为管理'}
+            {record.role === 'admin' ? '更改为用户' : '更改为管理'}
           </Button>
         );
       },
     },
   ];
+
+  const updateUserList = (nickName?: string) => {
+    queryUserList({ pageSize: PAGE_SIZE, pageNum: current, nickName })
+      .then((res) => {
+        setUserList(res.records);
+        setCurrent(1);
+      })
+      .catch(() => {
+        message.error('小程序用户信息获取失败');
+      });
+  };
+
+  useEffect(() => {
+    updateUserList();
+  }, []);
 
   return (
     <Layout
@@ -80,7 +87,7 @@ export default function UserManage() {
       <UserManageSearchForm
         onSearch={(params) => {
           const { nickName } = params || {};
-          console.log('nickName', nickName);
+          updateUserList(nickName);
         }}
       />
       <div style={listStyle}>
@@ -99,7 +106,8 @@ export default function UserManage() {
             current,
             onChange: onPageChange,
           }}
-          dataSource={wxUserInfoMock}
+          rowKey="id"
+          dataSource={userList}
           columns={columns}
         />
       </div>

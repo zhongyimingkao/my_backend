@@ -94,6 +94,11 @@ export default function MaterialInfoList() {
       key: 'remark',
     },
     {
+      title: '单位',
+      dataIndex: 'unit',
+      key: 'unit',
+    },
+    {
       title: '特殊说明',
       dataIndex: 'specification',
       key: 'specification',

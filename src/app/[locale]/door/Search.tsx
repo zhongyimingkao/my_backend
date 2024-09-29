@@ -1,10 +1,10 @@
 'use client';
-import { Button, Col, Form, Input, Row, Space, theme } from 'antd';
+import { Button, Col, DatePicker, Form, Input, Row, Space, theme } from 'antd';
 import React from 'react';
-import { QueryUserInfoReq } from './type';
+import { QueryDoorInfoReq } from './type';
 
 interface Props {
-  onSearch: (searchParams?: QueryUserInfoReq) => void;
+  onSearch: (searchParams?: QueryDoorInfoReq) => void;
 }
 
 const DoorSearchForm: React.FC<Props> = ({ onSearch }) => {
@@ -30,10 +30,13 @@ const DoorSearchForm: React.FC<Props> = ({ onSearch }) => {
           key={1}
         >
           <Form.Item
-            name="nickName"
-            label="用户昵称"
+            name="timeRange"
+            label="时间范围"
           >
-            <Input placeholder="请输入用户昵称" />
+            <DatePicker.RangePicker
+              showTime={{ format: 'HH:mm' }}
+              format="YYYY-MM-DD HH:mm"
+            />
           </Form.Item>
         </Col>
       </Row>
@@ -51,9 +54,10 @@ const DoorSearchForm: React.FC<Props> = ({ onSearch }) => {
           <Button
             onClick={() => {
               form.resetFields();
+              onSearch();
             }}
           >
-            清空
+            重置
           </Button>
         </Space>
       </div>

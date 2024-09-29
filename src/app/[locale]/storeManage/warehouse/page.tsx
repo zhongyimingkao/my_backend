@@ -40,6 +40,7 @@ export default function WareHouse() {
   const [visible, setVisible] = useState<boolean>(false);
   const [form] = Form.useForm();
   const [currentID, setCurrentID] = useState<number>();
+
   const columns: TableProps<Warehouse>['columns'] = [
     {
       title: '仓库编码',
@@ -56,6 +57,16 @@ export default function WareHouse() {
       title: '仓库地址',
       dataIndex: 'warehouseAddr',
       key: 'warehouseAddr',
+    },
+    {
+      title: '左摄像头编码',
+      dataIndex: 'lCameraId',
+      key: 'lCameraId',
+    },
+    {
+      title: '右摄像头编码',
+      dataIndex: 'rCameraId',
+      key: 'rCameraId',
     },
     {
       title: '状态',
@@ -146,6 +157,11 @@ export default function WareHouse() {
       title: '物料库存',
       dataIndex: 'sl',
       key: 'sl',
+    },
+    {
+      title: '物料单位',
+      dataIndex: 'unit',
+      key: 'unit',
     },
   ];
 
@@ -312,6 +328,18 @@ export default function WareHouse() {
               <Form.Item<Partial<Warehouse>>
                 label="描述"
                 name="remark"
+              >
+                <Input />
+              </Form.Item>
+              <Form.Item<Partial<Warehouse>>
+                label="左摄像头编码"
+                name="lCameraId"
+              >
+                <Input />
+              </Form.Item>
+              <Form.Item<Partial<Warehouse>>
+                label="右摄像头编码"
+                name="rCameraId"
               >
                 <Input />
               </Form.Item>

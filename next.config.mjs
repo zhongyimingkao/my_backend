@@ -32,7 +32,7 @@ const nextConfig = {
       //接口请求 前缀带上/api-text/
       {
         source: '/api/:path*',
-        destination: `https://www.gzzljtjs.com/:path*`,
+        destination: `https:///www.gzzljtjs.com/:path*`,
       },
     ];
   },

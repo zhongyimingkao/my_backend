@@ -11,9 +11,14 @@
     warehouseAddr: string;
     warehouseCode: string;
     warehouseName: string;
+    lCameraCode:string;
+    rCameraCode:string;
+    lCameraId:string;
+    rCameraId:string;
   }
 
   export interface WarehouseInventory {
+    djbh:string;
     id: number;
     materialCode: string;
     materialId: number;
@@ -22,5 +27,6 @@
     sl: number;
     warehouseId: number;
     warehouseName: string;
+    unit:string;
   }
   
