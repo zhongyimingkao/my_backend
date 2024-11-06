@@ -96,7 +96,8 @@ export default function StoreOutList() {
       render: (_, record) => {
         return (
           <Space>
-            <a
+            <Button
+              type='link'
               onClick={() => {
                 setModalVisible(true);
                 queryPageOutDetail(record.djbh)
@@ -109,7 +110,7 @@ export default function StoreOutList() {
               }}
             >
               查询出库单明细
-            </a>
+            </Button>
             <Button
               type="link"
               disabled={record.status !== 0}

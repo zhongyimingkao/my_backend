@@ -5,7 +5,7 @@ import styles from './index.module.less';
 
 import { useEffect, useState } from 'react';
 import { StoreIn } from '../common/type';
-import { List, message, Modal, Table, TableProps, theme } from 'antd';
+import { Button, List, message, Modal, Table, TableProps, theme } from 'antd';
 import StoreSearchForm from '../common/Search';
 import {
   QueryPageInboundReq,
@@ -70,7 +70,8 @@ export default function StoreInList() {
       key: 'action',
       render: (_, record) => {
         return (
-          <a
+          <Button
+            type="link"
             onClick={() => {
               setModalVisible(true);
               queryPageInDetail(record.djbh)
@@ -83,7 +84,7 @@ export default function StoreInList() {
             }}
           >
             查询入库单明细
-          </a>
+          </Button>
         );
       },
     },
