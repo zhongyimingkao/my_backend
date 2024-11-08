@@ -18,7 +18,7 @@ const getNavList = (t: any) => {
           key: '/dashboard',
           icon: <BarChartOutlined />,
           label: t('customChart'),
-        },
+      },
       ],
     },
     {
