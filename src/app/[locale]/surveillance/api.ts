@@ -1,6 +1,7 @@
 import axios from 'axios';
+import req from '@/utils/req';
 
-export const getVideoUrl = async (accessToken,deviceSerial) => {
+export const getVideoUrl = async (accessToken, deviceSerial) => {
   try {
     const videoData = await axios.post(
       'https://open.ys7.com/api/lapp/v2/live/address/get',
@@ -18,4 +19,32 @@ export const getVideoUrl = async (accessToken,deviceSerial) => {
   } catch (error) {
     console.error('error=>', error);
   }
+};
+
+export const getAccessToken = (
+  appKey: string,
+  appSecret: string
+): Promise<any> => {
+  return new Promise((resolve, reject) => {
+    req
+      .post(
+        '/get_token/api/lapp/token/get',
+        { appKey, appSecret },
+        {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+        }
+      )
+      .then((res: any) => {
+        if (res.code == 200) {
+          resolve(res.data);
+        } else {
+          reject(res);
+        }
+      })
+      .catch((e) => {
+        reject(e);
+      });
+  });
 };

@@ -2,18 +2,19 @@
 import Layout from '@/components/Layout';
 import { Select, Space } from 'antd';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { getVideoUrl } from './api';
+import { getAccessToken, getVideoUrl } from './api';
 import EZUIKit from 'ezuikit-js';
 import { queryWareHouse } from '../storeManage/warehouse/api';
 import Image from 'next/image';
 
-const accessToken =
-  'at.7ej8xnxa681z7wo51qivk7wzdc0loh2n-2rv5oy3437-0qd8hor-pshofvr9z';
+const APP_KEY = '8cc3be2e5b0a4d99b84baca5ebc44872';
+const APP_SECRET = 'e2201d7f6ac670816355011b664b4627';
 
 export default function Surveillance() {
   const [wareHouseId, setWareHouseId] = useState<number>();
   const [wareHouseList, setWareHouseList] = useState<any>();
-  const [canPlay,setCanPlay] = useState<boolean>(false);
+  const [accessToken, setAccessToken] = useState<string>();
+  const [canPlay, setCanPlay] = useState<boolean>(false);
   const [cameraType, setCameraType] = useState<'lCameraId' | 'rCameraId'>(
     'lCameraId'
   );
@@ -64,12 +65,14 @@ export default function Surveillance() {
     }
   };
 
+  const initAccessToken = () => {
+    getAccessToken(APP_KEY, APP_SECRET).then((res) => {
+      setAccessToken(res?.accessToken || '');
+    });
+  };
+
   useEffect(() => {
     if (wareHouseList?.length > 0) {
-      console.log(
-        'id',
-        wareHouseList.find((item: any) => item.id === wareHouseId)[cameraType]
-      );
       setCameraID(
         wareHouseList.find((item: any) => item.id === wareHouseId)[cameraType]
       );
@@ -78,14 +81,17 @@ export default function Surveillance() {
 
   useEffect(() => {
     initOptions();
+    initAccessToken();
     return () => {
       playerRef?.current?.stop?.();
     };
   }, []);
 
   useEffect(() => {
-    updateVideo(cameraID);
-  }, [cameraID]);
+    if (cameraID && accessToken) {
+      updateVideo(cameraID);
+    }
+  }, [cameraID, accessToken]);
 
   useEffect(() => {});
 

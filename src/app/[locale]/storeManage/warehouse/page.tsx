@@ -7,12 +7,12 @@ import {
   Modal,
   Popconfirm,
   Space,
+  Switch,
   Table,
   TableProps,
   message,
   theme,
 } from 'antd';
-import { useRouter } from 'next/navigation';
 import AvaForm from './AvaForm';
 import Layout from '@/components/Layout';
 import styles from './index.module.less';
@@ -27,6 +27,7 @@ import {
   saveWareHouse,
 } from './api';
 import { LeftOutlined } from '@ant-design/icons';
+import QrCodeDisplay from './QrCodeDisply';
 
 const PAGE_SIZE = 10;
 
@@ -40,6 +41,15 @@ export default function WareHouse() {
   const [visible, setVisible] = useState<boolean>(false);
   const [form] = Form.useForm();
   const [currentID, setCurrentID] = useState<number>();
+  const [qrCode, setQrCode] = useState<string>('');
+  const [qrCodeVisible, setQrcodeVisible] = useState<boolean>(false);
+
+  const updateWareHouse = (value: Warehouse) => {
+    saveWareHouse(value).then(() => {
+      message.success('仓库数据更新成功');
+      queryWareHouseData();
+    });
+  };
 
   const columns: TableProps<Warehouse>['columns'] = [
     {
@@ -76,6 +86,49 @@ export default function WareHouse() {
         if (value === 0) return '未启动';
         return '启动中';
       },
+    },
+    {
+      title: '是否禁用',
+      dataIndex: 'isValid',
+      key: 'isValid',
+      render: (value, record) => (
+        <Switch
+          value={value}
+          onChange={(checked) => {
+            updateWareHouse({ ...record, isValid: Number(checked) });
+          }}
+          title={value === 0 ? '禁用' : '可用'}
+        ></Switch>
+      ),
+    },
+    {
+      title: '是否自动审核',
+      dataIndex: 'isNeedCheck',
+      key: 'isNeedCheck',
+      render: (value, record) => (
+        <Switch
+          value={value}
+          onChange={(checked) => {
+            updateWareHouse({ ...record, isNeedCheck: Number(checked) });
+          }}
+          title={value === 0 ? '关闭' : '开启'}
+        ></Switch>
+      ),
+    },
+    {
+      title: '仓库二维码',
+      dataIndex: 'qrCode',
+      key: 'qrCode',
+      render: (value) => (
+        <Button
+          onClick={() => {
+            setQrCode(value);
+            setQrcodeVisible(true);
+          }}
+        >
+          查看仓库二维码
+        </Button>
+      ),
     },
     {
       title: '描述',
@@ -273,6 +326,11 @@ export default function WareHouse() {
       defaultOpen={['/storeManage']}
     >
       <main className={styles.warehouseWrap}>
+        <QrCodeDisplay
+          qrCodeUrl={qrCode}
+          visible={qrCodeVisible}
+          setVisible={setQrcodeVisible}
+        />
         <div className={styles.content}>
           <Modal
             open={visible}
