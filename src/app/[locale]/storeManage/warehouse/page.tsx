@@ -4,8 +4,10 @@ import {
   Button,
   Form,
   Input,
+  InputNumber,
   Modal,
   Popconfirm,
+  Select,
   Space,
   Switch,
   Table,
@@ -19,15 +21,35 @@ import styles from './index.module.less';
 import { useEffect, useMemo, useState } from 'react';
 import { Warehouse, WarehouseInventory } from './type';
 import {
+  batchUpdateWareHouseInventory,
   closeWareHouse,
   deleteWareHouse,
+  deleteWareHouseInventory,
   openWareHouse,
   queryWareHouse,
   queryWarehouseInventory,
   saveWareHouse,
+  saveWareHouseInventory,
 } from './api';
-import { LeftOutlined } from '@ant-design/icons';
+import {
+  CloseCircleOutlined,
+  DeleteColumnOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  LeftOutlined,
+  PlusCircleOutlined,
+  PlusOutlined,
+  SaveOutlined,
+} from '@ant-design/icons';
 import QrCodeDisplay from './QrCodeDisply';
+import {
+  queryMaterialInfo,
+  QueryMaterialInfoReq,
+} from '../../material/common/api';
+// import {
+//   queryMaterialInfo,
+//   QueryMaterialInfoReq,
+// } from '../../material/common/api';
 
 const PAGE_SIZE = 10;
 
@@ -38,17 +60,43 @@ export default function WareHouse() {
   const [current, setCurrent] = useState<number>(1);
   const [warehouseId, setWarehouseId] = useState<number | null>(null);
   const [inventoryData, setInventoryData] = useState<WarehouseInventory[]>();
+  const [editData, setEditData] = useState<WarehouseInventory[]>();
+  const [isEdit, setIsEdit] = useState<boolean>(false);
   const [visible, setVisible] = useState<boolean>(false);
+  const [inventoryVisible, setInventoryVisible] = useState<boolean>(false);
   const [form] = Form.useForm();
   const [currentID, setCurrentID] = useState<number>();
   const [qrCode, setQrCode] = useState<string>('');
   const [qrCodeVisible, setQrcodeVisible] = useState<boolean>(false);
+  const [materialOptions, setMaterialOptions] = useState<any>([]);
 
   const updateWareHouse = (value: Warehouse) => {
     saveWareHouse(value).then(() => {
       message.success('仓库数据更新成功');
       queryWareHouseData();
     });
+  };
+
+  const queryMaterialInfoData = (searchParams?: QueryMaterialInfoReq) => {
+    queryMaterialInfo({
+      pageSize: PAGE_SIZE,
+      pageNum: current,
+      ...searchParams,
+    }).then((res) => {
+      console.log('res', res);
+      setMaterialOptions(
+        res.records.map((item) => ({
+          label: item.materialName,
+          value: item.id,
+        }))
+      );
+    });
+  };
+
+  const handleEditInventory = (index: number, record: WarehouseInventory) => {
+    const curData = ([] as WarehouseInventory[]).concat(editData || []);
+    curData[index] = record;
+    setEditData(curData);
   };
 
   const columns: TableProps<Warehouse>['columns'] = [
@@ -210,11 +258,48 @@ export default function WareHouse() {
       title: '物料库存',
       dataIndex: 'sl',
       key: 'sl',
+      render: (value, record, index) =>
+        isEdit ? (
+          <InputNumber
+            defaultValue={value}
+            onChange={(value) => {
+              handleEditInventory(index, { ...record, sl: value });
+            }}
+          ></InputNumber>
+        ) : (
+          value
+        ),
     },
     {
       title: '物料单位',
       dataIndex: 'unit',
       key: 'unit',
+    },
+    {
+      title: '操作',
+      hidden: isEdit,
+      render: (value, record, index) => (
+        <Popconfirm
+          title="删除库存"
+          description="确认要删除该库存吗?"
+          onConfirm={() => {
+            deleteWareHouseInventory(record.id)
+              .then(() => {
+                message.success('库存删除成功');
+              })
+              .catch(() => {
+                message.error('库存删除失败');
+              })
+              .finally(() => {
+                queryWarehouseInventoryData(warehouseId);
+              });
+          }}
+          okText="确认"
+          cancelText="取消"
+        >
+          <DeleteOutlined />
+        </Popconfirm>
+      ),
     },
   ];
 
@@ -228,6 +313,19 @@ export default function WareHouse() {
     });
   };
 
+  const queryWarehouseInventoryData = (warehouseId?: number | null) => {
+    if (!warehouseId) {
+      return;
+    }
+    queryWarehouseInventory(warehouseId)
+      .then((res) => {
+        setInventoryData(res);
+      })
+      .catch(() => {
+        message.error('库存查询失败');
+      });
+  };
+
   const onPageChange = (page: number, pageSize: number) => {
     setCurrent(page);
   };
@@ -238,21 +336,34 @@ export default function WareHouse() {
     padding: 12,
   };
 
+  const handleSaveInventory = () => {
+    if (editData && editData.length > 0) {
+      batchUpdateWareHouseInventory(editData)
+        .then(() => {
+          message.success('库存修改成功');
+          setEditData([]);
+          setIsEdit(false);
+          queryWarehouseInventoryData(warehouseId);
+        })
+        .catch(() => {
+          message.error('库存修改失败');
+        });
+    }
+  };
+
   useEffect(() => {
     queryWareHouseData();
   }, [current]);
 
   useEffect(() => {
     if (warehouseId) {
-      queryWarehouseInventory(warehouseId)
-        .then((res) => {
-          setInventoryData(res);
-        })
-        .catch(() => {
-          message.error('库存查询失败');
-        });
+      queryWarehouseInventoryData(warehouseId);
     }
   }, [warehouseId]);
+
+  useEffect(() => {
+    queryMaterialInfoData();
+  }, []);
 
   const renderContent = useMemo(() => {
     if (!warehouseId) {
@@ -306,6 +417,51 @@ export default function WareHouse() {
           </Button>
           <div>仓库编码: {curWarehouse?.warehouseCode}</div>
           <div>仓库名称: {curWarehouse?.warehouseName}</div>
+          <Button
+            style={{ fontSize: 14, fontWeight: 600 }}
+            onClick={() => {
+              if (!isEdit) {
+                setIsEdit(true);
+              } else {
+                handleSaveInventory();
+              }
+            }}
+          >
+            {isEdit ? (
+              <>
+                保存库存信息
+                <SaveOutlined style={{ marginLeft: 10 }} />
+              </>
+            ) : (
+              <>
+                编辑库存信息
+                <EditOutlined style={{ marginLeft: 10 }} />
+              </>
+            )}
+          </Button>
+          {isEdit ? (
+            <Button
+              style={{ fontSize: 14, fontWeight: 600, marginLeft: 10 }}
+              onClick={() => {
+                setIsEdit(false); // 使用回调函数确保基于最新的状态更新
+                setEditData([]);
+              }}
+            >
+              撤销
+              <CloseCircleOutlined style={{ marginLeft: 10 }} />
+            </Button>
+          ) : (
+            <Button
+              style={{ fontSize: 14, fontWeight: 600, marginLeft: 10 }}
+              type="primary"
+              onClick={() => {
+                setInventoryVisible(true);
+              }}
+            >
+              新增库存
+              <PlusCircleOutlined style={{ marginLeft: 5 }} />
+            </Button>
+          )}
           <div style={listStyle}>
             <h3>仓库库存信息</h3>
             <Table
@@ -318,7 +474,7 @@ export default function WareHouse() {
         </div>
       );
     }
-  }, [warehouseId, data, inventoryData]);
+  }, [warehouseId, data, inventoryData, isEdit, editData]);
 
   return (
     <Layout
@@ -400,6 +556,68 @@ export default function WareHouse() {
                 name="rCameraId"
               >
                 <Input />
+              </Form.Item>
+              <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+                <Space>
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                  >
+                    提交
+                  </Button>
+                  <Button htmlType="reset">重置</Button>
+                </Space>
+              </Form.Item>
+            </Form>
+          </Modal>
+          <Modal
+            open={inventoryVisible}
+            title="新增仓库库存"
+            onCancel={() => {
+              setInventoryVisible(false);
+            }}
+            footer={null}
+          >
+            <Form
+              name="basic"
+              labelCol={{ span: 6 }}
+              wrapperCol={{ span: 16 }}
+              style={{ maxWidth: 600 }}
+              form={form}
+              autoComplete="off"
+              onFinish={(values) => {
+                saveWareHouseInventory({ ...values, warehouseId }).then(() => {
+                  message.success('创建仓库库存成功');
+                  queryWarehouseInventoryData(warehouseId);
+                });
+
+                setInventoryVisible(false);
+              }}
+            >
+              <Form.Item<Partial<WarehouseInventory>>
+                label="物料"
+                name="materialId"
+                rules={[{ required: true, message: '请输入物料!' }]}
+              >
+                <Select options={materialOptions} />
+              </Form.Item>
+              <Form.Item<Partial<WarehouseInventory>>
+                label="物料方位	"
+                name="position"
+                rules={[{ required: true, message: '请输入物料方位!' }]}
+              >
+                <Select
+                  options={[
+                    { label: 'LEFT', value: 'LEFT' },
+                    { label: 'RIGHT', value: 'RIGHT' },
+                  ]}
+                />
+              </Form.Item>
+              <Form.Item<Partial<WarehouseInventory>>
+                label="物料库存"
+                name="sl"
+              >
+                <InputNumber />
               </Form.Item>
               <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
                 <Space>

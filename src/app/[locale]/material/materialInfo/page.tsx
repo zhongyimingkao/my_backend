@@ -212,6 +212,12 @@ export default function MaterialInfoList() {
                 <Input />
               </Form.Item>
               <Form.Item<Partial<MaterialInfo>>
+                label="单位"
+                name="unit"
+              >
+                <Input />
+              </Form.Item>
+              <Form.Item<Partial<MaterialInfo>>
                 label="特殊说明"
                 name="specification"
               >

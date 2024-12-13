@@ -13,7 +13,7 @@ const IndexPage: React.FC = () => {
 
       if (cookieValue) {
         // 如果有cookie，重定向到./dashboard
-        router.push('/dashboard');
+        router.push('/surveillance');
       } else {
         // 如果没有cookie，重定向到./login
         router.push('user/login');

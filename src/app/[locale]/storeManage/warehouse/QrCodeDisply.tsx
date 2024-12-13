@@ -1,5 +1,4 @@
 import React from 'react';
-import './QrCodeDisplay.css';
 import styles from './index.module.less';
 
 

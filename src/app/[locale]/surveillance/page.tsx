@@ -98,7 +98,6 @@ export default function Surveillance() {
   return (
     <Layout
       curActive="/surveillance"
-      defaultOpen={['/surveillance']}
     >
       <Space direction="vertical">
         <h1>

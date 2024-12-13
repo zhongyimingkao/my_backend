@@ -30,7 +30,7 @@ export default function Login() {
           localStorage.setItem('token', res.data);
           message.success('登录成功');
           updateUserInfo(setUserInfo, () => {
-            router.push('/dashboard');
+            router.push('/surveillance');
           });
         } else if (res?.code !== 401) {
           // 401已经统一处理了

@@ -5,10 +5,11 @@ export interface MaterialInfo {
   materialType: number;
   materialTypeName: string;
   remark: string;
+  unit: string;
   specification: string;
 }
 
-export interface MaterialType{
-    id:number;
-    typeName:string;
+export interface MaterialType {
+  id: number;
+  typeName: string;
 }
