@@ -18,6 +18,8 @@ export interface Warehouse {
   isValid: number;
   isNeedCheck: number;
   qrCode: string;
+  longitude: string;
+  latitude: string;
 }
 
 export interface WarehouseInventory {

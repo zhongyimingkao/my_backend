@@ -1,7 +1,30 @@
 import axios from 'axios';
 import req from '@/utils/req';
 
-export const getVideoUrl = async (accessToken, deviceSerial) => {
+export const getVideoUrl = async (accessToken, deviceSerial, channelNo = 1,type=1) => {
+  try {
+    const videoData = await axios.post(
+      'https://open.ys7.com/api/lapp/v2/live/address/get',
+      {
+        accessToken,
+        deviceSerial,
+        channelNo,
+        type,
+        quality: 1,
+      },
+      {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      }
+    );
+    return videoData;
+  } catch (error) {
+    console.error('error=>', error);
+  }
+};
+
+export const getReviewVideoList = async (accessToken, deviceSerial) => {
   try {
     const videoData = await axios.post(
       'https://open.ys7.com/api/lapp/v2/live/address/get',

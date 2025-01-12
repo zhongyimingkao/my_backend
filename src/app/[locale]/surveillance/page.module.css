@@ -1,0 +1,6 @@
+.pageSelector {
+  display: flex;
+}
+.pageSelector > * {
+  margin-left: 20px;
+}

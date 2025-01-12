@@ -109,12 +109,21 @@ export default function WareHouse() {
       title: '仓库名称',
       dataIndex: 'warehouseName',
       key: 'warehouseName',
-      // render: role => role === 1 ? '超级管理员' : '开发者'
     },
     {
       title: '仓库地址',
       dataIndex: 'warehouseAddr',
       key: 'warehouseAddr',
+    },
+    {
+      title: '经度(°)',
+      dataIndex: 'longitude',
+      key: 'longitude',
+    },
+    {
+      title: '纬度(°)',
+      dataIndex: 'latitude',
+      key: 'latitude',
     },
     {
       title: '左摄像头编码',
@@ -542,6 +551,18 @@ export default function WareHouse() {
               <Form.Item<Partial<Warehouse>>
                 label="描述"
                 name="remark"
+              >
+                <Input />
+              </Form.Item>
+              <Form.Item<Partial<Warehouse>>
+                label="经度(°)"
+                name="longitude"
+              >
+                <Input />
+              </Form.Item>
+              <Form.Item<Partial<Warehouse>>
+                label="纬度(°)"
+                name="latitude"
               >
                 <Input />
               </Form.Item>

@@ -1,11 +1,12 @@
 'use client';
 import Layout from '@/components/Layout';
-import { Select, Space } from 'antd';
+import { Select, Space, Tabs } from 'antd';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { getAccessToken, getVideoUrl } from './api';
 import EZUIKit from 'ezuikit-js';
 import { queryWareHouse } from '../storeManage/warehouse/api';
 import Image from 'next/image';
+import styles from './page.module.css';
 
 const APP_KEY = '8cc3be2e5b0a4d99b84baca5ebc44872';
 const APP_SECRET = 'e2201d7f6ac670816355011b664b4627';
@@ -19,6 +20,9 @@ export default function Surveillance() {
     'lCameraId'
   );
   const [cameraID, setCameraID] = useState<string>('');
+  const [channelNo, setChannelNo] = useState<number>(1);
+  const [template, setTemplate] = useState<string>('pcLive');
+
   const playerRef = useRef<EZUIKit | null>(null);
 
   const initOptions = async () => {
@@ -40,21 +44,26 @@ export default function Surveillance() {
     [wareHouseList]
   );
 
-  const updateVideo = async (cameraID: string) => {
+  const updateVideo = async (changeTemplate = false) => {
     if (!cameraID) return;
-    const videoData = await getVideoUrl(accessToken, cameraID);
+    const videoData = await getVideoUrl(
+      accessToken,
+      cameraID,
+      channelNo,
+      template === 'pcLive' ? 1 : 2
+    );
     const url = videoData?.data?.data?.url || '';
     if (!url) return;
     setCanPlay(true);
-    if (!playerRef.current) {
+    if (!playerRef.current || changeTemplate) {
       playerRef.current = new EZUIKit.EZUIKitPlayer({
         id: `ezuikit-player`,
         url,
         accessToken,
         useHardDev: true,
-        height: document.documentElement.clientHeight - 220,
+        height: document.documentElement.clientHeight - 180,
         width: document.documentElement.clientWidth - 280,
-        template: 'pcLive',
+        template,
       });
     } else {
       playerRef.current.changePlayUrl({
@@ -70,6 +79,91 @@ export default function Surveillance() {
       setAccessToken(res?.accessToken || '');
     });
   };
+
+  const selectorsDom = (
+    <div className={styles.pageSelector}>
+      <h1>
+        当前仓库：
+        <Select
+          options={options}
+          value={wareHouseId}
+          onChange={(value) => setWareHouseId(value)}
+        />
+      </h1>
+      <h2>
+        当前摄像头：
+        <Select
+          options={[
+            {
+              label: '左摄像头',
+              value: 'lCameraId',
+            },
+            {
+              label: '右摄像头',
+              value: 'rCameraId',
+            },
+          ]}
+          onChange={(value) => {
+            setCameraType(value);
+          }}
+          value={cameraType}
+        />
+      </h2>
+      <h2>
+        当前通道：
+        <Select
+          options={[
+            {
+              label: '通道一',
+              value: 1,
+            },
+            {
+              label: '通道二',
+              value: 2,
+            },
+          ]}
+          onChange={(value) => {
+            setChannelNo(value);
+          }}
+          value={channelNo}
+        />
+      </h2>
+      <h2>
+        当前模式：
+        <Select
+          options={[
+            {
+              label: '直播',
+              value: 'pcLive',
+            },
+            {
+              label: '回放',
+              value: 'pcRec',
+            },
+          ]}
+          onChange={(value) => {
+            setTemplate(value);
+          }}
+          value={template}
+        />
+      </h2>
+    </div>
+  );
+
+  const surveillanceDom = (
+    <Space direction="vertical">
+      {selectorsDom}
+      <div id="ezuikit-player"></div>
+      {!canPlay && (
+        <Image
+          src="/noVideo.png"
+          width={400}
+          height={400}
+          alt=""
+        />
+      )}
+    </Space>
+  );
 
   useEffect(() => {
     if (wareHouseList?.length > 0) {
@@ -88,56 +182,23 @@ export default function Surveillance() {
   }, []);
 
   useEffect(() => {
-    if (cameraID && accessToken) {
-      updateVideo(cameraID);
+    if (cameraID && accessToken && channelNo) {
+      updateVideo();
     }
-  }, [cameraID, accessToken]);
+  }, [cameraID, accessToken, channelNo]);
 
-  useEffect(() => {});
+  useEffect(() => {
+    if (template) {
+      updateVideo(true);
+    }
+  }, [template]);
 
   return (
     <Layout
       curActive="/surveillance"
       defaultOpen={['/surveillance']}
     >
-      <Space direction="vertical">
-        <h1>
-          当前仓库：
-          <Select
-            options={options}
-            value={wareHouseId}
-            onChange={(value) => setWareHouseId(value)}
-          />
-        </h1>
-        <h2>
-          当前摄像头：
-          <Select
-            options={[
-              {
-                label: '左摄像头',
-                value: 'lCameraId',
-              },
-              {
-                label: '右摄像头',
-                value: 'rCameraId',
-              },
-            ]}
-            onChange={(value) => {
-              setCameraType(value);
-            }}
-            value={cameraType}
-          />
-        </h2>
-        <div id="ezuikit-player"></div>
-        {!canPlay && (
-          <Image
-            src="/noVideo.png"
-            width={400}
-            height={400}
-            alt=""
-          />
-        )}
-      </Space>
+      {surveillanceDom}
     </Layout>
   );
 }
