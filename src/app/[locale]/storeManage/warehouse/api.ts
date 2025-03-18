@@ -79,7 +79,7 @@ export const saveWareHouseInventory = (
 export const openWareHouse = (id: number): Promise<void> => {
   return new Promise((resolve, reject) => {
     req
-      .get('/warehouseController/openWarehouse', {
+      .get('/doorController/openWarehouse', {
         params: { ckxxId: 403403403, warehouseId: id },
       })
       .then((res: any) => {
@@ -98,7 +98,7 @@ export const openWareHouse = (id: number): Promise<void> => {
 export const closeWareHouse = (id: number): Promise<void> => {
   return new Promise((resolve, reject) => {
     req
-      .get('/warehouseController/closeWarehouse', {
+      .get('/doorController/closeWarehouse', {
         params: { warehouseId: id },
       })
       .then((res: any) => {

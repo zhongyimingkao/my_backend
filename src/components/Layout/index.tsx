@@ -11,7 +11,7 @@ import {
   Popover,
   type MenuProps,
 } from 'antd';
-import getNavList from './menu';
+import { getCommonNavList, getExtraNavList } from './menu';
 import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import {
@@ -23,6 +23,8 @@ import {
 import { getThemeBg } from '@/utils';
 import { Link, pathnames, usePathname } from '../../navigation';
 import styles from './index.module.less';
+import { useAtom } from 'jotai';
+import { userInfo } from '@/app/[locale]/store';
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -41,6 +43,7 @@ const items: MenuProps['items'] = [
         rel="noopener noreferrer"
         onClick={() => {
           location.href = '/user/login';
+          localStorage.setItem('token', '');
         }}
       >
         退出登录
@@ -65,7 +68,16 @@ const CommonLayout: React.FC<IProps> = ({
 
   const router = useRouter();
   const pathname = usePathname();
-  const navList = getNavList(t);
+  let navList = getCommonNavList(t);
+
+  const [curUserInfo] = useAtom(userInfo);
+
+  console.log('curUserInfo',curUserInfo);
+
+  // 超管有额外的目录展示
+  if (curUserInfo?.data?.role === 2) {
+    navList = [...navList, ...getExtraNavList(t)];
+  }
 
   const [curTheme, setCurTheme] = useState<boolean>(false);
   const toggleTheme = () => {

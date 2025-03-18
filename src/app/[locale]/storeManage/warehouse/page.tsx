@@ -46,10 +46,6 @@ import {
   queryMaterialInfo,
   QueryMaterialInfoReq,
 } from '../../material/common/api';
-// import {
-//   queryMaterialInfo,
-//   QueryMaterialInfoReq,
-// } from '../../material/common/api';
 
 const PAGE_SIZE = 10;
 
@@ -104,16 +100,31 @@ export default function WareHouse() {
       title: '仓库编码',
       dataIndex: 'warehouseCode',
       key: 'warehouseCode',
+      width: 100,
     },
     {
       title: '仓库名称',
       dataIndex: 'warehouseName',
       key: 'warehouseName',
+      width: 100,
     },
     {
       title: '仓库地址',
       dataIndex: 'warehouseAddr',
       key: 'warehouseAddr',
+      width: 100,
+    },
+    {
+      title: '所属局',
+      dataIndex: 'manageStation',
+      key: 'manageStation',
+      width: 100,
+    },
+    {
+      title: '所属路段',
+      dataIndex: 'manageRoad',
+      key: 'manageRoad',
+      width: 100,
     },
     {
       title: '经度(°)',
@@ -195,6 +206,7 @@ export default function WareHouse() {
     {
       title: '操作',
       key: 'action',
+      width: 500,
       render: (_, record) => (
         <Space size="middle">
           <a
@@ -477,7 +489,7 @@ export default function WareHouse() {
               columns={inventoryColumns}
               dataSource={inventoryData}
               pagination={false}
-              scroll={{ x: 1000 }}
+              scroll={{ x: 'max-content' }}
             />
           </div>
         </div>

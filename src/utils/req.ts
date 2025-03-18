@@ -48,8 +48,9 @@ export interface CommonResp<T> {
 }
 
 export type PageType = {
-  pageSize: number;
-  pageNum: number;
+  pageSize?: number;
+  pageNum?: number;
+  pageNo?: number;
 };
 
 export default instance;

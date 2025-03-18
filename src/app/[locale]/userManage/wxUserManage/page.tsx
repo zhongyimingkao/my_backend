@@ -81,7 +81,7 @@ export default function UserManage() {
 
   return (
     <Layout
-      curActive="/userManage"
+      curActive="/wxUserManage"
       defaultOpen={['/userManage']}
     >
       <UserManageSearchForm

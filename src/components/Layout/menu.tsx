@@ -1,13 +1,7 @@
-import {
-  FundOutlined,
-  BarChartOutlined,
-  DesktopOutlined,
-  UserOutlined,
-} from '@ant-design/icons';
 import Image from 'next/image';
 import React from 'react';
 
-const getNavList = (t: any) => {
+export const getCommonNavList = (t: any) => {
   return [
     {
       key: '/surveillance',
@@ -72,6 +66,23 @@ const getNavList = (t: any) => {
       ],
     },
     {
+      key: '/door',
+      icon: (
+        <Image
+          src="/juanmen.svg"
+          width={14}
+          height={14}
+          alt=""
+        />
+      ),
+      label: t('door'),
+    },
+  ];
+};
+
+export const getExtraNavList = (t: any) => {
+  return [
+    {
       key: '/material',
       icon: (
         <Image
@@ -120,20 +131,44 @@ const getNavList = (t: any) => {
         />
       ),
       label: t('userManage'),
-    },
-    {
-      key: '/door',
-      icon: (
-        <Image
-          src="/juanmen.svg"
-          width={14}
-          height={14}
-          alt=""
-        />
-      ),
-      label: t('door'),
+      children: [
+        {
+          key: '/webUserManage',
+          icon: (
+            <Image
+              src="/yonghuxinxi.svg"
+              width={14}
+              height={14}
+              alt=""
+            />
+          ),
+          label: t('webUserManage'),
+        },
+        {
+          key: '/wxUserManage',
+          icon: (
+            <Image
+              src="/yonghuxinxi.svg"
+              width={14}
+              height={14}
+              alt=""
+            />
+          ),
+          label: t('wxUserManage'),
+        },
+        {
+          key: '/role',
+          icon: (
+            <Image
+              src="/yonghuxinxi.svg"
+              width={14}
+              height={14}
+              alt=""
+            />
+          ),
+          label: t('role'),
+        },
+      ],
     },
   ];
 };
-
-export default getNavList;
