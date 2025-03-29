@@ -1,7 +1,20 @@
 'use client';
-import { Button, Col, DatePicker, Form, Input, Row, Space, theme } from 'antd';
-import React from 'react';
+import {
+  Button,
+  Col,
+  DatePicker,
+  Form,
+  Input,
+  message,
+  Row,
+  Space,
+  theme,
+  TreeSelect,
+} from 'antd';
+import React, { useEffect, useState } from 'react';
 import { QueryDoorInfoReq } from './type';
+import { getWarehouseMenus } from '../userManage/role/api';
+import { Station } from '../user/type';
 
 interface Props {
   onSearch: (searchParams?: QueryDoorInfoReq) => void;
@@ -10,6 +23,7 @@ interface Props {
 const DoorSearchForm: React.FC<Props> = ({ onSearch }) => {
   const { token } = theme.useToken();
   const [form] = Form.useForm();
+  const [warehouseTree, setWarehouseTree] = useState<any[]>([]);
 
   const formStyle: React.CSSProperties = {
     maxWidth: 'none',
@@ -17,6 +31,32 @@ const DoorSearchForm: React.FC<Props> = ({ onSearch }) => {
     borderRadius: token.borderRadiusLG,
     padding: 24,
   };
+
+  const loadTreeData = () => {
+    getWarehouseMenus()
+      .then((data: Station[]) => {
+        const formatTreeData = data.map((station, index) => ({
+          title: station.manageStation || '未命名',
+          value: `station_${station.manageStationID}`,
+          children: station.manageRoad?.map((road, index) => ({
+            title: road.roadName || '未命名',
+            value: `road_${road.roadID}`,
+            children: road.warehouses?.map((warehouse: any) => ({
+              title: warehouse.warehouseName || '未命名',
+              value: warehouse.id,
+            })),
+          })),
+        }));
+        setWarehouseTree(formatTreeData);
+      })
+      .catch(() => {
+        message.error('加载仓库列表失败');
+      });
+  };
+
+  useEffect(() => {
+    loadTreeData();
+  }, []);
 
   return (
     <Form
@@ -36,6 +76,24 @@ const DoorSearchForm: React.FC<Props> = ({ onSearch }) => {
             <DatePicker.RangePicker
               showTime={{ format: 'HH:mm' }}
               format="YYYY-MM-DD HH:mm"
+            />
+          </Form.Item>
+        </Col>
+        <Col
+          span={16}
+          key={1}
+        >
+          <Form.Item
+            label="目标仓库"
+            name="warehouseIds"
+          >
+            <TreeSelect
+              treeData={warehouseTree}
+              treeCheckable
+              showCheckedStrategy={TreeSelect.SHOW_CHILD}
+              placeholder="请选择仓库"
+              style={{ width: '100%' }}
+              maxTagCount="responsive"
             />
           </Form.Item>
         </Col>

@@ -7,11 +7,9 @@ import {
   message,
   Modal,
   Popconfirm,
-  Select,
   Space,
   Table,
   TableProps,
-  Tag,
   theme,
   TreeSelect,
 } from 'antd';
@@ -23,6 +21,7 @@ import {
   saveRole,
 } from './api';
 import { RoleInfo } from './type';
+import { Station } from '../../user/type';
 
 const PAGE_SIZE = 10;
 
@@ -34,9 +33,10 @@ export default function RoleManage() {
   const [form] = Form.useForm();
   const [visible, setVisible] = useState<boolean>(false);
   const [warehouseTree, setWarehouseTree] = useState<any[]>([]);
-  const [warehouseMap, setWarehouseMap] = useState<{ [key: string]: string }>(
-    {}
-  );
+  // 新增状态管理弹窗
+  const [permissionVisible, setPermissionVisible] = useState(false);
+  const [editingRole, setEditingRole] = useState<RoleInfo | null>(null);
+  const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
 
   const listStyle: React.CSSProperties = {
     background: token.colorFillAlter,
@@ -64,15 +64,23 @@ export default function RoleManage() {
       dataIndex: 'createTime',
       key: 'createTime',
     },
+    // 修改权限列渲染逻辑
     {
       title: '权限',
       dataIndex: 'permissions',
       key: 'permissions',
-      render: (permissions: string[]) => (
+      render: (permissions: string[], record: RoleInfo) => (
         <>
-          {permissions.map((id) => (
-            <Tag key={id}>{warehouseMap[id]}</Tag> // 根据 id 获取仓库名称，并展示为 Tag
-          ))}
+          <Button
+            type="link"
+            onClick={() => {
+              setEditingRole(record);
+              setSelectedPermissions(permissions);
+              setPermissionVisible(true);
+            }}
+          >
+            查看/编辑权限（{permissions.length}个）
+          </Button>
         </>
       ),
     },
@@ -116,37 +124,19 @@ export default function RoleManage() {
     },
   ];
 
-  // 加载仓库树形数据并生成映射
-  const loadWarehouseData = async () => {
-    // 构建 id -> warehouseName 映射
-    const map: { [key: string]: string } = {};
-    const traverseTree = (nodes: any[]) => {
-      nodes.forEach((node) => {
-        if (node.children) {
-          traverseTree(node.children);
-        }
-        if (node.value) {
-          map[node.value] = node.title;
-        }
-      });
-    };
-
-    traverseTree(warehouseTree);
-    setWarehouseMap(map);
-  };
 
   const loadTreeData = () => {
     getWarehouseMenus()
-      .then((data) => {
-        const formatTreeData = data.map((station: any, index) => ({
-          title: station.manageStation || '默认',
-          value: index,
-          children: station.manageRoad?.map((road: any, index) => ({
-            title: road.roadName,
-            value: index,
+      .then((data:Station[]) => {
+        const formatTreeData = data.map((station, index) => ({
+          title: station.manageStation || '未命名',
+          value: `station_${station.manageStationID}`,
+          children: station.manageRoad?.map((road, index) => ({
+            title: road.roadName || '未命名',
+            value: `road_${road.roadID}`,
             children: road.warehouses?.map((warehouse: any) => ({
-              title: warehouse.warehouseName,
-              value: warehouse.id,
+              title: warehouse.warehouseName || '未命名',
+              value: String(warehouse.id),
             })),
           })),
         }));
@@ -172,12 +162,6 @@ export default function RoleManage() {
     updateRoleList();
     loadTreeData();
   }, []);
-
-  useEffect(() => {
-    if (warehouseTree?.length > 0) {
-      loadWarehouseData();
-    }
-  }, [warehouseTree]);
 
   return (
     <Layout
@@ -224,17 +208,6 @@ export default function RoleManage() {
             >
               <Input.TextArea />
             </Form.Item>
-            <Form.Item
-              label="仓库权限"
-              name="permissions"
-            >
-              <TreeSelect
-                treeData={warehouseTree}
-                treeCheckable
-                showCheckedStrategy={TreeSelect.SHOW_CHILD}
-                style={{ width: '100%' }}
-              />
-            </Form.Item>
             <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
               <Space>
                 <Button
@@ -248,7 +221,34 @@ export default function RoleManage() {
             </Form.Item>
           </Form>
         </Modal>
-
+        <Modal
+          title="权限管理"
+          open={permissionVisible}
+          onCancel={() => setPermissionVisible(false)}
+          okText="保存"
+          cancelText="取消"
+          onOk={() => {
+            if (editingRole) {
+              saveRole({
+                ...editingRole,
+                permissions: selectedPermissions,
+              }).then(() => {
+                message.success('权限更新成功');
+                updateRoleList();
+                setPermissionVisible(false);
+              });
+            }
+          }}
+        >
+          <TreeSelect
+            treeData={warehouseTree}
+            treeCheckable
+            showCheckedStrategy={TreeSelect.SHOW_CHILD}
+            style={{ width: '100%' }}
+            value={selectedPermissions}
+            onChange={(value) => setSelectedPermissions(value as string[])}
+          />
+        </Modal>
         <div
           style={{
             display: 'flex',
@@ -268,7 +268,6 @@ export default function RoleManage() {
             新建角色
           </Button>
         </div>
-
         <Table
           pagination={{ pageSize: PAGE_SIZE, current, onChange: onPageChange }}
           rowKey="id"

@@ -121,6 +121,18 @@ export const getExtraNavList = (t: any) => {
       ],
     },
     {
+      key: '/departmentManage',
+      icon: (
+        <Image
+          src="/wuliaoxianxing.svg"
+          width={14}
+          height={14}
+          alt=""
+        />
+      ),
+      label: t('departmentManage'),
+    },
+    {
       key: '/userManage',
       icon: (
         <Image

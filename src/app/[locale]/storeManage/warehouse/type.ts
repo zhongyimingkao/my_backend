@@ -20,6 +20,8 @@ export interface Warehouse {
   qrCode: string;
   longitude: string;
   latitude: string;
+  manageStation:number;
+  manageRoad:number;
 }
 
 export interface WarehouseInventory {

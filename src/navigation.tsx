@@ -21,6 +21,8 @@ export const pathnames = {
   '/userManage/wxUserManage': '/wxUserManage',
   '/userManage/webUserManage': '/webUserManage',
   '/userManage/role': '/role',
+  '/departmentManage': '/departmentManage',
+
   '/cameraManage': '/cameraManage',
   '/surveillance': '/surveillance',
   '/door': '/door',

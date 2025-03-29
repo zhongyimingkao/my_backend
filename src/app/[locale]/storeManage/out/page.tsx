@@ -2,6 +2,8 @@
 
 import Layout from '@/components/Layout';
 import styles from './index.module.less';
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 
 import { useEffect, useState } from 'react';
 import { StoreOut } from '../common/type';
@@ -40,6 +42,8 @@ export default function StoreOutList() {
   const [current, setCurrent] = useState<number>(1);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [detail, setDetail] = useState<WarehouseInventory[]>([]);
+  const [currentSearchParams, setCurrentSearchParams] =
+    useState<QueryPageOutboundReq>();
   const listStyle: React.CSSProperties = {
     background: token.colorFillAlter,
     borderRadius: token.borderRadiusLG,
@@ -58,6 +62,46 @@ export default function StoreOutList() {
     }).then((res) => {
       setData(res.records);
     });
+  };
+
+  // 3. 在组件内部添加导出逻辑
+  const handleExport = async () => {
+    try {
+      const res = await queryPageOutbound({
+        pageSize: 10000,
+        pageNum: 1,
+        ...currentSearchParams, // 需要先保存当前搜索条件
+      });
+
+      // 转换数据为Excel格式
+      const worksheet = XLSX.utils.json_to_sheet(
+        res.records.map((item) => ({
+          仓库名称: item.warehouseName,
+          单据编号: item.djbh,
+          出库状态: statusMap.get(item.status),
+          出库人: item.creatorName,
+          出库时间: item.ckTime,
+        }))
+      );
+
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, '入库记录');
+      const excelBuffer = XLSX.write(workbook, {
+        bookType: 'xlsx',
+        type: 'array',
+      });
+
+      // 生成文件并触发下载
+      const data = new Blob([excelBuffer], {
+        type: 'application/octet-stream',
+      });
+      saveAs(data, `出库记录_${new Date().toISOString().slice(0, 10)}.xlsx`);
+
+      message.success('导出成功');
+    } catch (error) {
+      message.error('导出失败');
+      console.error('导出异常:', error);
+    }
   };
 
   const columns: TableProps<StoreOut>['columns'] = [
@@ -97,7 +141,7 @@ export default function StoreOutList() {
         return (
           <Space>
             <Button
-              type='link'
+              type="link"
               onClick={() => {
                 setModalVisible(true);
                 queryPageOutDetail(record.djbh)
@@ -155,6 +199,7 @@ export default function StoreOutList() {
           <StoreSearchForm
             type="out"
             onSearch={(searchParams) => {
+              setCurrentSearchParams(searchParams);
               const { timeRange } = searchParams || {};
               const start = formatDate(new Date(timeRange?.[0] || ''));
               const end = formatDate(new Date(timeRange?.[1] || ''));
@@ -173,6 +218,21 @@ export default function StoreOutList() {
             }}
           />
           <div style={listStyle}>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'flex-start', // 右对齐
+                marginBottom: 20,
+                gap: 8, // 按钮间距
+              }}
+            >
+              <Button
+                type="primary"
+                onClick={handleExport}
+              >
+                导出Excel
+              </Button>
+            </div>
             <h3>出库信息列表</h3>
             <Table
               columns={columns}

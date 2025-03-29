@@ -16,6 +16,7 @@ import {
   theme,
 } from 'antd';
 import AvaForm from './AvaForm';
+// 在仓库管理组件顶部添加
 import Layout from '@/components/Layout';
 import styles from './index.module.less';
 import { useEffect, useMemo, useState } from 'react';
@@ -46,8 +47,13 @@ import {
   queryMaterialInfo,
   QueryMaterialInfoReq,
 } from '../../material/common/api';
+import { queryDepartmentList } from '../../departmentManage/api';
 
 const PAGE_SIZE = 10;
+
+// 在组件顶部添加类型定义
+type StationMap = Record<number, string>;
+type RoadMap = Record<number, string>;
 
 export default function WareHouse() {
   const t = useTranslations('warehouse');
@@ -65,6 +71,9 @@ export default function WareHouse() {
   const [qrCode, setQrCode] = useState<string>('');
   const [qrCodeVisible, setQrcodeVisible] = useState<boolean>(false);
   const [materialOptions, setMaterialOptions] = useState<any>([]);
+  // 在组件逻辑中添加映射关系生成
+const [stationMap, setStationMap] = useState<StationMap>({});
+const [roadMap, setRoadMap] = useState<RoadMap>({});
 
   const updateWareHouse = (value: Warehouse) => {
     saveWareHouse(value).then(() => {
@@ -119,22 +128,14 @@ export default function WareHouse() {
       dataIndex: 'manageStation',
       key: 'manageStation',
       width: 100,
+      render: (value: number) => stationMap[value] || '--',
     },
     {
       title: '所属路段',
       dataIndex: 'manageRoad',
       key: 'manageRoad',
       width: 100,
-    },
-    {
-      title: '经度(°)',
-      dataIndex: 'longitude',
-      key: 'longitude',
-    },
-    {
-      title: '纬度(°)',
-      dataIndex: 'latitude',
-      key: 'latitude',
+      render: (value: number) => roadMap[value] || '--',
     },
     {
       title: '左摄像头编码',
@@ -372,9 +373,31 @@ export default function WareHouse() {
     }
   };
 
+  // 复用你之前写的获取方法
+const fetchDepartmentList = () => {
+  queryDepartmentList()
+    .then(data => {
+      // 生成映射关系
+      const newStationMap: Record<number, string> = {};
+      const newRoadMap: Record<number, string> = {};
+      
+      data.forEach(dept => {
+        newStationMap[dept.id] = dept.stationName;
+        dept.roadPOList?.forEach(road => {
+          newRoadMap[road.id] = road.road;
+        });
+      });
+      
+      setStationMap(newStationMap);
+      setRoadMap(newRoadMap);
+    })
+    .catch(() => message.error('获取部门信息失败'));
+};
+
   useEffect(() => {
     queryWareHouseData();
   }, [current]);
+
 
   useEffect(() => {
     if (warehouseId) {
@@ -384,6 +407,7 @@ export default function WareHouse() {
 
   useEffect(() => {
     queryMaterialInfoData();
+    fetchDepartmentList();
   }, []);
 
   const renderContent = useMemo(() => {

@@ -1,5 +1,7 @@
 'use client';
 import Layout from '@/components/Layout';
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 import { Button, message, Table, TableProps, theme } from 'antd';
 import { useEffect, useState } from 'react';
 import DoorSearchForm from './Search';
@@ -13,6 +15,8 @@ export default function Door() {
   const [current, setCurrent] = useState<number>(1);
   const [doorInfo, setDoorInfo] = useState<handleDoorInfo[]>([]);
   const { token } = theme.useToken();
+  const [currentSearchParams, setCurrentSearchParams] =
+    useState<QueryDoorInfoReq>();
 
   const listStyle: React.CSSProperties = {
     background: token.colorFillAlter,
@@ -54,6 +58,46 @@ export default function Door() {
     },
   ];
 
+  // 3. 在组件内部添加导出逻辑
+  const handleExport = async () => {
+    try {
+      const res = await queryDoorInfo({
+        pageSize: 10000,
+        pageNum: 1,
+        ...currentSearchParams, // 需要先保存当前搜索条件
+      });
+
+      // 转换数据为Excel格式
+      const worksheet = XLSX.utils.json_to_sheet(
+        res.records.map((item) => ({
+          仓库名称: item.warehouseName,
+          仓库编码: item.warehouseCode,
+          类型: item.type === 'open' ? '开门' : '关门',
+          操作时间: item.time,
+          操作人: item.openUser,
+        }))
+      );
+
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, '开关门记录');
+      const excelBuffer = XLSX.write(workbook, {
+        bookType: 'xlsx',
+        type: 'array',
+      });
+
+      // 生成文件并触发下载
+      const data = new Blob([excelBuffer], {
+        type: 'application/octet-stream',
+      });
+      saveAs(data, `开关门记录_${new Date().toISOString().slice(0, 10)}.xlsx`);
+
+      message.success('导出成功');
+    } catch (error) {
+      message.error('导出失败');
+      console.error('导出异常:', error);
+    }
+  };
+
   const getDoorInfo = (params?: QueryDoorInfoReq) => {
     queryDoorInfo({
       pageNum: current,
@@ -79,6 +123,7 @@ export default function Door() {
     >
       <DoorSearchForm
         onSearch={(searchParams) => {
+          setCurrentSearchParams(searchParams);
           const { timeRange } = searchParams || {};
           const start = formatDate(new Date(timeRange?.[0] || ''));
           const end = formatDate(new Date(timeRange?.[1] || ''));
@@ -97,6 +142,21 @@ export default function Door() {
         }}
       />
       <div style={listStyle}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'flex-start', // 右对齐
+            marginBottom: 20,
+            gap: 8, // 按钮间距
+          }}
+        >
+          <Button
+            type="primary"
+            onClick={handleExport}
+          >
+            导出Excel
+          </Button>
+        </div>
         <div
           style={{
             display: 'flex',

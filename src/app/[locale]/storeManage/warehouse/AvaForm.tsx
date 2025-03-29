@@ -9,10 +9,20 @@ import {
   Select,
   Space,
   theme,
+  TreeSelect,
 } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { Warehouse } from './type';
-import { getWarehouseMenus } from '../../userManage/role/api';
+import { queryDepartmentList } from '../../departmentManage/api';
+
+// 修改后的组件核心逻辑
+interface TreeNode {
+  value: string; // 格式：station_<id> 或 road_<id>
+  title: string;
+  children?: TreeNode[];
+  nodeType: 'station' | 'road';
+  rawId: number; // 原始ID用于搜索
+}
 
 interface Props {
   onSearch: (searchParams?: Partial<Warehouse>) => void;
@@ -21,10 +31,30 @@ interface Props {
 const AdvancedSearchForm: React.FC<Props> = ({ onSearch }) => {
   const { token } = theme.useToken();
   const [form] = Form.useForm();
-  const [stations, setStations] = useState<{ value: string; label: string }[]>(
-    []
-  );
-  const [roads, setRoads] = useState<{ value: string; label: string }[]>([]);
+
+  const [treeData, setTreeData] = useState<TreeNode[]>([]);
+
+  // 获取部门数据并转换为树形结构
+  useEffect(() => {
+    queryDepartmentList()
+      .then((data) => {
+        const nodes = data.map((dept) => ({
+          value: `station_${dept.id}`,
+          title: dept.stationName,
+          nodeType: 'station' as const,
+          rawId: dept.id,
+          children:
+            dept.roadPOList?.map((road) => ({
+              value: `road_${road.id}`,
+              title: road.road,
+              nodeType: 'road' as const,
+              rawId: road.id,
+            })) || [],
+        }));
+        setTreeData(nodes);
+      })
+      .catch(() => message.error('加载部门数据失败'));
+  }, []);
 
   const formStyle: React.CSSProperties = {
     maxWidth: 'none',
@@ -33,37 +63,28 @@ const AdvancedSearchForm: React.FC<Props> = ({ onSearch }) => {
     padding: 24,
   };
 
-  useEffect(() => {
-    getWarehouseMenus()
-      .then((data) => {
-        const stationSet = new Set<string>();
-        const roadSet = new Set<string>();
+  // 修改搜索处理逻辑
+  const handleSearch = () => {
+    const values = form.getFieldsValue();
+    const searchParams: Partial<Warehouse> = {
+      // 保留原有搜索项
+      warehouseCode: values.warehouseCode,
+      status: values.status,
+      // 新增其他可能存在的搜索项...
+    };
 
-        data.forEach((station: any) => {
-          if (station.manageStation) {
-            stationSet.add(station.manageStation);
-          }
-          station.manageRoad?.forEach((road: any) => {
-            if (road.roadName) {
-              roadSet.add(road.roadName);
-            }
-          });
-        });
+    // 处理树形选择器值
+    if (values.searchTarget) {
+      const [type, id] = values.searchTarget.split('_');
+      if (type === 'station') {
+        searchParams.manageStation = Number(id);
+      } else if (type === 'road') {
+        searchParams.manageRoad = Number(id);
+      }
+    }
 
-        setStations(
-          Array.from(stationSet).map((station) => ({
-            value: station,
-            label: station,
-          }))
-        );
-        setRoads(
-          Array.from(roadSet).map((road) => ({ value: road, label: road }))
-        );
-      })
-      .catch(() => {
-        message.error('加载仓库列表失败');
-      });
-  }, []);
+    onSearch(searchParams);
+  };
 
   return (
     <Form
@@ -100,33 +121,24 @@ const AdvancedSearchForm: React.FC<Props> = ({ onSearch }) => {
             />
           </Form.Item>
         </Col>
-        <Col
-          span={8}
-          key={1}
-        >
+        {/* 合并后的树形选择器 */}
+        <Col span={8}>
           <Form.Item
-            name="manageStation"
-            label="所属局"
+            name="searchTarget"
+            label="所属局/路段"
           >
-            <Select
-              options={stations}
+            <TreeSelect
+              treeData={treeData}
+              placeholder="请选择局或路段"
+              fieldNames={{
+                label: 'title',
+                value: 'value',
+                children: 'children',
+              }}
+              showSearch
+              treeNodeFilterProp="title"
+              treeDefaultExpandAll
               allowClear
-              placeholder="请选择所属局"
-            />
-          </Form.Item>
-        </Col>
-        <Col
-          span={8}
-          key={1}
-        >
-          <Form.Item
-            name="manageRoad"
-            label="所属路段"
-          >
-            <Select
-              options={roads}
-              allowClear
-              placeholder="请选择所属路段"
             />
           </Form.Item>
         </Col>
@@ -137,7 +149,7 @@ const AdvancedSearchForm: React.FC<Props> = ({ onSearch }) => {
             type="primary"
             htmlType="submit"
             onClick={() => {
-              onSearch({ ...form.getFieldsValue() });
+              handleSearch();
             }}
           >
             搜索
