@@ -133,7 +133,7 @@ export default function Door() {
             commonObj['start'] = start;
             commonObj['end'] = end;
           }
-          queryDoorInfo({
+          getDoorInfo({
             pageNum: current,
             pageSize: PAGE_SIZE,
             ...commonObj,

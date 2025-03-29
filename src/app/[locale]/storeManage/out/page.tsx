@@ -112,6 +112,16 @@ export default function StoreOutList() {
       key: 'warehouseName',
     },
     {
+      title: '所属局',
+      dataIndex: 'manageStationName',
+      key: 'manageStationName',
+    },
+    {
+      title: '所属路段',
+      dataIndex: 'manageRoadName',
+      key: 'manageRoadName',
+    },
+    {
       title: '单据编号',
       dataIndex: 'djbh',
       key: 'djbh',
@@ -128,6 +138,9 @@ export default function StoreOutList() {
       title: '出库人',
       dataIndex: 'creatorName',
       key: 'creatorName',
+      render: (_, { creatorName, wxCreatorName }) => {
+        return creatorName || wxCreatorName;
+      },
     },
     {
       title: '出库时间',
