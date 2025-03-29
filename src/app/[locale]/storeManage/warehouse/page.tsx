@@ -71,6 +71,8 @@ export default function WareHouse() {
   const [qrCode, setQrCode] = useState<string>('');
   const [qrCodeVisible, setQrcodeVisible] = useState<boolean>(false);
   const [materialOptions, setMaterialOptions] = useState<any>([]);
+  const [total,setTotal] = useState<number>(0);
+  const [inventoryTotal, setInventoryTotal] = useState<number>(0);
 
   const updateWareHouse = (value: Warehouse) => {
     saveWareHouse(value).then(() => {
@@ -327,6 +329,7 @@ export default function WareHouse() {
       ...searchParams,
     }).then((res) => {
       setData(res.records);
+      setTotal(res.total);
     });
   };
 
@@ -337,6 +340,7 @@ export default function WareHouse() {
     queryWarehouseInventory(warehouseId)
       .then((res) => {
         setInventoryData(res);
+        setInventoryTotal(res.total);
       })
       .catch(() => {
         message.error('库存查询失败');

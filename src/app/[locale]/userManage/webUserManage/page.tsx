@@ -28,6 +28,7 @@ export default function UserManage() {
   const [roleList, setRoleList] = useState<{ label: string; value: number }[]>(
     []
   );
+  const [total, setTotal] = useState<number>(0);
   const [form] = Form.useForm();
   const [visible, setVisible] = useState<boolean>(false);
 
@@ -130,7 +131,7 @@ export default function UserManage() {
     queryWebUserList({ pageSize: PAGE_SIZE, pageNo: current })
       .then((res) => {
         setUserList(res.records);
-        setCurrent(1);
+        setTotal(res.total);
       })
       .catch(() => {
         message.error('获取管理员用户信息获取失败');
@@ -140,7 +141,7 @@ export default function UserManage() {
   useEffect(() => {
     updateUserList();
     fetchRoleList();
-  }, []);
+  }, [current]);
 
   return (
     <Layout
@@ -248,6 +249,7 @@ export default function UserManage() {
             pageSize: PAGE_SIZE,
             current,
             onChange: onPageChange,
+            total,
           }}
           rowKey="id"
           dataSource={userList}

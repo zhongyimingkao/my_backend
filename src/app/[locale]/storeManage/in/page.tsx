@@ -22,6 +22,7 @@ const PAGE_SIZE = 10;
 export default function StoreInList() {
   const [data, setData] = useState<StoreIn[]>();
   const { token } = theme.useToken();
+  const [total, setTotal] = useState<number>(0);
   const [current, setCurrent] = useState<number>(1);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [detail, setDetail] = useState<WarehouseInventory[]>([]);
@@ -45,6 +46,7 @@ export default function StoreInList() {
       ...searchParams,
     }).then((res) => {
       setData(res.records);
+      setTotal(res.total); // 设置总条数
     });
   };
 
@@ -201,6 +203,7 @@ export default function StoreInList() {
                 pageSize: PAGE_SIZE,
                 current,
                 onChange: onPageChange,
+                total,
               }}
               scroll={{ x: 1000 }}
             />

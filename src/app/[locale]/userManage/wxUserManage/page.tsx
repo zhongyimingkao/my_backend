@@ -12,6 +12,7 @@ export default function UserManage() {
   const [current, setCurrent] = useState<number>(1);
   const { token } = theme.useToken();
   const [userList, setUserList] = useState<WxUserInfo[]>([]);
+  const [total, setTotal] = useState<number>(0);
 
   const listStyle: React.CSSProperties = {
     background: token.colorFillAlter,
@@ -68,7 +69,7 @@ export default function UserManage() {
     queryUserList({ pageSize: PAGE_SIZE, pageNum: current, nickName })
       .then((res) => {
         setUserList(res.records);
-        setCurrent(1);
+        setTotal(res.total);
       })
       .catch(() => {
         message.error('小程序用户信息获取失败');
@@ -77,7 +78,7 @@ export default function UserManage() {
 
   useEffect(() => {
     updateUserList();
-  }, []);
+  }, [current]);
 
   return (
     <Layout
@@ -105,6 +106,7 @@ export default function UserManage() {
             pageSize: PAGE_SIZE,
             current,
             onChange: onPageChange,
+            total
           }}
           rowKey="id"
           dataSource={userList}

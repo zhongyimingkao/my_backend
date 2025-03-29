@@ -34,6 +34,7 @@ export default function MaterialInfoList() {
   const [data, setData] = useState<MaterialInfo[]>();
   const { token } = theme.useToken();
   const [current, setCurrent] = useState<number>(1);
+  const [total, setTotal] = useState<number>(0);
   const [currentID, setCurrentID] = useState<number>();
   const [visible, setVisible] = useState<boolean>(false);
   const [options, setOptions] = useState();
@@ -56,6 +57,7 @@ export default function MaterialInfoList() {
       ...searchParams,
     }).then((res) => {
       setData(res.records);
+      setTotal(res.total);
     });
   };
 
@@ -269,6 +271,7 @@ export default function MaterialInfoList() {
                 pageSize: PAGE_SIZE,
                 current,
                 onChange: onPageChange,
+                total,
               }}
               scroll={{ x: 1000 }}
             />

@@ -14,6 +14,7 @@ const PAGE_SIZE = 10;
 export default function Door() {
   const [current, setCurrent] = useState<number>(1);
   const [doorInfo, setDoorInfo] = useState<handleDoorInfo[]>([]);
+  const [total, setTotal] = useState<number>(0);
   const { token } = theme.useToken();
   const [currentSearchParams, setCurrentSearchParams] =
     useState<QueryDoorInfoReq>();
@@ -27,6 +28,7 @@ export default function Door() {
   const onPageChange = (page: number, pageSize: number) => {
     setCurrent(page);
   };
+
   const columns: TableProps<handleDoorInfo>['columns'] = [
     {
       title: '仓库名称',
@@ -106,6 +108,7 @@ export default function Door() {
     })
       .then((res) => {
         setDoorInfo(res.records);
+        setTotal(res.total);
       })
       .catch(() => {
         message.error('查询开关门记录失败');
@@ -114,7 +117,7 @@ export default function Door() {
 
   useEffect(() => {
     getDoorInfo();
-  }, []);
+  }, [current]);
 
   return (
     <Layout
@@ -171,6 +174,7 @@ export default function Door() {
             pageSize: PAGE_SIZE,
             current,
             onChange: onPageChange,
+            total
           }}
           dataSource={doorInfo}
           columns={columns}

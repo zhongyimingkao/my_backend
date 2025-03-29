@@ -17,7 +17,8 @@ export default function User() {
   const { token } = theme.useToken();
   const [data, setData] = useState<Warehouse[]>([]);
   const [current, setCurrent] = useState<number>(1);
-
+  const [total, setTotal] = useState<number>(0);
+  
   const queryWareHouseData = (searchParams?: Partial<Warehouse>) => {
     queryWareHouse({
       pageSize: PAGE_SIZE,
@@ -25,6 +26,7 @@ export default function User() {
       ...searchParams,
     }).then((res) => {
       setData(res.records);
+      setTotal(res.total);
     });
   };
 
@@ -56,6 +58,7 @@ export default function User() {
                 pageSize: PAGE_SIZE,
                 current,
                 onChange: onPageChange,
+                total,
               }}
               scroll={{ x: 1000 }}
             />

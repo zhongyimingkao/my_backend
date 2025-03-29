@@ -31,6 +31,7 @@ export default function MaterialTypeList() {
   const [data, setData] = useState<MaterialType[]>();
   const { token } = theme.useToken();
   const [current, setCurrent] = useState<number>(1);
+  const [total, setTotal] = useState<number>(0);
   const [currentID, setCurrentID] = useState<number>();
   const [form] = Form.useForm();
   const [visible, setVisible] = useState<boolean>(false);
@@ -52,6 +53,7 @@ export default function MaterialTypeList() {
       ...searchParams,
     }).then((res) => {
       setData(res.records);
+      setTotal(res.total);
     });
   };
 
@@ -190,6 +192,7 @@ export default function MaterialTypeList() {
                 pageSize: PAGE_SIZE,
                 current,
                 onChange: onPageChange,
+                total,
               }}
               scroll={{ x: 1000 }}
             />

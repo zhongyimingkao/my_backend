@@ -40,6 +40,7 @@ export default function StoreOutList() {
   const [data, setData] = useState<StoreOut[]>();
   const { token } = theme.useToken();
   const [current, setCurrent] = useState<number>(1);
+  const [total, setTotal] = useState<number>(0);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [detail, setDetail] = useState<WarehouseInventory[]>([]);
   const [currentSearchParams, setCurrentSearchParams] =
@@ -61,6 +62,7 @@ export default function StoreOutList() {
       ...searchParams,
     }).then((res) => {
       setData(res.records);
+      setTotal(res.total); // 设置总条数
     });
   };
 
@@ -199,6 +201,7 @@ export default function StoreOutList() {
   ];
 
   useEffect(() => {
+    console.log('current',current);
     queryStoreOutData();
   }, [current]);
 
@@ -254,6 +257,7 @@ export default function StoreOutList() {
                 pageSize: PAGE_SIZE,
                 current,
                 onChange: onPageChange,
+                total
               }}
               scroll={{ x: 1000 }}
             />

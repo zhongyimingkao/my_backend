@@ -19,7 +19,6 @@ export default function DepartmentManage() {
   const [roadVisible, setRoadVisible] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [currentDepartmentId, setCurrentDepartmentId] = useState<number>();
-  
 
   // 获取部门列表
   const fetchDepartmentList = () => {

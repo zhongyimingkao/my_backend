@@ -37,6 +37,7 @@ export default function RoleManage() {
   const [permissionVisible, setPermissionVisible] = useState(false);
   const [editingRole, setEditingRole] = useState<RoleInfo | null>(null);
   const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
+  const [total, setTotal] = useState<number>(0);
 
   const listStyle: React.CSSProperties = {
     background: token.colorFillAlter,
@@ -124,10 +125,9 @@ export default function RoleManage() {
     },
   ];
 
-
   const loadTreeData = () => {
     getWarehouseMenus()
-      .then((data:Station[]) => {
+      .then((data: Station[]) => {
         const formatTreeData = data.map((station, index) => ({
           title: station.manageStation || '未命名',
           value: `station_${station.manageStationID}`,
@@ -151,7 +151,7 @@ export default function RoleManage() {
     queryRoleList({ pageSize: PAGE_SIZE, pageNum: current })
       .then((res) => {
         setRoleList(res.records);
-        setCurrent(1);
+        setTotal(res.total);
       })
       .catch(() => {
         message.error('获取角色列表失败');
@@ -161,7 +161,7 @@ export default function RoleManage() {
   useEffect(() => {
     updateRoleList();
     loadTreeData();
-  }, []);
+  }, [current]);
 
   return (
     <Layout
@@ -269,7 +269,12 @@ export default function RoleManage() {
           </Button>
         </div>
         <Table
-          pagination={{ pageSize: PAGE_SIZE, current, onChange: onPageChange }}
+          pagination={{
+            pageSize: PAGE_SIZE,
+            current,
+            onChange: onPageChange,
+            total,
+          }}
           rowKey="id"
           dataSource={roleList}
           columns={columns}
