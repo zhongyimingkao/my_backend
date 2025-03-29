@@ -20,8 +20,8 @@ export interface Warehouse {
   qrCode: string;
   longitude: string;
   latitude: string;
-  manageStation:number;
-  manageRoad:number;
+  manageStation: number;
+  manageRoad: number;
 }
 
 export interface WarehouseInventory {
@@ -32,6 +32,8 @@ export interface WarehouseInventory {
   materialName: string;
   position: string;
   sl: number;
+  creatorName: string;
+  wxCreatorName: string;
   warehouseId: number;
   warehouseName: string;
   unit: string;
