@@ -71,9 +71,6 @@ export default function WareHouse() {
   const [qrCode, setQrCode] = useState<string>('');
   const [qrCodeVisible, setQrcodeVisible] = useState<boolean>(false);
   const [materialOptions, setMaterialOptions] = useState<any>([]);
-  // 在组件逻辑中添加映射关系生成
-const [stationMap, setStationMap] = useState<StationMap>({});
-const [roadMap, setRoadMap] = useState<RoadMap>({});
 
   const updateWareHouse = (value: Warehouse) => {
     saveWareHouse(value).then(() => {
@@ -125,17 +122,15 @@ const [roadMap, setRoadMap] = useState<RoadMap>({});
     },
     {
       title: '所属局',
-      dataIndex: 'manageStation',
-      key: 'manageStation',
+      dataIndex: 'manageStationName',
+      key: 'manageStationName',
       width: 100,
-      render: (value: number) => stationMap[value] || '--',
     },
     {
       title: '所属路段',
-      dataIndex: 'manageRoad',
-      key: 'manageRoad',
+      dataIndex: 'manageRoadName',
+      key: 'manageRoadName',
       width: 100,
-      render: (value: number) => roadMap[value] || '--',
     },
     {
       title: '左摄像头编码',
@@ -387,9 +382,6 @@ const fetchDepartmentList = () => {
           newRoadMap[road.id] = road.road;
         });
       });
-      
-      setStationMap(newStationMap);
-      setRoadMap(newRoadMap);
     })
     .catch(() => message.error('获取部门信息失败'));
 };
