@@ -15,7 +15,6 @@ export default function UserManage() {
   const [total, setTotal] = useState<number>(0);
 
   const listStyle: React.CSSProperties = {
-    background: token.colorFillAlter,
     borderRadius: token.borderRadiusLG,
     padding: 12,
   };

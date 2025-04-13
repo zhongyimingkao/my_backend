@@ -20,7 +20,6 @@ export default function Door() {
     useState<QueryDoorInfoReq>();
 
   const listStyle: React.CSSProperties = {
-    background: token.colorFillAlter,
     borderRadius: token.borderRadiusLG,
     padding: 12,
   };

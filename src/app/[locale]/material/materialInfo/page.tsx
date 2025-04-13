@@ -41,7 +41,6 @@ export default function MaterialInfoList() {
   const [form] = Form.useForm();
 
   const listStyle: React.CSSProperties = {
-    background: token.colorFillAlter,
     borderRadius: token.borderRadiusLG,
     padding: 12,
   };
@@ -249,6 +248,7 @@ export default function MaterialInfoList() {
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
+                marginBottom: 16,
               }}
             >
               <h3>物料信息列表</h3>

@@ -35,7 +35,6 @@ export default function User() {
   };
 
   const listStyle: React.CSSProperties = {
-    background: token.colorFillAlter,
     borderRadius: token.borderRadiusLG,
     padding: 12,
   };

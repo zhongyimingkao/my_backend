@@ -58,7 +58,6 @@ const AdvancedSearchForm: React.FC<Props> = ({ onSearch }) => {
 
   const formStyle: React.CSSProperties = {
     maxWidth: 'none',
-    background: token.colorFillAlter,
     borderRadius: token.borderRadiusLG,
     padding: 24,
   };

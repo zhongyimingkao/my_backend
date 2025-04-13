@@ -37,7 +37,6 @@ export default function MaterialTypeList() {
   const [visible, setVisible] = useState<boolean>(false);
 
   const listStyle: React.CSSProperties = {
-    background: token.colorFillAlter,
     borderRadius: token.borderRadiusLG,
     padding: 12,
   };
@@ -171,6 +170,7 @@ export default function MaterialTypeList() {
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
+                marginBottom: 16,
               }}
             >
               <h3>物料分类列表</h3>

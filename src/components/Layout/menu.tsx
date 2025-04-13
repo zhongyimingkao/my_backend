@@ -1,6 +1,10 @@
 import Image from 'next/image';
 import React from 'react';
 
+const commonStyle = {
+  filter: 'brightness(0) invert(1)' // 将图标变为白色
+}
+
 export const getCommonNavList = (t: any) => {
   return [
     {
@@ -11,6 +15,7 @@ export const getCommonNavList = (t: any) => {
           width={14}
           height={14}
           alt=""
+          style={commonStyle}
         />
       ),
       label: t('surveillance'),
@@ -23,6 +28,7 @@ export const getCommonNavList = (t: any) => {
           width={14}
           height={14}
           alt=""
+          style={commonStyle}
         />
       ),
       label: t('warehouse'),
@@ -35,6 +41,7 @@ export const getCommonNavList = (t: any) => {
               width={14}
               height={14}
               alt=""
+              style={commonStyle}
             />
           ),
           label: t('warehouseInfo'),
@@ -47,6 +54,7 @@ export const getCommonNavList = (t: any) => {
               width={14}
               height={14}
               alt=""
+              style={commonStyle}
             />
           ),
           label: t('storeIn'),
@@ -59,6 +67,7 @@ export const getCommonNavList = (t: any) => {
               width={14}
               height={14}
               alt=""
+              style={commonStyle}
             />
           ),
           label: t('storeOut'),
@@ -73,6 +82,7 @@ export const getCommonNavList = (t: any) => {
           width={14}
           height={14}
           alt=""
+          style={commonStyle}
         />
       ),
       label: t('door'),
@@ -90,6 +100,7 @@ export const getExtraNavList = (t: any) => {
           width={14}
           height={14}
           alt=""
+          style={commonStyle}
         />
       ),
       label: t('material'),
@@ -102,6 +113,7 @@ export const getExtraNavList = (t: any) => {
               width={14}
               height={14}
               alt=""
+              style={commonStyle}
             />
           ),
           label: t('materialInfo'),
@@ -114,6 +126,7 @@ export const getExtraNavList = (t: any) => {
               width={14}
               height={14}
               alt=""
+              style={commonStyle}
             />
           ),
           label: t('materialType'),
@@ -128,6 +141,7 @@ export const getExtraNavList = (t: any) => {
           width={14}
           height={14}
           alt=""
+          style={commonStyle}
         />
       ),
       label: t('departmentManage'),
@@ -140,6 +154,7 @@ export const getExtraNavList = (t: any) => {
           width={14}
           height={14}
           alt=""
+          style={commonStyle}
         />
       ),
       label: t('userManage'),
@@ -152,21 +167,10 @@ export const getExtraNavList = (t: any) => {
               width={14}
               height={14}
               alt=""
+              style={commonStyle}
             />
           ),
           label: t('webUserManage'),
-        },
-        {
-          key: '/wxUserManage',
-          icon: (
-            <Image
-              src="/yonghuxinxi.svg"
-              width={14}
-              height={14}
-              alt=""
-            />
-          ),
-          label: t('wxUserManage'),
         },
         {
           key: '/role',
@@ -176,6 +180,7 @@ export const getExtraNavList = (t: any) => {
               width={14}
               height={14}
               alt=""
+              style={commonStyle}
             />
           ),
           label: t('role'),

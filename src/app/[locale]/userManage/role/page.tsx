@@ -40,7 +40,6 @@ export default function RoleManage() {
   const [total, setTotal] = useState<number>(0);
 
   const listStyle: React.CSSProperties = {
-    background: token.colorFillAlter,
     borderRadius: token.borderRadiusLG,
     padding: 12,
   };
@@ -254,6 +253,7 @@ export default function RoleManage() {
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
+            marginBottom: 16,
           }}
         >
           <h3>角色管理</h3>

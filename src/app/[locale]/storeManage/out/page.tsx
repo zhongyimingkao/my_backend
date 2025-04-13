@@ -46,7 +46,6 @@ export default function StoreOutList() {
   const [currentSearchParams, setCurrentSearchParams] =
     useState<QueryPageOutboundReq>();
   const listStyle: React.CSSProperties = {
-    background: token.colorFillAlter,
     borderRadius: token.borderRadiusLG,
     padding: 12,
   };

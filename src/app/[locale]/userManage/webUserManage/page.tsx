@@ -33,7 +33,6 @@ export default function UserManage() {
   const [visible, setVisible] = useState<boolean>(false);
 
   const listStyle: React.CSSProperties = {
-    background: token.colorFillAlter,
     borderRadius: token.borderRadiusLG,
     padding: 12,
   };

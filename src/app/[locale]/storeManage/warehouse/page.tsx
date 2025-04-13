@@ -352,7 +352,6 @@ export default function WareHouse() {
   };
 
   const listStyle: React.CSSProperties = {
-    background: token.colorFillAlter,
     borderRadius: token.borderRadiusLG,
     padding: 12,
   };
@@ -417,6 +416,7 @@ const fetchDepartmentList = () => {
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
+                marginBottom: 16,
               }}
             >
               <h3>仓库主信息列表</h3>
