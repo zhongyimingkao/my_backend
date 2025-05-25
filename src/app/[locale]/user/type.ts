@@ -7,7 +7,7 @@ export interface Warehouse {
   modifierName: string;
   modifyTime: string;
   remark: string;
-  status: string | null;
+  status: number;
   warehouseAddr: string;
   warehouseCode: string;
   warehouseName: string;
@@ -15,6 +15,13 @@ export interface Warehouse {
   manageRoadName: string; // 道路名称
   manageStation: number; // 所属局ID
   manageStationName: string; // 局名称
+  qrCode: string;
+  lCameraId: string;
+  rCameraId: string;
+  latitude:number;
+  longitude:number;
+  isValid:number;
+  isNeedCheck:number;
 }
 
 

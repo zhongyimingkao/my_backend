@@ -6,46 +6,33 @@ import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 
 import { useEffect, useState } from 'react';
-import { StoreOut } from '../common/type';
+import { StoreIn } from '../../common/type';
+import { Button, List, message, Modal, Table, TableProps, theme } from 'antd';
+import StoreSearchForm from '../../common/Search';
 import {
-  Button,
-  Card,
-  List,
-  message,
-  Modal,
-  Space,
-  Table,
-  TableProps,
-  theme,
-} from 'antd';
-import StoreSearchForm from '../common/Search';
-import {
-  QueryPageOutboundReq,
-  checkOutBound,
-  queryPageOutDetail,
-  queryPageOutbound,
-} from '../common/api';
+  QueryPageInboundReq,
+  queryPageInDetail,
+  queryPageInbound,
+} from '../../common/api';
 import { formatDate } from '@/utils';
-import { WarehouseInventory } from '../warehouse/type';
+import { WarehouseInventory } from '../../warehouse/type';
+import { useParams } from 'next/navigation';
 
 const PAGE_SIZE = 10;
 
-const statusMap = new Map<number, string>([
-  [0, '待审核'],
-  [1, '已审核'],
-  [2, '审核失败'],
-]);
-
-export default function StoreOutList() {
-  const [data, setData] = useState<StoreOut[]>();
+export default function StoreInList() {
+  const [data, setData] = useState<StoreIn[]>();
   const { token } = theme.useToken();
-  const [current, setCurrent] = useState<number>(1);
   const [total, setTotal] = useState<number>(0);
+  const { warehouseID } = useParams();
+  const [current, setCurrent] = useState<number>(1);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [detail, setDetail] = useState<WarehouseInventory[]>([]);
   const [currentSearchParams, setCurrentSearchParams] =
-    useState<QueryPageOutboundReq>();
+    useState<QueryPageInboundReq>();
+
   const listStyle: React.CSSProperties = {
+    background: token.colorFillAlter,
     borderRadius: token.borderRadiusLG,
     padding: 12,
   };
@@ -54,10 +41,11 @@ export default function StoreOutList() {
     setCurrent(page);
   };
 
-  const queryStoreOutData = (searchParams?: QueryPageOutboundReq) => {
-    queryPageOutbound({
+  const queryStoreInData = (searchParams?: QueryPageInboundReq) => {
+    queryPageInbound({
       pageSize: PAGE_SIZE,
       pageNum: current,
+      warehouseIds: [Number(warehouseID)],
       ...searchParams,
     }).then((res) => {
       setData(res.records);
@@ -68,9 +56,10 @@ export default function StoreOutList() {
   // 3. 在组件内部添加导出逻辑
   const handleExport = async () => {
     try {
-      const res = await queryPageOutbound({
+      const res = await queryPageInbound({
         pageSize: 10000,
         pageNum: 1,
+        warehouseIds: [Number(warehouseID)],
         ...currentSearchParams, // 需要先保存当前搜索条件
       });
 
@@ -79,9 +68,8 @@ export default function StoreOutList() {
         res.records.map((item) => ({
           仓库名称: item.warehouseName,
           单据编号: item.djbh,
-          出库状态: statusMap.get(item.status),
-          出库人: item.creatorName,
-          出库时间: item.ckTime,
+          入库人: item.creatorName,
+          入库时间: item.rkTime,
         }))
       );
 
@@ -96,7 +84,7 @@ export default function StoreOutList() {
       const data = new Blob([excelBuffer], {
         type: 'application/octet-stream',
       });
-      saveAs(data, `出库记录_${new Date().toISOString().slice(0, 10)}.xlsx`);
+      saveAs(data, `入库记录_${new Date().toISOString().slice(0, 10)}.xlsx`);
 
       message.success('导出成功');
     } catch (error) {
@@ -105,8 +93,7 @@ export default function StoreOutList() {
     }
   };
 
-  const columns: TableProps<StoreOut>['columns'] = [
-    { title: '单据id', dataIndex: 'id', key: 'id', hidden: true },
+  const columns: TableProps<StoreIn>['columns'] = [
     {
       title: '仓库名称',
       dataIndex: 'warehouseName',
@@ -128,15 +115,7 @@ export default function StoreOutList() {
       key: 'djbh',
     },
     {
-      title: '出库状态',
-      dataIndex: 'status',
-      key: 'status',
-      render: (value) => {
-        return statusMap.get(value);
-      },
-    },
-    {
-      title: '出库人',
+      title: '入库人',
       dataIndex: 'creatorName',
       key: 'creatorName',
       render: (_, { creatorName, wxCreatorName }) => {
@@ -144,75 +123,46 @@ export default function StoreOutList() {
       },
     },
     {
-      title: '出库时间',
-      dataIndex: 'ckTime',
-      key: 'ckTime',
+      title: '入库时间',
+      dataIndex: 'rkTime',
+      key: 'rkTime',
     },
     {
       title: '操作',
       key: 'action',
       render: (_, record) => {
         return (
-          <Space>
-            <Button
-              type="link"
-              onClick={() => {
-                setModalVisible(true);
-                queryPageOutDetail(record.djbh)
-                  .then((res) => {
-                    setDetail(res);
-                  })
-                  .catch(() => {
-                    message.error('查询出库单明细失败');
-                  });
-              }}
-            >
-              查询出库单明细
-            </Button>
-            <Button
-              type="link"
-              disabled={record.status !== 0}
-              onClick={() => {
-                checkOutBound({ id: record.id, status: 1 }).then(() => {
-                  message.success('审核成功');
-                  setTimeout(() => queryStoreOutData(), 100);
+          <Button
+            type="link"
+            onClick={() => {
+              setModalVisible(true);
+              queryPageInDetail(record.djbh)
+                .then((res) => {
+                  setDetail(res);
+                })
+                .catch(() => {
+                  message.error('查询入库单明细失败');
                 });
-              }}
-            >
-              通过
-            </Button>
-            <Button
-              type="link"
-              disabled={record.status !== 0}
-              onClick={() => {
-                checkOutBound({ id: record.id, status: 2 }).then(() => {
-                  message.success('审核成功');
-                  setTimeout(() => queryStoreOutData(), 100);
-                });
-              }}
-            >
-              拒绝
-            </Button>
-          </Space>
+            }}
+          >
+            查询入库单明细
+          </Button>
         );
       },
     },
   ];
 
   useEffect(() => {
-    console.log('current',current);
-    queryStoreOutData();
+    queryStoreInData();
   }, [current]);
 
   return (
     <Layout
-      curActive="/storeManage/out"
-      defaultOpen={['/storeManage']}
+      curActive="/storeManage/in/:warehouseID"
     >
       <main className={styles.warehouseWrap}>
         <div className={styles.content}>
           <StoreSearchForm
-            type="out"
             onSearch={(searchParams) => {
               setCurrentSearchParams(searchParams);
               const { timeRange } = searchParams || {};
@@ -224,7 +174,7 @@ export default function StoreOutList() {
                 commonObj['start'] = start;
                 commonObj['end'] = end;
               }
-              queryStoreOutData({
+              queryStoreInData({
                 pageNum: current,
                 pageSize: PAGE_SIZE,
                 ...commonObj,
@@ -248,7 +198,7 @@ export default function StoreOutList() {
                 导出Excel
               </Button>
             </div>
-            <h3>出库信息列表</h3>
+            <h3>入库信息列表</h3>
             <Table
               columns={columns}
               dataSource={data}
@@ -256,7 +206,7 @@ export default function StoreOutList() {
                 pageSize: PAGE_SIZE,
                 current,
                 onChange: onPageChange,
-                total
+                total,
               }}
               scroll={{ x: 1000 }}
             />
@@ -270,7 +220,6 @@ export default function StoreOutList() {
               className="demo-loadmore-list"
               itemLayout="horizontal"
               dataSource={detail}
-              size="large"
               renderItem={(item) => (
                 <List.Item>
                   <List.Item.Meta

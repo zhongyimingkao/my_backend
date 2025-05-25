@@ -11,4 +11,5 @@ export interface QueryDoorInfoReq {
   start?: string;
   timeRange?: string[];
   wareHouse?: string;
+  warehouseIds?:number[];
 }

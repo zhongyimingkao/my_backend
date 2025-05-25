@@ -82,24 +82,6 @@ const StoreSearchForm: React.FC<Props> = ({ onSearch, type = 'in' }) => {
             />
           </Form.Item>
         </Col>
-        <Col
-          span={16}
-          key={1}
-        >
-          <Form.Item
-            label="目标仓库"
-            name="warehouseIds"
-          >
-            <TreeSelect
-              treeData={warehouseTree}
-              treeCheckable
-              showCheckedStrategy={TreeSelect.SHOW_CHILD}
-              placeholder="请选择仓库"
-              style={{ width: '100%' }}
-              maxTagCount="responsive"
-            />
-          </Form.Item>
-        </Col>
         {type === 'out' && (
           <Col
             span={8}

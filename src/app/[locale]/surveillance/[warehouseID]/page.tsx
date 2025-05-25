@@ -4,15 +4,18 @@ import { Select, Space, Tabs } from 'antd';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { getAccessToken, getVideoUrl } from './api';
 import EZUIKit from 'ezuikit-js';
-import { queryWareHouse } from '../storeManage/warehouse/api';
 import Image from 'next/image';
 import styles from './page.module.css';
+import { queryWareHouse } from '../../user/api';
+import { useParams } from 'next/navigation';
+import { useAtom } from 'jotai';
+import { warehouseInfo } from '../../store';
 
 const APP_KEY = '8cc3be2e5b0a4d99b84baca5ebc44872';
 const APP_SECRET = 'e2201d7f6ac670816355011b664b4627';
 
 export default function Surveillance() {
-  const [wareHouseId, setWareHouseId] = useState<number>();
+  const [curWarehouseInfo] = useAtom(warehouseInfo);
   const [wareHouseList, setWareHouseList] = useState<any>();
   const [accessToken, setAccessToken] = useState<string>();
   const [canPlay, setCanPlay] = useState<boolean>(false);
@@ -24,25 +27,6 @@ export default function Surveillance() {
   const [template, setTemplate] = useState<string>('pcLive');
 
   const playerRef = useRef<EZUIKit | null>(null);
-
-  const initOptions = async () => {
-    const curWareHouseList = await queryWareHouse({
-      pageNum: 1,
-      pageSize: 1000,
-    });
-    setWareHouseId(curWareHouseList.records[0].id);
-    setWareHouseList(curWareHouseList.records);
-    setWareHouseId(curWareHouseList.records?.[0]?.id);
-  };
-
-  const options = useMemo(
-    () =>
-      wareHouseList?.map((item: any) => ({
-        label: item.warehouseName,
-        value: item.id,
-      })),
-    [wareHouseList]
-  );
 
   const updateVideo = async (changeTemplate = false) => {
     if (!cameraID) return;
@@ -82,14 +66,6 @@ export default function Surveillance() {
 
   const selectorsDom = (
     <div className={styles.pageSelector}>
-      <h1>
-        当前仓库：
-        <Select
-          options={options}
-          value={wareHouseId}
-          onChange={(value) => setWareHouseId(value)}
-        />
-      </h1>
       <h2>
         当前摄像头：
         <Select
@@ -166,15 +142,14 @@ export default function Surveillance() {
   );
 
   useEffect(() => {
-    if (wareHouseList?.length > 0) {
+    if (curWarehouseInfo) {
       setCameraID(
-        wareHouseList.find((item: any) => item.id === wareHouseId)[cameraType]
+        curWarehouseInfo?.[cameraType]
       );
     }
-  }, [wareHouseId, cameraType, wareHouseList]);
+  }, [curWarehouseInfo, cameraType]);
 
   useEffect(() => {
-    initOptions();
     initAccessToken();
     return () => {
       playerRef?.current?.stop?.();
@@ -195,8 +170,7 @@ export default function Surveillance() {
 
   return (
     <Layout
-      curActive="/surveillance"
-      defaultOpen={['/surveillance']}
+      curActive="/surveillance/:warehouseID"
     >
       {surveillanceDom}
     </Layout>

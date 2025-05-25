@@ -6,6 +6,7 @@ export type QueryPageInboundReq = Partial<StoreIn> & {
   start?: string;
   end?: string;
   timeRange?: [string, string];
+  warehouseIds?: number[];
 } & PageType;
 
 export const queryPageInbound = (params: QueryPageInboundReq): Promise<any> => {
@@ -29,6 +30,7 @@ export type QueryPageOutboundReq = Partial<StoreOut> & {
   start?: string;
   end?: string;
   timeRange?: [string, string];
+  warehouseIds?: number[];
 } & PageType;
 export const queryPageOutbound = (
   params: QueryPageOutboundReq

@@ -4,7 +4,7 @@ import req from '@/utils/req';
 
 type QueryWarehouseReq = Partial<Warehouse> & PageType;
 
-export const queryWareHouse = (params: QueryWarehouseReq): Promise<any> => {
+export const queryWareHouse = (params?: QueryWarehouseReq): Promise<any> => {
   return new Promise((resolve, reject) => {
     req
       .post('/warehouseController/pageWarehouse', { ...params })

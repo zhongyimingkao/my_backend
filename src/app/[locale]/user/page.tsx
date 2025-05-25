@@ -49,7 +49,7 @@ export default function User() {
         <div className={styles.content}>
           <AvaForm onSearch={queryWareHouseData} />
           <div style={listStyle}>
-            <h3>仓库主信息列表</h3>
+            <h3>仓库列表</h3>
             <Table
               columns={columns}
               dataSource={data}

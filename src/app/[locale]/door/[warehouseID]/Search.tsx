@@ -13,8 +13,8 @@ import {
 } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { QueryDoorInfoReq } from './type';
-import { getWarehouseMenus } from '../userManage/role/api';
-import { Station } from '../user/type';
+import { getWarehouseMenus } from '../../userManage/role/api';
+import { Station } from '../../user/type';
 
 interface Props {
   onSearch: (searchParams?: QueryDoorInfoReq) => void;
@@ -76,24 +76,6 @@ const DoorSearchForm: React.FC<Props> = ({ onSearch }) => {
             <DatePicker.RangePicker
               showTime={{ format: 'HH:mm' }}
               format="YYYY-MM-DD HH:mm"
-            />
-          </Form.Item>
-        </Col>
-        <Col
-          span={16}
-          key={1}
-        >
-          <Form.Item
-            label="目标仓库"
-            name="warehouseIds"
-          >
-            <TreeSelect
-              treeData={warehouseTree}
-              treeCheckable
-              showCheckedStrategy={TreeSelect.SHOW_CHILD}
-              placeholder="请选择仓库"
-              style={{ width: '100%' }}
-              maxTagCount="responsive"
             />
           </Form.Item>
         </Col>

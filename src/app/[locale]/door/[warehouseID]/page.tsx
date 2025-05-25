@@ -9,6 +9,7 @@ import { Niconne } from 'next/font/google';
 import { handleDoorInfo, QueryDoorInfoReq } from './type';
 import { queryDoorInfo } from './api';
 import { formatDate } from '@/utils';
+import { useParams } from 'next/navigation';
 const PAGE_SIZE = 10;
 
 export default function Door() {
@@ -16,6 +17,8 @@ export default function Door() {
   const [doorInfo, setDoorInfo] = useState<handleDoorInfo[]>([]);
   const [total, setTotal] = useState<number>(0);
   const { token } = theme.useToken();
+  const { warehouseID } = useParams();
+
   const [currentSearchParams, setCurrentSearchParams] =
     useState<QueryDoorInfoReq>();
 
@@ -65,6 +68,7 @@ export default function Door() {
       const res = await queryDoorInfo({
         pageSize: 10000,
         pageNum: 1,
+        warehouseIds: [Number(warehouseID)],
         ...currentSearchParams, // 需要先保存当前搜索条件
       });
 
@@ -103,6 +107,7 @@ export default function Door() {
     queryDoorInfo({
       pageNum: current,
       pageSize: PAGE_SIZE,
+      warehouseIds: [Number(warehouseID)],
       ...params,
     })
       .then((res) => {
@@ -120,8 +125,7 @@ export default function Door() {
 
   return (
     <Layout
-      curActive="/door"
-      defaultOpen={['/door']}
+      curActive="/door/:warehouseID"
     >
       <DoorSearchForm
         onSearch={(searchParams) => {

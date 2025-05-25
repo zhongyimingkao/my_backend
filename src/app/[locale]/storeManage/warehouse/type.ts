@@ -7,7 +7,7 @@ export interface Warehouse {
   modifierName: string;
   modifyTime: string;
   remark: string;
-  status: string | null;
+  status: number;
   warehouseAddr: string;
   warehouseCode: string;
   warehouseName: string;
@@ -18,10 +18,12 @@ export interface Warehouse {
   isValid: number;
   isNeedCheck: number;
   qrCode: string;
-  longitude: string;
-  latitude: string;
+  longitude: number;
+  latitude: number;
   manageStation: number;
   manageRoad: number;
+  manageRoadName:string;
+  manageStationName:string;
 }
 
 export interface WarehouseInventory {

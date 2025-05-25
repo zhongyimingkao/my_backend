@@ -3,79 +3,52 @@ import React from 'react';
 
 const commonStyle = {
   filter: 'brightness(0) invert(1)' // 将图标变为白色
-}
+};
 
-export const getCommonNavList = (t: any) => {
+export const getHomeNavList = (t: any) => {
   return [
     {
-      key: '/surveillance',
+      key: '/home/:warehouseID',
       icon: (
         <Image
-          src="/jiankong.svg"
+          src="/cangkuxinxi.svg"
           width={14}
           height={14}
           alt=""
           style={commonStyle}
         />
       ),
-      label: t('surveillance'),
+      label: t('warehouseInfo'),
     },
     {
-      key: '/storeManage',
+      key: '/storeManage/in/:warehouseID',
       icon: (
         <Image
-          src="/cangku.svg"
+          src="/store-in.svg"
           width={14}
           height={14}
           alt=""
           style={commonStyle}
         />
       ),
-      label: t('warehouse'),
-      children: [
-        {
-          key: '/storeManage/warehouse',
-          icon: (
-            <Image
-              src="/cangkuxinxi.svg"
-              width={14}
-              height={14}
-              alt=""
-              style={commonStyle}
-            />
-          ),
-          label: t('warehouseInfo'),
-        },
-        {
-          key: '/storeManage/in',
-          icon: (
-            <Image
-              src="/store-in.svg"
-              width={14}
-              height={14}
-              alt=""
-              style={commonStyle}
-            />
-          ),
-          label: t('storeIn'),
-        },
-        {
-          key: '/storeManage/out',
-          icon: (
-            <Image
-              src="/store-out.svg"
-              width={14}
-              height={14}
-              alt=""
-              style={commonStyle}
-            />
-          ),
-          label: t('storeOut'),
-        },
-      ],
+      label: t('storeIn'),
     },
     {
-      key: '/door',
+      key: '/storeManage/out/:warehouseID',
+      icon: (
+        <Image
+          src="/store-out.svg"
+          width={14}
+          height={14}
+          alt=""
+          style={commonStyle}
+        />
+      ),
+      label: t('storeOut'),
+    },
+
+    {
+      key: '/door/:warehouseID',
       icon: (
         <Image
           src="/juanmen.svg"
@@ -87,11 +60,41 @@ export const getCommonNavList = (t: any) => {
       ),
       label: t('door'),
     },
+    {
+      key: '/surveillance/:warehouseID',
+      icon: (
+        <Image
+          src="/jiankong.svg"
+          width={14}
+          height={14}
+          alt=""
+          style={commonStyle}
+        />
+      ),
+      label: t('surveillance'),
+    },
   ];
+
 };
 
-export const getExtraNavList = (t: any) => {
-  return [
+export const getCommonNavList = (t: any, isSuperAdmin: boolean) => {
+  const warehouseList = [
+    {
+      key: '/storeManage/warehouse',
+      icon: (
+        <Image
+          src="/cangkuxinxi.svg"
+          width={14}
+          height={14}
+          alt=""
+          style={commonStyle}
+        />
+      ),
+      label: t('warehouseInfo'),
+    },
+  ];
+
+  const adminList = [
     {
       key: '/material',
       icon: (
@@ -185,7 +188,12 @@ export const getExtraNavList = (t: any) => {
           ),
           label: t('role'),
         },
-      ],
+      ]
     },
   ];
-};
+
+  if (!isSuperAdmin) {
+    return warehouseList;
+  }
+  return warehouseList.concat(adminList)
+}

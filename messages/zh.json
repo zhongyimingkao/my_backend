@@ -28,7 +28,7 @@
     "role": "角色管理",
     "departmentManage": "部门管理",
     "warehouse": "仓库管理",
-    "warehouseInfo": "仓库主信息",
+    "warehouseInfo": "仓库列表",
     "cameraManage": "摄像头管理",
     "surveillance": "现场监控",
     "door": "开关门记录",

@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Layout,
   Menu,
@@ -7,27 +7,21 @@ import {
   Avatar,
   Dropdown,
   ConfigProvider,
-  Badge,
-  Popover,
   type MenuProps,
+  Tooltip,
 } from 'antd';
-import { getCommonNavList, getExtraNavList } from './menu';
-import { useRouter } from 'next/navigation';
+import { getCommonNavList, getHomeNavList } from './menu';
+import { useParams, useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
-import {
-  BellOutlined,
-  MoonOutlined,
-  SunOutlined,
-  TransactionOutlined,
-} from '@ant-design/icons';
-import { getThemeBg } from '@/utils';
 import { Link, pathnames, usePathname } from '../../navigation';
 import styles from './index.module.less';
 import { useAtom } from 'jotai';
-import { userInfo } from '@/app/[locale]/store';
+import { userInfo, warehouseInfo } from '@/app/[locale]/store';
 import zhCN from 'antd/locale/zh_CN';
+import { Warehouse } from '@/app/[locale]/user/type';
+import { queryWareHouse } from '@/app/[locale]/user/api';
 
-const { Header, Content, Footer, Sider } = Layout;
+const { Header, Content } = Layout;
 
 interface IProps {
   children: React.ReactNode;
@@ -63,62 +57,67 @@ const CommonLayout: React.FC<IProps> = ({
   } = theme.useToken();
 
   const t = useTranslations('global');
-
   const locale = useLocale();
   const otherLocale: any = locale === 'en' ? ['zh', '中'] : ['en', 'En'];
-
   const router = useRouter();
   const pathname = usePathname();
-  let navList = getCommonNavList(t);
-
   const [curUserInfo] = useAtom(userInfo);
+  const isSuperAdmin = curUserInfo?.data?.role === 2;
+  const [curWarehouseInfo, setWarehouseInfo] = useAtom(warehouseInfo);
+  const { warehouseID } = useParams();
 
-
-  // 超管有额外的目录展示
-  if (curUserInfo?.data?.role === 2) {
-    navList = [...navList, ...getExtraNavList(t)];
-  }
-
-  const [curTheme, setCurTheme] = useState<boolean>(sessionStorage.getItem('backend_theme') === 'true' ? true : false);
-  const toggleTheme = () => {
-    sessionStorage.setItem('backend_theme', String(!curTheme));
-    setCurTheme((prev) => !prev);
+  const updateUserInfo = async () => {
+    if (!warehouseID) {
+      setWarehouseInfo(null);
+      return;
+    }
+    const res = await queryWareHouse();
+    const curInfo = res.records.find(item => item.id === Number(warehouseID));
+    setWarehouseInfo(curInfo);
   };
 
+  useEffect(() => {
+    updateUserInfo();
+  }, [warehouseID, pathname]); // 添加 pathname 作为依赖
+
+  const navList = !!warehouseID ? getHomeNavList(t) : getCommonNavList(t, isSuperAdmin);
+  const [curTheme, setCurTheme] = useState<boolean>(sessionStorage.getItem('backend_theme') === 'true' ? true : false);
+
   const handleSelect = (row: { key: string }) => {
-    router.push(row.key);
+    const path = warehouseID ? row.key.replace(':warehouseID', warehouseID as string) : row.key;
+    router.push(path);
   };
 
   return (
     <ConfigProvider
       theme={{
         token: {
-          colorPrimary: '#1a5f9c',  // 更深的科技蓝
-          colorSuccess: '#27ae60',  // 保持绿色
-          colorBgContainer: '#d6e7f5',  // 稍深的背景
-          colorBgLayout: '#c5dcef',  // 更深的布局背景
-          colorText: '#2c3e50',  // 深灰色文字
+          colorPrimary: '#1a5f9c',
+          colorSuccess: '#27ae60',
+          colorBgContainer: '#d6e7f5',
+          colorBgLayout: '#c5dcef',
+          colorText: '#2c3e50',
           colorTextSecondary: '#4a5b6c',
-          colorBorder: '#8fb3d5',  // 更深的蓝色边框
+          colorBorder: '#8fb3d5',
           colorBorderSecondary: '#b0c9e2',
           borderRadius: 6,
           wireframe: false,
         },
         components: {
           Layout: {
-            headerBg: '#1a5f9c',  // 深蓝色顶部栏
+            headerBg: '#1a5f9c',
             bodyBg: '#c5dcef',
           },
           Menu: {
             darkItemBg: '#1a5f9c',
-            darkItemSelectedBg: '#27ae60',  // 绿色选中项
+            darkItemSelectedBg: '#27ae60',
             darkItemHoverBg: '#2a7bc1',
           },
           Button: {
             defaultBg: '#d6e7f5',
             defaultBorderColor: '#8fb3d5',
             defaultColor: '#1a5f9c',
-            linkHoverBg: '#27ae60',  // 悬停绿色
+            linkHoverBg: '#27ae60',
           },
           Table: {
             headerBg: '#b8d4eb',
@@ -127,7 +126,7 @@ const CommonLayout: React.FC<IProps> = ({
             rowHoverBg: 'rgba(26, 95, 156, 0.1)',
           },
           Badge: {
-            colorBgBase: '#27ae60',  // 绿色徽章
+            colorBgBase: '#27ae60',
           }
         },
       }}
@@ -141,21 +140,26 @@ const CommonLayout: React.FC<IProps> = ({
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              background: '#1a5f9c'  // 确保Header使用主题色
+              background: '#1a5f9c'
             }}
           >
             <div className={styles.leftControl}>
-              <span
-                className={styles.logo}
-                style={{
-                  color: '#fff',  // 白色字体
-                  fontWeight: 'bold',
-                  fontSize: '18px',
-                  padding: '0 16px'
-                }}
-              >
-                物资后台管理
-              </span>
+              <Tooltip title='点击返回首页'>
+                <span
+                  className={styles.logo}
+                  onClick={() => { router.push('/'); }}
+                  style={{
+                    color: '#fff',
+                    fontWeight: 'bold',
+                    fontSize: '18px',
+                    padding: '0 16px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {curWarehouseInfo ? '当前仓库：' + curWarehouseInfo.warehouseName : '物资后台管理'}
+                </span>
+              </Tooltip>
+
               <Menu
                 style={{
                   flex: 1
@@ -190,7 +194,7 @@ const CommonLayout: React.FC<IProps> = ({
               style={{
                 height: '100%',
                 borderRadius: borderRadiusLG,
-                padding:"24px 16px",
+                padding: "24px 16px",
               }}
             >
               {children}

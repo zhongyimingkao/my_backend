@@ -1,7 +1,10 @@
 import { atom } from 'jotai';
+import { Warehouse } from '../user/type';
 
 /** filter type controls */
-export const userInfo = atom<Record<string,any> | null>(null);
+export const userInfo = atom<Record<string, any> | null>(null);
+
+export const warehouseInfo = atom<Warehouse | null>(null);
 
 // /** filtered links */
 // export const filterAtom = atom((get) => {
