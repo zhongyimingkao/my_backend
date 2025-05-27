@@ -3,7 +3,7 @@
 import { Button, Card, Col, Form, Input, InputNumber, message, Modal, Popconfirm, Row, Select, Space, Spin, Switch, Table, Typography } from 'antd';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { batchUpdateWareHouseInventory, deleteWareHouse, deleteWareHouseInventory, queryWareHouse, queryWarehouseInventory, saveWareHouse, saveWareHouseInventory } from '../../storeManage/warehouse/api';
+import { batchUpdateWareHouseInventory, deleteWareHouse, deleteWareHouseInventory, getWarehouseManagers, queryWareHouse, queryWarehouseInventory, saveWareHouse, saveWareHouseInventory } from '../../storeManage/warehouse/api';
 import Layout from '@/components/Layout';
 import { Warehouse } from '../../user/type';
 import { WarehouseInventory } from '../../storeManage/warehouse/type';
@@ -28,13 +28,21 @@ export default function WarehouseDashboard() {
   const [inventoryVisible, setInventoryVisible] = useState<boolean>(false);
   const [form] = Form.useForm();
   const [materialOptions, setMaterialOptions] = useState<[]>([]);
-  const [currentID, setCurrentID] = useState<number>();
-  const [qrCode, setQrCode] = useState<string>('');
-  const [qrCodeVisible, setQrcodeVisible] = useState<boolean>(false);
+  const [managers,setManagers] = useState<string[]>();
 
   const onPageChange = (page: number) => {
     setCurrent(page);
   };
+
+  const fetchManagers = async ()=>{
+    try{
+      const res = await getWarehouseManagers();
+      setManagers(res);
+    }catch(error){
+      console.error('Failed to fetch managers detail:', error);
+
+    }
+  }
 
 
   const fetchWarehouseDetail = async () => {
@@ -81,6 +89,7 @@ export default function WarehouseDashboard() {
   useEffect(() => {
     if (!warehouseID) return;
     queryMaterialInfoData();
+    fetchManagers();
   }, [warehouseID]);
 
   useEffect(() => {
@@ -287,6 +296,7 @@ export default function WarehouseDashboard() {
                 <Text strong>所属局：{warehouseInfo?.manageStationName}</Text>
                 <Text strong>所属路段：{warehouseInfo?.manageRoadName}</Text>
                 <Text strong>简介：{warehouseInfo?.remark}</Text>
+                <Text strong>仓库管理员：{managers?.[String(warehouseID)]}</Text>
                 <Text strong>仓库状态: {warehouseInfo?.status === 0 ? '开启' : '关闭'}</Text>
                 <Text strong>经度：{warehouseInfo?.longitude}</Text>
                 <Text strong>纬度：{warehouseInfo?.latitude}</Text>

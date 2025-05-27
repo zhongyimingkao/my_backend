@@ -2,7 +2,7 @@ import Image from 'next/image';
 import React from 'react';
 
 const commonStyle = {
-  filter: 'brightness(0) invert(1)' // 将图标变为白色
+  filter: 'brightness(0) invert(1)', // 将图标变为白色
 };
 
 export const getHomeNavList = (t: any) => {
@@ -74,10 +74,17 @@ export const getHomeNavList = (t: any) => {
       label: t('surveillance'),
     },
   ];
-
 };
 
-export const getCommonNavList = (t: any, isSuperAdmin: boolean) => {
+export const getCommonNavList = (
+  t: any,
+  isSuperAdmin: boolean
+): {
+  key: string;
+  icon: React.ReactNode;
+  label: string;
+  children?: any;
+}[] => {
   const warehouseList = [
     {
       key: '/storeManage/warehouse',
@@ -188,12 +195,12 @@ export const getCommonNavList = (t: any, isSuperAdmin: boolean) => {
           ),
           label: t('role'),
         },
-      ]
+      ],
     },
   ];
 
   if (!isSuperAdmin) {
     return warehouseList;
   }
-  return warehouseList.concat(adminList)
-}
+  return warehouseList.concat(adminList);
+};

@@ -11,15 +11,19 @@ import {
   Tooltip,
 } from 'antd';
 import { getCommonNavList, getHomeNavList } from './menu';
-import { useParams, useRouter } from 'next/navigation';
+import {
+  useParams,
+  useRouter,
+  usePathname,
+  useSearchParams,
+} from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
-import { Link, pathnames, usePathname } from '../../navigation';
 import styles from './index.module.less';
 import { useAtom } from 'jotai';
 import { userInfo, warehouseInfo } from '@/app/[locale]/store';
 import zhCN from 'antd/locale/zh_CN';
-import { Warehouse } from '@/app/[locale]/user/type';
 import { queryWareHouse } from '@/app/[locale]/user/api';
+import { queryDepartmentList } from '@/app/[locale]/departmentManage/api';
 
 const { Header, Content } = Layout;
 
@@ -47,24 +51,21 @@ const items: MenuProps['items'] = [
   },
 ];
 
-const CommonLayout: React.FC<IProps> = ({
-  children,
-  curActive,
-  defaultOpen = ['/'],
-}) => {
+const CommonLayout: React.FC<IProps> = ({ children, curActive }) => {
   const {
     token: { borderRadiusLG, colorTextBase, colorWarningText },
   } = theme.useToken();
 
   const t = useTranslations('global');
   const locale = useLocale();
-  const otherLocale: any = locale === 'en' ? ['zh', '中'] : ['en', 'En'];
   const router = useRouter();
   const pathname = usePathname();
   const [curUserInfo] = useAtom(userInfo);
   const isSuperAdmin = curUserInfo?.data?.role === 2;
   const [curWarehouseInfo, setWarehouseInfo] = useAtom(warehouseInfo);
   const { warehouseID } = useParams();
+  const [departmentTree, setDepartmentTree] = useState<any[]>([]);
+  const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
 
   const updateUserInfo = async () => {
     if (!warehouseID) {
@@ -72,19 +73,87 @@ const CommonLayout: React.FC<IProps> = ({
       return;
     }
     const res = await queryWareHouse();
-    const curInfo = res.records.find(item => item.id === Number(warehouseID));
+    const curInfo = res.records.find((item) => item.id === Number(warehouseID));
     setWarehouseInfo(curInfo);
+  };
+
+  const searchParams = useSearchParams();
+  const deptId = searchParams.get('dept');
+  const roadId = searchParams.get('road');
+
+  useEffect(() => {
+    // 设置菜单高亮状态
+    if (deptId && roadId) {
+      setSelectedKeys([`/storeManage/warehouse?dept=${deptId}&road=${roadId}`]);
+    } else if (deptId) {
+      setSelectedKeys([`/storeManage/warehouse?dept=${deptId}`]);
+    }
+  }, [searchParams]);
+
+  const fetchDepartmentData = async () => {
+    try {
+      const data = await queryDepartmentList();
+      const nodes = data.map((dept) => {
+        const children =
+          dept.roadPOList?.map((road) => ({
+            key: `road_${road.id}`,
+            label: road.road,
+          })) || [];
+
+        return {
+          key: `station_${dept.id}`,
+          label: dept.stationName,
+          ...(children.length > 0 ? { children } : {}),
+        };
+      });
+      setDepartmentTree(nodes);
+    } catch (error) {
+      console.error('Failed to fetch department data:', error);
+    }
   };
 
   useEffect(() => {
     updateUserInfo();
-  }, [warehouseID, pathname]); // 添加 pathname 作为依赖
+    fetchDepartmentData();
+  }, [warehouseID, pathname]);
 
-  const navList = !!warehouseID ? getHomeNavList(t) : getCommonNavList(t, isSuperAdmin);
-  const [curTheme, setCurTheme] = useState<boolean>(sessionStorage.getItem('backend_theme') === 'true' ? true : false);
+  const generateDynamicMenu = () => {
+    const commonNavList = getCommonNavList(t, isSuperAdmin);
+    const warehouseInfoMenu = commonNavList.find(
+      (item) => item.key === '/storeManage/warehouse'
+    );
+
+    if (warehouseInfoMenu) {
+      warehouseInfoMenu.children = [
+        {
+          key: '/storeManage/warehouse',
+          label: '全部',
+        },
+        ...departmentTree.map((dept) => ({
+          key: `/storeManage/warehouse?dept=${dept.key.split('_')[1]}`,
+          label: dept.label,
+          ...(dept.children
+            ? {
+                children: dept.children.map((road) => ({
+                  key: `/storeManage/warehouse?dept=${
+                    dept.key.split('_')[1]
+                  }&road=${road.key.split('_')[1]}`,
+                  label: road.label,
+                })),
+              }
+            : {}),
+        })),
+      ];
+    }
+    return commonNavList;
+  };
+
+  const navList = !!warehouseID ? getHomeNavList(t) : generateDynamicMenu();
 
   const handleSelect = (row: { key: string }) => {
-    const path = warehouseID ? row.key.replace(':warehouseID', warehouseID as string) : row.key;
+    const path = warehouseID
+      ? row.key.replace(':warehouseID', warehouseID as string)
+      : row.key;
     router.push(path);
   };
 
@@ -109,9 +178,18 @@ const CommonLayout: React.FC<IProps> = ({
             bodyBg: '#c5dcef',
           },
           Menu: {
-            darkItemBg: '#1a5f9c',
-            darkItemSelectedBg: '#27ae60',
-            darkItemHoverBg: '#2a7bc1',
+            itemColor: '#ffffff',
+            itemHoverColor: '#ffffff',
+            itemHoverBg: '#2a7bc1',
+            itemSelectedColor: '#ffffff',
+            itemSelectedBg: '#27ae60',
+            itemActiveBg: '#27ae60',
+            horizontalItemSelectedColor: '#ffffff',
+            horizontalItemHoverColor: '#ffffff',
+            horizontalItemHoverBg: '#2a7bc1',
+            horizontalItemSelectedBg: '#27ae60',
+            subMenuItemBg: '#1a5f9c',
+            popupBg: '#1a5f9c',
           },
           Button: {
             defaultBg: '#d6e7f5',
@@ -127,7 +205,7 @@ const CommonLayout: React.FC<IProps> = ({
           },
           Badge: {
             colorBgBase: '#27ae60',
-          }
+          },
         },
       }}
       locale={zhCN}
@@ -140,35 +218,42 @@ const CommonLayout: React.FC<IProps> = ({
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              background: '#1a5f9c'
+              background: '#1a5f9c',
             }}
           >
             <div className={styles.leftControl}>
-              <Tooltip title='点击返回首页'>
+              <Tooltip title="点击返回首页">
                 <span
                   className={styles.logo}
-                  onClick={() => { router.push('/'); }}
+                  onClick={() => {
+                    router.push('/');
+                  }}
                   style={{
                     color: '#fff',
                     fontWeight: 'bold',
                     fontSize: '18px',
                     padding: '0 16px',
-                    cursor: 'pointer'
+                    cursor: 'pointer',
                   }}
                 >
-                  {curWarehouseInfo ? '当前仓库：' + curWarehouseInfo.warehouseName : '物资后台管理'}
+                  {curWarehouseInfo
+                    ? '当前仓库：' + curWarehouseInfo.warehouseName
+                    : '物资后台管理'}
                 </span>
               </Tooltip>
 
               <Menu
                 style={{
-                  flex: 1
+                  flex: 1,
+                  backgroundColor: '#1a5f9c',
+                  color: '#ffffff',
+                  borderBottom: 'none',
                 }}
-                theme='dark'
                 mode="horizontal"
-                defaultSelectedKeys={[curActive]}
+                selectedKeys={
+                  selectedKeys.length > 0 ? selectedKeys : [curActive]
+                }
                 items={navList}
-                defaultOpenKeys={defaultOpen}
                 onSelect={handleSelect}
               />
             </div>
@@ -188,13 +273,12 @@ const CommonLayout: React.FC<IProps> = ({
               </div>
             </div>
           </Header>
-          <Content style={{
-          }}>
+          <Content style={{}}>
             <div
               style={{
                 height: '100%',
                 borderRadius: borderRadiusLG,
-                padding: "24px 16px",
+                padding: '24px 16px',
               }}
             >
               {children}

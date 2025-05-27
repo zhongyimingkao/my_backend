@@ -166,3 +166,20 @@ export const batchUpdateWareHouseInventory = (
       });
   });
 };
+
+export const getWarehouseManagers = (): Promise<any> => {
+  return new Promise((resolve, reject) => {
+    req
+      .post('/warehouseController/getWarehouseManagers')
+      .then((res: any) => {
+        if (res.code === 200) {
+          resolve(res.data);
+        } else {
+          reject(res);
+        }
+      })
+      .catch((e) => {
+        reject(e);
+      });
+  });
+};
