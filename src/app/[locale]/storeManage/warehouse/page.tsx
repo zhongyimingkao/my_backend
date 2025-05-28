@@ -8,6 +8,7 @@ import { Warehouse } from './type';
 import CommonLayout from '@/components/Layout';
 import WarehouseFormModal from './WarehouseFormModal';
 import { queryDepartmentList } from '../../departmentManage/api';
+import Loading from '@/components/Loading';
 
 const { Title } = Typography;
 
@@ -109,7 +110,7 @@ const WarehousePage: React.FC = () => {
   };
 
   if (loading) {
-    return <Empty />;
+    return <Loading />;
   }
 
   return (
