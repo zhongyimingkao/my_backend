@@ -302,8 +302,8 @@ export default function WarehouseDashboard() {
                 <Text strong>纬度：{warehouseInfo?.latitude}</Text>
                 <Text strong>是否可用：<Switch checked={warehouseInfo?.isValid === 1} onChange={(checked) => handleSwitchChange('isValid', checked)} /></Text>
                 <Text strong>是否开启免审核：<Switch checked={warehouseInfo?.isNeedCheck === 1} onChange={(checked) => handleSwitchChange('isNeedCheck', checked)} /></Text>
-                <Text strong>内测摄像头编码：{warehouseInfo?.lCameraId}</Text>
-                <Text strong>外侧摄像头编码：{warehouseInfo?.rCameraId}</Text>
+                <Text strong>仓库外摄像头编码：{warehouseInfo?.lCameraId}</Text>
+                <Text strong>仓库内摄像头编码：{warehouseInfo?.rCameraId}</Text>
 
 
                 <Space>
