@@ -1,16 +1,54 @@
 'use client';
 
-import { Button, Card, Col, Form, Input, InputNumber, message, Modal, Popconfirm, Row, Select, Space, Spin, Switch, Table, Typography } from 'antd';
+import {
+  Button,
+  Card,
+  Col,
+  Form,
+  Input,
+  InputNumber,
+  message,
+  Modal,
+  Popconfirm,
+  Row,
+  Select,
+  Space,
+  Spin,
+  Switch,
+  Table,
+  Typography,
+} from 'antd';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { batchUpdateWareHouseInventory, deleteWareHouse, deleteWareHouseInventory, getWarehouseManagers, queryWareHouse, queryWarehouseInventory, saveWareHouse, saveWareHouseInventory } from '../../storeManage/warehouse/api';
+import {
+  batchUpdateWareHouseInventory,
+  deleteWareHouse,
+  deleteWareHouseInventory,
+  getWarehouseManagers,
+  queryWareHouse,
+  queryWarehouseInventory,
+  saveWareHouse,
+  saveWareHouseInventory,
+} from '../../storeManage/warehouse/api';
 import Layout from '@/components/Layout';
 import { Warehouse } from '../../user/type';
 import { WarehouseInventory } from '../../storeManage/warehouse/type';
 import { TableProps } from 'antd/lib';
-import { CloseCircleOutlined, DeleteOutlined, EditOutlined, PlusCircleOutlined, SaveOutlined } from '@ant-design/icons';
-import { queryMaterialInfo, QueryMaterialInfoReq } from '../../material/common/api';
+import {
+  CloseCircleOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  PlusCircleOutlined,
+  SaveOutlined,
+} from '@ant-design/icons';
+import {
+  queryMaterialInfo,
+  QueryMaterialInfoReq,
+} from '../../material/common/api';
 import WarehouseFormModal from '../../storeManage/warehouse/WarehouseFormModal';
+import { updateUserInfo } from '../../userManage/webUserManage/api';
+import { userInfo } from '../../store';
+import { useAtom } from 'jotai';
 
 const { Title, Text } = Typography;
 
@@ -18,8 +56,10 @@ const PAGE_SIZE = 10;
 
 export default function WarehouseDashboard() {
   const { warehouseID } = useParams();
+  const [curUserInfo] = useAtom(userInfo);
   const [warehouseInfo, setWarehouseInfo] = useState<Partial<Warehouse>>();
-  const [warehouseInventory, setWarehouseInventory] = useState<WarehouseInventory[]>();
+  const [warehouseInventory, setWarehouseInventory] =
+    useState<WarehouseInventory[]>();
   const [current, setCurrent] = useState<number>(1);
   const [loading, setLoading] = useState(true);
   const [editData, setEditData] = useState<WarehouseInventory[]>();
@@ -28,28 +68,28 @@ export default function WarehouseDashboard() {
   const [inventoryVisible, setInventoryVisible] = useState<boolean>(false);
   const [form] = Form.useForm();
   const [materialOptions, setMaterialOptions] = useState<[]>([]);
-  const [managers,setManagers] = useState<string[]>();
+  const [managers, setManagers] = useState<string[]>();
 
   const onPageChange = (page: number) => {
     setCurrent(page);
   };
 
-  const fetchManagers = async ()=>{
-    try{
+  const fetchManagers = async () => {
+    try {
       const res = await getWarehouseManagers();
       setManagers(res);
-    }catch(error){
+    } catch (error) {
       console.error('Failed to fetch managers detail:', error);
-
     }
-  }
-
+  };
 
   const fetchWarehouseDetail = async () => {
     try {
       const res = await queryWareHouse();
       const curwarehouseID = Number(warehouseID);
-      const curWarehouseInfo = res.records.find(item => item.id === curwarehouseID);
+      const curWarehouseInfo = res.records.find(
+        (item) => item.id === curwarehouseID
+      );
       const subRes = await queryWarehouseInventory(curwarehouseID);
       setWarehouseInventory(subRes);
       setWarehouseInfo(curWarehouseInfo);
@@ -60,7 +100,10 @@ export default function WarehouseDashboard() {
     }
   };
 
-  const handleSwitchChange = async (field: 'isValid' | 'isNeedCheck', checked: boolean) => {
+  const handleSwitchChange = async (
+    field: 'isValid' | 'isNeedCheck',
+    checked: boolean
+  ) => {
     if (!warehouseInfo) return;
 
     try {
@@ -95,7 +138,7 @@ export default function WarehouseDashboard() {
   useEffect(() => {
     if (!warehouseID) return;
     fetchWarehouseDetail();
-  }, [warehouseID, current])
+  }, [warehouseID, current]);
 
   const handleOpenDoor = () => {
     // TODO: 调用开启舱门接口
@@ -138,7 +181,6 @@ export default function WarehouseDashboard() {
       );
     });
   };
-
 
   const handleEditInventory = (index: number, record: WarehouseInventory) => {
     const curData = ([] as WarehouseInventory[]).concat(editData || []);
@@ -206,7 +248,6 @@ export default function WarehouseDashboard() {
     },
   ];
 
-
   return (
     <Layout curActive="/home/:warehouseID">
       <div style={{ padding: '24px' }}>
@@ -240,7 +281,10 @@ export default function WarehouseDashboard() {
             form={form}
             autoComplete="off"
             onFinish={(values) => {
-              saveWareHouseInventory({ ...values, warehouseId: Number(warehouseID) }).then(() => {
+              saveWareHouseInventory({
+                ...values,
+                warehouseId: Number(warehouseID),
+              }).then(() => {
                 message.success('创建仓库库存成功');
                 queryWarehouseInventoryData(Number(warehouseID));
               });
@@ -289,48 +333,87 @@ export default function WarehouseDashboard() {
         <Card title="仓库信息">
           <Row>
             <Col span={12}>
-              <Space direction="vertical" size="middle">
+              <Space
+                direction="vertical"
+                size="middle"
+              >
                 <Title level={4}>{warehouseInfo?.warehouseName}</Title>
                 <Text strong>编码：{warehouseInfo?.warehouseCode}</Text>
                 <Text strong>地址：{warehouseInfo?.warehouseAddr}</Text>
                 <Text strong>所属局：{warehouseInfo?.manageStationName}</Text>
                 <Text strong>所属路段：{warehouseInfo?.manageRoadName}</Text>
                 <Text strong>简介：{warehouseInfo?.remark}</Text>
-                <Text strong>仓库管理员：{managers?.[String(warehouseID)]}</Text>
-                <Text strong>仓库状态: {warehouseInfo?.status === 0 ? '开启' : '关闭'}</Text>
+                <Text strong>
+                  仓库管理员：{managers?.[String(warehouseID)]}
+                </Text>
+                <Text strong>
+                  仓库状态: {warehouseInfo?.status === 0 ? '开启' : '关闭'}
+                </Text>
                 <Text strong>经度：{warehouseInfo?.longitude}</Text>
                 <Text strong>纬度：{warehouseInfo?.latitude}</Text>
-                <Text strong>是否可用：<Switch checked={warehouseInfo?.isValid === 1} onChange={(checked) => handleSwitchChange('isValid', checked)} /></Text>
-                <Text strong>是否开启免审核：<Switch checked={warehouseInfo?.isNeedCheck === 1} onChange={(checked) => handleSwitchChange('isNeedCheck', checked)} /></Text>
+                <Text strong>
+                  是否可用：
+                  <Switch
+                    checked={warehouseInfo?.isValid === 1}
+                    onChange={(checked) =>
+                      handleSwitchChange('isValid', checked)
+                    }
+                  />
+                </Text>
+                <Text strong>
+                  是否开启免审核：
+                  <Switch
+                    checked={warehouseInfo?.isNeedCheck === 1}
+                    onChange={(checked) =>
+                      handleSwitchChange('isNeedCheck', checked)
+                    }
+                  />
+                </Text>
                 <Text strong>仓库外摄像头编码：{warehouseInfo?.lCameraId}</Text>
                 <Text strong>仓库内摄像头编码：{warehouseInfo?.rCameraId}</Text>
 
-
                 <Space>
-                  <Button onClick={() => {
-                    setVisible(true);
-                  }} >
+                  <Button
+                    onClick={() => {
+                      setVisible(true);
+                    }}
+                  >
                     编辑信息
                   </Button>
-                  <Button type="primary" onClick={handleOpenDoor} disabled={warehouseInfo?.status === 0}>
+                  <Button
+                    type="primary"
+                    onClick={handleOpenDoor}
+                    disabled={warehouseInfo?.status === 0}
+                  >
                     开启舱门
                   </Button>
-                  <Button danger onClick={handleCloseDoor} disabled={warehouseInfo?.status === 1}>
+                  <Button
+                    danger
+                    onClick={handleCloseDoor}
+                    disabled={warehouseInfo?.status === 1}
+                  >
                     关闭舱门
                   </Button>
                 </Space>
               </Space>
             </Col>
             <Col span={12}>
-              <Space direction="vertical" size="middle">
-                {
-                  warehouseInfo?.qrCode && <>
+              <Space
+                direction="vertical"
+                size="middle"
+              >
+                {warehouseInfo?.qrCode && (
+                  <>
                     <Text strong>二维码：</Text>
-                    <img src={warehouseInfo?.qrCode} alt="qrCode" style={{ width: 250 }} /></>
-                }
+                    <img
+                      src={warehouseInfo?.qrCode}
+                      alt="qrCode"
+                      style={{ width: 250 }}
+                    />
+                  </>
+                )}
                 <Text strong>库存信息：</Text>
                 <Space>
-
                   <Button
                     style={{ fontSize: 14, fontWeight: 600 }}
                     onClick={() => {
@@ -393,6 +476,6 @@ export default function WarehouseDashboard() {
           </Row>
         </Card>
       </div>
-    </Layout >
+    </Layout>
   );
 }

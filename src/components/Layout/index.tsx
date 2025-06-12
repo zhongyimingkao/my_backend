@@ -9,6 +9,10 @@ import {
   ConfigProvider,
   type MenuProps,
   Tooltip,
+  Input,
+  Modal,
+  Form,
+  message,
 } from 'antd';
 import { getCommonNavList, getHomeNavList } from './menu';
 import {
@@ -24,6 +28,7 @@ import { userInfo, warehouseInfo } from '@/app/[locale]/store';
 import zhCN from 'antd/locale/zh_CN';
 import { queryWareHouse } from '@/app/[locale]/user/api';
 import { queryDepartmentList } from '@/app/[locale]/departmentManage/api';
+import { updateUserInfo as updateUserInfoApi } from '@/app/[locale]/userManage/webUserManage/api';
 
 const { Header, Content } = Layout;
 
@@ -32,24 +37,6 @@ interface IProps {
   curActive: string;
   defaultOpen?: string[];
 }
-
-const items: MenuProps['items'] = [
-  {
-    key: '1',
-    label: (
-      <a
-        target="_blank"
-        rel="noopener noreferrer"
-        onClick={() => {
-          location.href = '/user/login';
-          localStorage.setItem('token', '');
-        }}
-      >
-        退出登录
-      </a>
-    ),
-  },
-];
 
 const CommonLayout: React.FC<IProps> = ({ children, curActive }) => {
   const {
@@ -66,6 +53,40 @@ const CommonLayout: React.FC<IProps> = ({ children, curActive }) => {
   const { warehouseID } = useParams();
   const [departmentTree, setDepartmentTree] = useState<any[]>([]);
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
+  const [changePwdVisible, setChangePwdVisible] = useState(false);
+  const [pwdForm] = Form.useForm();
+
+  const items: MenuProps['items'] = [
+    {
+      key: '1',
+      label: (
+        <a
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={() => {
+            location.href = '/user/login';
+            localStorage.setItem('token', '');
+          }}
+        >
+          退出登录
+        </a>
+      ),
+    },
+    {
+      key: '2',
+      label: (
+        <a
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={() => {
+            setChangePwdVisible(true);
+          }}
+        >
+          修改密码
+        </a>
+      ),
+    },
+  ];
 
   const updateUserInfo = async () => {
     if (!warehouseID) {
@@ -148,7 +169,10 @@ const CommonLayout: React.FC<IProps> = ({ children, curActive }) => {
     return commonNavList;
   };
 
-  const navList = !!warehouseID ? getHomeNavList(t) : generateDynamicMenu();
+  const navList =
+    !!warehouseID && warehouseID !== 'all'
+      ? getHomeNavList(t)
+      : generateDynamicMenu();
 
   const handleSelect = (row: { key: string }) => {
     const path = warehouseID
@@ -210,6 +234,74 @@ const CommonLayout: React.FC<IProps> = ({ children, curActive }) => {
       }}
       locale={zhCN}
     >
+      <Modal
+        title="修改密码"
+        open={changePwdVisible}
+        onCancel={() => setChangePwdVisible(false)}
+        onOk={() => {
+          pwdForm
+            .validateFields()
+            .then((values) => {
+              console.log(values);
+              updateUserInfoApi({
+                ...curUserInfo?.data,
+                password: values.newPassword,
+              })
+                .then(() => {
+                  message.success('密码修改成功');
+                  localStorage.setItem('token', '');
+                  location.href = '/user/login';
+                })
+                .catch(() => {
+                  message.error('密码修改失败');
+                });
+            })
+            .catch((info) => {
+              console.log('Validate Failed:', info);
+            });
+        }}
+      >
+        <Form
+          form={pwdForm}
+          layout="vertical"
+        >
+          <Form.Item
+            name="newPassword"
+            label="新密码"
+            rules={[
+              {
+                required: true,
+                message: '请输入新密码',
+              },
+            ]}
+            hasFeedback
+          >
+            <Input.Password />
+          </Form.Item>
+          <Form.Item
+            name="confirmPassword"
+            label="确认密码"
+            dependencies={['newPassword']}
+            hasFeedback
+            rules={[
+              {
+                required: true,
+                message: '请确认新密码',
+              },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (!value || getFieldValue('newPassword') === value) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject('两次输入的密码不一致');
+                },
+              }),
+            ]}
+          >
+            <Input.Password />
+          </Form.Item>
+        </Form>
+      </Modal>
       <Layout style={{ minHeight: '100vh' }}>
         <Layout>
           <Header

@@ -47,6 +47,7 @@ export default function StoreOutList() {
   const [detail, setDetail] = useState<WarehouseInventory[]>([]);
   const [currentSearchParams, setCurrentSearchParams] =
     useState<QueryPageOutboundReq>();
+  const [selectedWarehouses, setSelectedWarehouses] = useState<number[]>([]);
   const listStyle: React.CSSProperties = {
     borderRadius: token.borderRadiusLG,
     padding: 12,
@@ -57,25 +58,33 @@ export default function StoreOutList() {
   };
 
   const queryStoreOutData = (searchParams?: QueryPageOutboundReq) => {
+    const warehouseIds = warehouseID === 'all' 
+      ? selectedWarehouses.length > 0 ? selectedWarehouses : undefined
+      : [Number(warehouseID)];
+    
     queryPageOutbound({
       pageSize: PAGE_SIZE,
       pageNum: current,
-      warehouseIds: [Number(warehouseID)],
+      ...(warehouseIds && { warehouseIds }),
       ...searchParams,
     }).then((res) => {
       setData(res.records);
-      setTotal(res.total); // 设置总条数
+      setTotal(res.total);
     });
   };
 
   // 3. 在组件内部添加导出逻辑
   const handleExport = async () => {
     try {
+      const warehouseIds = warehouseID === 'all' 
+        ? selectedWarehouses.length > 0 ? selectedWarehouses : undefined
+        : [Number(warehouseID)];
+
       const res = await queryPageOutbound({
         pageSize: 10000,
         pageNum: 1,
-        warehouseIds: [Number(warehouseID)],
-        ...currentSearchParams, // 需要先保存当前搜索条件
+        ...(warehouseIds && { warehouseIds }),
+        ...currentSearchParams,
       });
 
       // 转换数据为Excel格式
@@ -210,8 +219,9 @@ export default function StoreOutList() {
 
   return (
     <Layout
-      curActive="/storeManage/out/:warehouseID"
-    >
+    curActive={`/storeManage/out/${
+      warehouseID === 'all' ? 'all' : ':warehouseID'
+    }`}    >
       <main className={styles.warehouseWrap}>
         <div className={styles.content}>
           <StoreSearchForm
@@ -234,6 +244,8 @@ export default function StoreOutList() {
                 ...searchParams,
               });
             }}
+            warehouseID={warehouseID as string}
+            onWarehouseChange={setSelectedWarehouses}
           />
           <div style={listStyle}>
             <div

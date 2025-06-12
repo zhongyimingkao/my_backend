@@ -19,12 +19,15 @@ import { Station } from '../../user/type';
 interface Props {
   onSearch: (searchParams?: QueryPageInboundReq | QueryPageOutboundReq) => void;
   type?: 'in' | 'out';
+  warehouseID: string;
+  onWarehouseChange: (warehouseIds: number[]) => void;
 }
 
-const StoreSearchForm: React.FC<Props> = ({ onSearch, type = 'in' }) => {
+const StoreSearchForm: React.FC<Props> = ({ onSearch, type, warehouseID, onWarehouseChange }) => {
   const { token } = theme.useToken();
   const [form] = Form.useForm();
   const [warehouseTree, setWarehouseTree] = useState<any[]>([]);
+  const [selectedWarehouses, setSelectedWarehouses] = useState<number[]>([]);
 
   const formStyle: React.CSSProperties = {
     maxWidth: 'none',
@@ -33,7 +36,12 @@ const StoreSearchForm: React.FC<Props> = ({ onSearch, type = 'in' }) => {
     padding: 24,
   };
 
-
+  useEffect(() => {
+    if (warehouseID !== 'all') {
+      setSelectedWarehouses([]);
+      onWarehouseChange([]);
+    }
+  }, [warehouseID]);
 
   const loadTreeData = () => {
     getWarehouseMenus()
@@ -61,17 +69,38 @@ const StoreSearchForm: React.FC<Props> = ({ onSearch, type = 'in' }) => {
     loadTreeData();
   }, []);
 
+  const handleWarehouseChange = (values: number[]) => {
+    setSelectedWarehouses(values);
+    onWarehouseChange(values);
+  };
+
   return (
     <Form
       form={form}
-      name="storeManage_search"
+      name="material_type_search"
       style={formStyle}
     >
       <Row gutter={24}>
-        <Col
-          span={8}
-          key={1}
-        >
+        {warehouseID === 'all' && (
+          <Col span={8} key="warehouse">
+            <Form.Item
+              name="warehouseIds"
+              label="选择仓库"
+            >
+              <TreeSelect
+                treeData={warehouseTree}
+                placeholder="请选择仓库"
+                treeCheckable={true}
+                treeDefaultExpandAll={true}
+                showCheckedStrategy={TreeSelect.SHOW_CHILD}
+                onChange={handleWarehouseChange}
+                value={selectedWarehouses}
+                style={{ width: '100%' }}
+              />
+            </Form.Item>
+          </Col>
+        )}
+        <Col span={8} key="timeRange">
           <Form.Item
             name="timeRange"
             label="时间范围"

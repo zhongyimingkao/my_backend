@@ -46,7 +46,6 @@ export const getHomeNavList = (t: any) => {
       ),
       label: t('storeOut'),
     },
-
     {
       key: '/door/:warehouseID',
       icon: (
@@ -196,6 +195,46 @@ export const getCommonNavList = (
           label: t('role'),
         },
       ],
+    },
+    {
+      key: '/storeManage/in/all',
+      icon: (
+        <Image
+          src="/store-in.svg"
+          width={14}
+          height={14}
+          alt=""
+          style={commonStyle}
+        />
+      ),
+      label: t('storeIn'),
+    },
+    {
+      key: '/storeManage/out/all',
+      icon: (
+        <Image
+          src="/store-out.svg"
+          width={14}
+          height={14}
+          alt=""
+          style={commonStyle}
+        />
+      ),
+      label: t('storeOut'),
+    },
+
+    {
+      key: '/door/all',
+      icon: (
+        <Image
+          src="/juanmen.svg"
+          width={14}
+          height={14}
+          alt=""
+          style={commonStyle}
+        />
+      ),
+      label: t('door'),
     },
   ];
 

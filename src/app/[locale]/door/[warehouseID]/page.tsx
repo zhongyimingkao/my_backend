@@ -2,7 +2,7 @@
 import Layout from '@/components/Layout';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
-import { Button, message, Table, TableProps, theme } from 'antd';
+import { Button, message, Select, Table, TableProps, theme } from 'antd';
 import { useEffect, useState } from 'react';
 import DoorSearchForm from './Search';
 import { Niconne } from 'next/font/google';
@@ -21,6 +21,7 @@ export default function Door() {
 
   const [currentSearchParams, setCurrentSearchParams] =
     useState<QueryDoorInfoReq>();
+  const [selectedWarehouses, setSelectedWarehouses] = useState<number[]>([]);
 
   const listStyle: React.CSSProperties = {
     borderRadius: token.borderRadiusLG,
@@ -65,11 +66,18 @@ export default function Door() {
   // 3. 在组件内部添加导出逻辑
   const handleExport = async () => {
     try {
+      const warehouseIds =
+        warehouseID === 'all'
+          ? selectedWarehouses.length > 0
+            ? selectedWarehouses
+            : undefined
+          : [Number(warehouseID)];
+
       const res = await queryDoorInfo({
         pageSize: 10000,
         pageNum: 1,
-        warehouseIds: [Number(warehouseID)],
-        ...currentSearchParams, // 需要先保存当前搜索条件
+        ...(warehouseIds && { warehouseIds }),
+        ...currentSearchParams,
       });
 
       // 转换数据为Excel格式
@@ -104,10 +112,17 @@ export default function Door() {
   };
 
   const getDoorInfo = (params?: QueryDoorInfoReq) => {
+    const warehouseIds =
+      warehouseID === 'all'
+        ? selectedWarehouses.length > 0
+          ? selectedWarehouses
+          : undefined
+        : [Number(warehouseID)];
+
     queryDoorInfo({
       pageNum: current,
       pageSize: PAGE_SIZE,
-      warehouseIds: [Number(warehouseID)],
+      ...(warehouseIds && { warehouseIds }),
       ...params,
     })
       .then((res) => {
@@ -125,11 +140,13 @@ export default function Door() {
 
   return (
     <Layout
-      curActive="/door/:warehouseID"
+      curActive={`/door/${warehouseID === 'all' ? 'all' : ':warehouseID'}`}
     >
       <DoorSearchForm
         onSearch={(searchParams) => {
           setCurrentSearchParams(searchParams);
+
+          console.log('searchParams=>', searchParams);
           const { timeRange } = searchParams || {};
           const start = formatDate(new Date(timeRange?.[0] || ''));
           const end = formatDate(new Date(timeRange?.[1] || ''));
@@ -146,6 +163,8 @@ export default function Door() {
             ...searchParams,
           });
         }}
+        warehouseID={warehouseID as string}
+        onWarehouseChange={setSelectedWarehouses}
       />
       <div style={listStyle}>
         <div
@@ -177,7 +196,7 @@ export default function Door() {
             pageSize: PAGE_SIZE,
             current,
             onChange: onPageChange,
-            total
+            total,
           }}
           dataSource={doorInfo}
           columns={columns}

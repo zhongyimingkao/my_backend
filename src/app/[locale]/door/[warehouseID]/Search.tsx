@@ -18,12 +18,15 @@ import { Station } from '../../user/type';
 
 interface Props {
   onSearch: (searchParams?: QueryDoorInfoReq) => void;
+  warehouseID: string;
+  onWarehouseChange: (warehouseIds: number[]) => void;
 }
 
-const DoorSearchForm: React.FC<Props> = ({ onSearch }) => {
+const DoorSearchForm: React.FC<Props> = ({ onSearch, warehouseID, onWarehouseChange }) => {
   const { token } = theme.useToken();
   const [form] = Form.useForm();
   const [warehouseTree, setWarehouseTree] = useState<any[]>([]);
+  const [selectedWarehouses, setSelectedWarehouses] = useState<number[]>([]);
 
   const formStyle: React.CSSProperties = {
     maxWidth: 'none',
@@ -58,6 +61,18 @@ const DoorSearchForm: React.FC<Props> = ({ onSearch }) => {
     loadTreeData();
   }, []);
 
+  useEffect(() => {
+    if (warehouseID !== 'all') {
+      setSelectedWarehouses([]);
+      onWarehouseChange([]);
+    }
+  }, [warehouseID]);
+
+  const handleWarehouseChange = (values: number[]) => {
+    setSelectedWarehouses(values);
+    onWarehouseChange(values);
+  };
+
   return (
     <Form
       form={form}
@@ -65,10 +80,26 @@ const DoorSearchForm: React.FC<Props> = ({ onSearch }) => {
       style={formStyle}
     >
       <Row gutter={24}>
-        <Col
-          span={8}
-          key={1}
-        >
+        {warehouseID === 'all' && (
+          <Col span={8} key="warehouse">
+            <Form.Item
+              name="warehouseIds"
+              label="选择仓库"
+            >
+              <TreeSelect
+                treeData={warehouseTree}
+                placeholder="请选择仓库"
+                treeCheckable={true}
+                treeDefaultExpandAll={true}
+                showCheckedStrategy={TreeSelect.SHOW_CHILD}
+                onChange={handleWarehouseChange}
+                value={selectedWarehouses}
+                style={{ width: '100%' }}
+              />
+            </Form.Item>
+          </Col>
+        )}
+        <Col span={8} key="timeRange">
           <Form.Item
             name="timeRange"
             label="时间范围"
