@@ -106,6 +106,7 @@ const StoreSearchForm: React.FC<Props> = ({ onSearch, type, warehouseID, onWareh
             label="时间范围"
           >
             <DatePicker.RangePicker
+            style={{ width: '100%' }}
               showTime={{ format: 'HH:mm' }}
               format="YYYY-MM-DD HH:mm"
             />
