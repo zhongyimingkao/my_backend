@@ -1,6 +1,31 @@
 import req from '@/utils/req';
 import { DepartmentInfo, RoadPO } from './type'; // 假设已经定义了DepartmentInfo类型
 
+interface Admin {
+  id: number;
+  name: string;
+  role: string;
+}
+
+export const fetchAdminsByWarehouseId = (warehouseId: number): Promise<Admin[]> => {
+  return new Promise((resolve, reject) => {
+    req
+      .get('/adminController/getAdminsByWarehouse', {
+        params: { warehouseId }
+      })
+      .then((res: any) => {
+        if (res.code === 200) {
+          resolve(res.data);
+        } else {
+          reject(res);
+        }
+      })
+      .catch((e) => {
+        reject(e);
+      });
+  });
+};
+
 // 查询部门列表
 export const queryDepartmentList = (): Promise<any> => {
   return req

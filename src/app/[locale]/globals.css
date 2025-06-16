@@ -19,7 +19,11 @@ body {
   background-color: #eeefef;
 }
 
-div, span, img, p, main {
+div,
+span,
+img,
+p,
+main {
   box-sizing: border-box;
 }
 
@@ -31,10 +35,15 @@ div, span, img, p, main {
   flex-wrap: wrap;
 }
 
-h3{
+h3 {
   font-weight: 600 !important;
   font-size: 16px !important;
   color: rgb(26, 95, 156);
 }
 
 
+.ant-tree .ant-tree-node-content-wrapper.ant-tree-node-selected,
+.ant-tree .ant-tree-checkbox+span.ant-tree-node-selected {
+  color: white;
+  background-color: #1890ff !important;
+}
