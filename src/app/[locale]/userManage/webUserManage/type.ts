@@ -20,8 +20,8 @@ export interface UserInfo {
   userName: string;
   userType: string | null;
   wxId: string | null;
+  identityNum: string | null;
 }
-
 
 export interface QueryUserInfoReq {
   nickName?: string;

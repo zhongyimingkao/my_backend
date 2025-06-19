@@ -62,6 +62,11 @@ export default function UserManage() {
       key: 'phone',
     },
     {
+      title: '身份证号',
+      dataIndex: 'identityNum',
+      key: 'identityNum',
+    },
+    {
       title: '创建时间',
       dataIndex: 'createTime',
       key: 'createTime',
@@ -208,6 +213,12 @@ export default function UserManage() {
             <Form.Item<Partial<UserInfo>>
               label="手机号"
               name="phone"
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item<Partial<UserInfo>>
+              label="身份证号"
+              name="identityNum"
             >
               <Input />
             </Form.Item>

@@ -183,3 +183,20 @@ export const getWarehouseManagers = (): Promise<any> => {
       });
   });
 };
+
+export const getWarnWarehouse = (): Promise<any> => {
+  return new Promise((resolve, reject) => {
+    req
+      .post('/inventoryController/getWarnWarehouse')
+      .then((res: any) => {
+        if (res.code === 200) {
+          resolve(res.data);
+        } else {
+          reject(res);
+        }
+      })
+      .catch((e) => {
+        reject(e);
+      });
+  });
+};

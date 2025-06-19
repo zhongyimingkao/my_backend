@@ -39,4 +39,5 @@ export interface WarehouseInventory {
   warehouseId: number;
   warehouseName: string;
   unit: string;
+  threshold:number;
 }

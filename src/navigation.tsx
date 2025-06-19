@@ -16,6 +16,7 @@ export const pathnames = {
   '/storeManage': '/storeManage',
   '/storeManage/warehouse': '/storeManage/warehouse',
   '/storeManage/in': '/storeManage/in',
+  '/inventoryManage':'/inventoryManage',
   '/storeManage/out': '/storeManage/out',
   '/userManage': '/userManage',
   '/userManage/wxUserManage': '/wxUserManage',

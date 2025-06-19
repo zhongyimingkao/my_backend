@@ -1,12 +1,26 @@
 'use client';
 import Layout from '@/components/Layout';
-import { Button, Form, Input, message, Modal, Popconfirm, Space, Tree, Typography, Row, Col, Menu, Dropdown, Tooltip } from 'antd';
+import {
+  Button,
+  Form,
+  Input,
+  message,
+  Modal,
+  Popconfirm,
+  Space,
+  Tree,
+  Typography,
+  Row,
+  Col,
+  Menu,
+  Dropdown,
+  Tooltip,
+} from 'antd';
 import { EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import { DepartmentInfo, RoadPO } from './type';
 import { useEffect, useState } from 'react';
 import {
   addDepartment,
-  deleteDepartmentInfo,
   queryDepartmentList,
   saveRoad,
   updateDepartmentInfo,
@@ -27,9 +41,12 @@ export default function DepartmentManage() {
   const [currentDepartmentId, setCurrentDepartmentId] = useState<number>();
   const [currentRoadId, setCurrentRoadId] = useState<number>();
   const [selectedNode, setSelectedNode] = useState<any>(null);
-  const [selectedWarehouse, setSelectedWarehouse] = useState<number | null>(null);
+  const [selectedWarehouse, setSelectedWarehouse] = useState<number | null>(
+    null
+  );
   const [warehouses, setWarehouses] = useState<any[]>([]);
   const [expandedKeys, setExpandedKeys] = useState<React.Key[]>([]);
+  const [selectedKeys, setSelectedKeys] = useState<React.Key[]>([]); // 添加选中的节点状态
   const router = useRouter();
 
   // 树节点展开处理
@@ -40,25 +57,37 @@ export default function DepartmentManage() {
   // 获取部门列表
   const fetchDepartmentList = () => {
     queryDepartmentList()
-      .then(data => {
-        const treeData = data.map(item => ({
+      .then((data) => {
+        const treeData = data.map((item) => ({
           ...item,
           key: `dept_${item.id}`,
           title: item.stationName,
-          children: item.roadPOList.map(road => ({
+          children: item.roadPOList.map((road) => ({
             ...road,
             key: `road_${road.id}`,
             title: road.road,
-          }))
+          })),
         }));
         setDepartmentList(treeData);
 
         // 设置所有节点为展开状态
-        const allKeys = treeData.flatMap(dept => [
+        const allKeys = treeData.flatMap((dept) => [
           dept.key,
-          ...(dept.children || []).map(child => child.key)
+          ...(dept.children || []).map((child) => child.key),
         ]);
         setExpandedKeys(allKeys);
+
+        // 查找第一个叶子节点（路段节点）
+        const firstLeafNode = treeData
+          .flatMap((dept) => dept.children || [])
+          .find((child) => child);
+
+        if (firstLeafNode) {
+          // 设置选中状态
+          setSelectedKeys([firstLeafNode.key]);
+          // 触发选中处理
+          handleSelect([firstLeafNode.key], { node: firstLeafNode });
+        }
       })
       .catch(() => message.error('获取部门列表失败'));
   };
@@ -68,10 +97,14 @@ export default function DepartmentManage() {
   }, []);
 
   // 获取仓库数据
-  const fetchWarehouses = (node: any, page: number = 1, pageSize: number = 10) => {
+  const fetchWarehouses = (
+    node: any,
+    page: number = 1,
+    pageSize: number = 10
+  ) => {
     const params: any = {
       page,
-      pageSize
+      pageSize,
     };
 
     if (node.key.startsWith('dept_')) {
@@ -89,7 +122,7 @@ export default function DepartmentManage() {
           ...pagination,
           current: data.current,
           pageSize: data.size,
-          total: data.total
+          total: data.total,
         });
       })
       .catch(() => message.error('获取仓库数据失败'));
@@ -99,6 +132,7 @@ export default function DepartmentManage() {
   const handleSelect = (selectedKeys: React.Key[], info: any) => {
     const node = info.node;
     setSelectedNode(node);
+    setSelectedKeys(selectedKeys); // 更新选中状态
     setSelectedWarehouse(null);
 
     // 调用API获取仓库数据
@@ -118,7 +152,7 @@ export default function DepartmentManage() {
     current: 1,
     pageSize: 10,
     total: 0,
-    onChange: handlePageChange
+    onChange: handlePageChange,
   });
 
   // 仓库点击处理
@@ -133,29 +167,11 @@ export default function DepartmentManage() {
     setModalVisible(true);
   };
 
-  const handleDeleteDepartment = (id: number) => {
-    deleteDepartmentInfo(id)
-      .then(() => {
-        message.success('删除成功');
-        fetchDepartmentList();
-      })
-      .catch(() => message.error('删除失败'));
-  };
-
   // 路段操作处理
   const handleEditRoad = (record: RoadPO) => {
     roadForm.setFieldsValue(record);
     setCurrentRoadId(record.id);
     setRoadVisible(true);
-  };
-
-  const handleDeleteRoad = (id: number) => {
-    deleteDepartmentInfo(id)
-      .then(() => {
-        message.success('删除成功');
-        fetchDepartmentList();
-      })
-      .catch(() => message.error('删除失败'));
   };
 
   // 表单提交
@@ -164,11 +180,13 @@ export default function DepartmentManage() {
       ? updateDepartmentInfo({ ...values, id: currentId })
       : addDepartment(values);
 
-    action.then(() => {
-      message.success(`操作成功`);
-      setModalVisible(false);
-      fetchDepartmentList();
-    }).catch(() => message.error('操作失败'));
+    action
+      .then(() => {
+        message.success(`操作成功`);
+        setModalVisible(false);
+        fetchDepartmentList();
+      })
+      .catch(() => message.error('操作失败'));
   };
 
   const handleRoadSubmit = (values: any) => {
@@ -176,56 +194,14 @@ export default function DepartmentManage() {
       ...values,
       id: currentRoadId,
       stationId: currentDepartmentId,
-      deleted: 0
-    }).then(() => {
-      message.success('操作成功');
-      setRoadVisible(false);
-      fetchDepartmentList();
-    }).catch(() => message.error('操作失败'));
-  };
-
-  // 树节点右键菜单
-  const renderTreeMenu = (node: any) => {
-    if (!node) {
-      return null;
-    }
-    const isDept = node.key.startsWith('dept_');
-    const id = parseInt(node.key.replace(isDept ? 'dept_' : 'road_', ''));
-
-    return (
-      <Menu>
-        <Menu.Item key="edit" onClick={() => {
-          if (isDept) {
-            const dept = departmentList.find(d => d.id === id);
-            if (dept) handleEditDepartment(dept);
-          } else {
-            const road = departmentList
-              .flatMap(d => d.roadPOList)
-              .find(r => r.id === id);
-            if (road) handleEditRoad(road);
-          }
-        }}>
-          编辑
-        </Menu.Item>
-        <Menu.Item key="add" onClick={() => {
-          if (isDept) {
-            setCurrentDepartmentId(id);
-            setRoadVisible(true);
-          }
-        }}>
-          {isDept ? '添加路段' : '添加仓库'}
-        </Menu.Item>
-        <Menu.Item key="delete" danger onClick={() => {
-          if (isDept) {
-            handleDeleteDepartment(id);
-          } else {
-            handleDeleteRoad(id);
-          }
-        }}>
-          删除
-        </Menu.Item>
-      </Menu>
-    );
+      deleted: 0,
+    })
+      .then(() => {
+        message.success('操作成功');
+        setRoadVisible(false);
+        fetchDepartmentList();
+      })
+      .catch(() => message.error('操作失败'));
   };
 
   // 自定义树节点标题
@@ -234,19 +210,37 @@ export default function DepartmentManage() {
     const id = parseInt(node.key.replace(isDept ? 'dept_' : 'road_', ''));
 
     return (
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          width: '100%',
+        }}
+      >
         <span style={{ flex: 1 }}>{node.title}</span>
-        <div style={{ display: 'flex', gap: 12, zIndex: -1, width: isDept ? 245 : 220, justifyContent: 'flex-end', position: 'absolute' }} onClick={e => e.stopPropagation()}>
+        <div
+          style={{
+            display: 'flex',
+            gap: 12,
+            zIndex: 0,
+            left: isDept ? 183 : 185,
+            justifyContent: 'flex-end',
+            position: 'absolute',
+            color: 'black',
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
           <Tooltip title="编辑">
             <EditOutlined
               onClick={() => {
                 if (isDept) {
-                  const dept = departmentList.find(d => d.id === id);
+                  const dept = departmentList.find((d) => d.id === id);
                   if (dept) handleEditDepartment(dept);
                 } else {
                   const road = departmentList
-                    .flatMap(d => d.roadPOList)
-                    .find(r => r.id === id);
+                    .flatMap((d) => d.roadPOList)
+                    .find((r) => r.id === id);
                   if (road) handleEditRoad(road);
                 }
               }}
@@ -268,16 +262,39 @@ export default function DepartmentManage() {
             title="删除部门/路段"
             description="确认要删除该部门/路段吗?"
             onConfirm={() => {
-              deleteDepartmentInfo(id)
-                .then(() => {
-                  message.success('删除成功');
-                })
-                .catch(() => {
-                  message.error('删除失败');
-                })
-                .finally(() => {
-                  fetchDepartmentList();
-                });
+              if (isDept) {
+                // 删除部门 - 调用更新接口
+                const dept = departmentList.find((d) => d.id === id);
+                if (dept) {
+                  updateDepartmentInfo({ ...dept, deleted: 1 })
+                    .then(() => {
+                      message.success('删除成功');
+                    })
+                    .catch(() => {
+                      message.error('删除失败');
+                    })
+                    .finally(() => {
+                      fetchDepartmentList();
+                    });
+                }
+              } else {
+                // 删除路段 - 调用保存接口
+                const road = departmentList
+                  .flatMap((d) => d.roadPOList)
+                  .find((r) => r.id === id);
+                if (road) {
+                  saveRoad({ ...road, deleted: 1 })
+                    .then(() => {
+                      message.success('删除成功');
+                    })
+                    .catch(() => {
+                      message.error('删除失败');
+                    })
+                    .finally(() => {
+                      fetchDepartmentList();
+                    });
+                }
+              }
             }}
             okText="确认"
             cancelText="取消"
@@ -286,19 +303,48 @@ export default function DepartmentManage() {
               <DeleteOutlined />
             </Tooltip>
           </Popconfirm>
-
         </div>
       </div>
     );
   };
 
   return (
-    <Layout curActive="/departmentManage" defaultOpen={['/departmentManage']}>
-      <div style={{ padding: 24, display: 'flex', height: 'calc(100vh - 112px)', minHeight: 600 }}>
+    <Layout
+      curActive="/departmentManage"
+      defaultOpen={['/departmentManage']}
+    >
+      <div
+        style={{
+          padding: 24,
+          display: 'flex',
+          height: 'calc(100vh - 112px)',
+          minHeight: 600,
+        }}
+      >
         {/* 左侧树形菜单 */}
-        <div style={{ width: 300, marginRight: 24, borderRight: '1px solid #f0f0f0', paddingRight: 24, display: 'flex', flexDirection: 'column' }}>
-          <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between' }}>
-            <Title level={4} style={{ margin: 0 }}>部门结构</Title>
+        <div
+          style={{
+            width: 300,
+            marginRight: 24,
+            borderRight: '1px solid #f0f0f0',
+            paddingRight: 24,
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
+          <div
+            style={{
+              marginBottom: 16,
+              display: 'flex',
+              justifyContent: 'space-between',
+            }}
+          >
+            <Title
+              level={4}
+              style={{ margin: 0 }}
+            >
+              部门结构
+            </Title>
             <Button
               type="primary"
               size="small"
@@ -319,15 +365,35 @@ export default function DepartmentManage() {
               expandedKeys={expandedKeys}
               onExpand={handleExpand}
               titleRender={renderTitle}
+              selectedKeys={selectedKeys} // 设置选中的节点
             />
           </div>
         </div>
 
         {/* 右侧内容区 */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%' }}>
-          <div style={{ marginBottom: 24, flex: 1, minHeight: '50%', overflow: 'auto' }}>
-            <Title level={4} style={{ marginBottom: 16 }}>
-              {selectedNode ? `${selectedNode.title} - 仓库列表` : '请选择部门或路段'}
+        <div
+          style={{
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100%',
+          }}
+        >
+          <div
+            style={{
+              marginBottom: 24,
+              flex: 1,
+              minHeight: '50%',
+              overflow: 'auto',
+            }}
+          >
+            <Title
+              level={4}
+              style={{ marginBottom: 16 }}
+            >
+              {selectedNode
+                ? `${selectedNode.title} - 仓库列表`
+                : '请选择部门或路段'}
             </Title>
 
             <WarehouseList
@@ -346,7 +412,10 @@ export default function DepartmentManage() {
         onCancel={() => setModalVisible(false)}
         footer={null}
       >
-        <Form form={form} onFinish={handleSubmit}>
+        <Form
+          form={form}
+          onFinish={handleSubmit}
+        >
           <Form.Item
             label="部门名称"
             name="stationName"
@@ -354,12 +423,20 @@ export default function DepartmentManage() {
           >
             <Input />
           </Form.Item>
-          <Form.Item label="备注" name="note">
+          <Form.Item
+            label="备注"
+            name="note"
+          >
             <Input.TextArea />
           </Form.Item>
           <Form.Item wrapperCol={{ offset: 8 }}>
             <Space>
-              <Button type="primary" htmlType="submit">提交</Button>
+              <Button
+                type="primary"
+                htmlType="submit"
+              >
+                提交
+              </Button>
               <Button onClick={() => setModalVisible(false)}>取消</Button>
             </Space>
           </Form.Item>
@@ -373,7 +450,10 @@ export default function DepartmentManage() {
         onCancel={() => setRoadVisible(false)}
         footer={null}
       >
-        <Form form={roadForm} onFinish={handleRoadSubmit}>
+        <Form
+          form={roadForm}
+          onFinish={handleRoadSubmit}
+        >
           <Form.Item
             label="路段名称"
             name="road"
@@ -383,7 +463,12 @@ export default function DepartmentManage() {
           </Form.Item>
           <Form.Item wrapperCol={{ offset: 8 }}>
             <Space>
-              <Button type="primary" htmlType="submit">提交</Button>
+              <Button
+                type="primary"
+                htmlType="submit"
+              >
+                提交
+              </Button>
               <Button onClick={() => setRoadVisible(false)}>取消</Button>
             </Space>
           </Form.Item>

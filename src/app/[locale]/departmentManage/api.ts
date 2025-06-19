@@ -62,20 +62,6 @@ export const updateDepartmentInfo = (params: Partial<DepartmentInfo>): Promise<a
     });
 };
 
-// 删除部门
-export const deleteDepartmentInfo = (id: number): Promise<any> => {
-  return req
-    .delete('/departmentController/deleteDepartmentById', {
-      params: { id },
-    })
-    .then((res: any) => {
-      if (res.code === 200) {
-        return res.data;
-      }
-      throw new Error(res.message || '删除部门失败');
-    });
-};
-
 
 // 保存路段
 export const saveRoad = (params: Partial<RoadPO>): Promise<any> => {

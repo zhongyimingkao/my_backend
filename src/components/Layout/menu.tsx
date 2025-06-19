@@ -21,6 +21,19 @@ export const getHomeNavList = (t: any) => {
       label: t('warehouseInfo'),
     },
     {
+      key: '/inventoryManage/:warehouseID',
+      icon: (
+        <Image
+          src="/store-in.svg"
+          width={14}
+          height={14}
+          alt=""
+          style={commonStyle}
+        />
+      ),
+      label: t('storeManage'),
+    },
+    {
       key: '/storeManage/in/:warehouseID',
       icon: (
         <Image
