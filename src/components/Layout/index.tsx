@@ -140,32 +140,6 @@ const CommonLayout: React.FC<IProps> = ({ children, curActive }) => {
 
   const generateDynamicMenu = () => {
     const commonNavList = getCommonNavList(t, isSuperAdmin);
-    const warehouseInfoMenu = commonNavList.find(
-      (item) => item.key === '/storeManage/warehouse'
-    );
-
-    if (warehouseInfoMenu) {
-      warehouseInfoMenu.children = [
-        {
-          key: '/storeManage/warehouse',
-          label: '全部',
-        },
-        ...departmentTree.map((dept) => ({
-          key: `/storeManage/warehouse?dept=${dept.key.split('_')[1]}`,
-          label: dept.label,
-          ...(dept.children
-            ? {
-                children: dept.children.map((road) => ({
-                  key: `/storeManage/warehouse?dept=${
-                    dept.key.split('_')[1]
-                  }&road=${road.key.split('_')[1]}`,
-                  label: road.label,
-                })),
-              }
-            : {}),
-        })),
-      ];
-    }
     return commonNavList;
   };
 
@@ -185,10 +159,10 @@ const CommonLayout: React.FC<IProps> = ({ children, curActive }) => {
     <ConfigProvider
       theme={{
         token: {
-          colorPrimary: '#1a5f9c',
-          colorSuccess: '#27ae60',
-          colorBgContainer: '#d6e7f5',
-          colorBgLayout: '#c5dcef',
+          colorPrimary: '#1890ff', /* 主色 - 蓝色 */
+          colorSuccess: '#52c41a', /* 成功色/选中色 - 绿色 */
+          colorBgContainer: '#ffffff', /* 容器背景色 - 白色 */
+          colorBgLayout: '#ffffff', /* 布局背景色 - 白色 */
           colorText: '#2c3e50',
           colorTextSecondary: '#4a5b6c',
           colorBorder: '#8fb3d5',
@@ -198,37 +172,37 @@ const CommonLayout: React.FC<IProps> = ({ children, curActive }) => {
         },
         components: {
           Layout: {
-            headerBg: '#1a5f9c',
-            bodyBg: '#c5dcef',
+            headerBg: '#1890ff', /* 表头背景色 - 蓝色 */
+            bodyBg: '#fff', /* 内容区域背景色 - 白色 */
           },
           Menu: {
             itemColor: '#ffffff',
             itemHoverColor: '#ffffff',
-            itemHoverBg: '#2a7bc1',
+            itemHoverBg: '#40a9ff', /* 菜单项悬停背景色 - 浅蓝色 */
             itemSelectedColor: '#ffffff',
-            itemSelectedBg: '#27ae60',
-            itemActiveBg: '#27ae60',
+            itemSelectedBg: '#52c41a', /* 菜单项选中背景色 - 绿色 */
+            itemActiveBg: '#52c41a',
             horizontalItemSelectedColor: '#ffffff',
             horizontalItemHoverColor: '#ffffff',
-            horizontalItemHoverBg: '#2a7bc1',
-            horizontalItemSelectedBg: '#27ae60',
-            subMenuItemBg: '#1a5f9c',
-            popupBg: '#1a5f9c',
+            horizontalItemHoverBg: '#40a9ff',
+            horizontalItemSelectedBg: '#52c41a',
+            subMenuItemBg: '#1890ff',
+            popupBg: '#1890ff',
           },
           Button: {
-            defaultBg: '#d6e7f5',
+            defaultBg: '#ffffff',
             defaultBorderColor: '#8fb3d5',
-            defaultColor: '#1a5f9c',
-            linkHoverBg: '#27ae60',
+            defaultColor: '#1890ff',
+            linkHoverBg: '#52c41a',
           },
           Table: {
-            headerBg: '#b8d4eb',
-            headerColor: '#1a5f9c',
-            borderColor: '#8fb3d5',
-            rowHoverBg: 'rgba(26, 95, 156, 0.1)',
+            headerBg: '#fafafa', /* 表头背景色 - 淡灰色 */
+            headerColor: '#666',
+            borderColor: '#eeeeee',
+            rowHoverBg: 'rgba(24, 144, 255, 0.1)',
           },
           Badge: {
-            colorBgBase: '#27ae60',
+            colorBgBase: '#52c41a',
           },
         },
       }}

@@ -13,7 +13,7 @@ const UserManageSearchForm: React.FC<Props> = ({ onSearch }) => {
 
   const formStyle: React.CSSProperties = {
     maxWidth: 'none',
-    background: token.colorFillAlter,
+    background: '#fff',
     borderRadius: token.borderRadiusLG,
     padding: 24,
   };

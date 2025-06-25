@@ -59,7 +59,7 @@ const WarehouseDashboard = () => {
   const [warehouseInfo, setWarehouseInfo] = useState<Partial<Warehouse>>();
   const [loading, setLoading] = useState(true);
   const [visible, setVisible] = useState<boolean>(false);
-  const [managers, setManagers] = useState<string[]>();
+  const [managers, setManagers] = useState<string>();
   const [pendingOutbounds, setPendingOutbounds] = useState<StoreOut[]>([]);
   const [outboundLoading, setOutboundLoading] = useState(false);
   const [statistics, setStatistics] = useState({
@@ -224,7 +224,7 @@ const WarehouseDashboard = () => {
   const fetchManagers = async () => {
     try {
       const res = await getWarehouseManagers();
-      setManagers(res);
+      setManagers(res[warehouseID as string].map(item=>item.userName).join(','));
     } catch (error) {
       console.error('Failed to fetch managers detail:', error);
     }
@@ -357,7 +357,7 @@ const WarehouseDashboard = () => {
                 <Text strong>所属路段：{warehouseInfo?.manageRoadName}</Text>
                 <Text strong>简介：{warehouseInfo?.remark}</Text>
                 <Text strong>
-                  仓库管理员：{managers?.[String(warehouseID)]}
+                  仓库管理员：{managers}
                 </Text>
                 <Text strong>
                   仓库状态: {warehouseInfo?.status === 0 ? '开启' : '关闭'}

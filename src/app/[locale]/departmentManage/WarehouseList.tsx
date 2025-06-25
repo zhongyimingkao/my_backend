@@ -1,5 +1,6 @@
 import { Table, Button, Typography } from 'antd';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 const { Title } = Typography;
 
@@ -23,12 +24,19 @@ interface WarehouseListProps {
   };
 }
 
-export default function WarehouseList({ 
-  warehouses, 
+export default function WarehouseList({
+  warehouses,
   onWarehouseClick,
-  pagination
+  pagination,
 }: WarehouseListProps) {
   const router = useRouter();
+  const [selectKeys, setSelectKeys] = useState<number[]>([]);
+
+  useEffect(() => {
+    if (warehouses) {
+      setSelectKeys([warehouses?.[0]?.id]);
+    }
+  }, [warehouses]);
 
   const columns = [
     {
@@ -36,7 +44,14 @@ export default function WarehouseList({
       dataIndex: 'warehouseName',
       key: 'warehouseName',
       render: (text: string, record: Warehouse) => (
-        <a onClick={() => onWarehouseClick(record.id)}>{text}</a>
+        <a
+          onClick={() => {
+            onWarehouseClick(record.id);
+            setSelectKeys([record.id]);
+          }}
+        >
+          {text}
+        </a>
       ),
     },
     {
@@ -76,15 +91,23 @@ export default function WarehouseList({
         </Button>
       </div>
 
-      <Table 
-        columns={columns} 
-        dataSource={warehouses} 
+      <Table
+        columns={columns}
+        dataSource={warehouses}
         rowKey="id"
+        rowSelection={{
+          type: 'radio',
+          selectedRowKeys: selectKeys,
+          onChange: (keys) => {
+            setSelectKeys(keys as number[]);
+            onWarehouseClick((keys as number[])?.[0]);
+          },
+        }}
         pagination={{
           ...pagination,
           showSizeChanger: true,
           showQuickJumper: true,
-          showTotal: (total) => `共 ${total} 条`
+          showTotal: (total) => `共 ${total} 条`,
         }}
       />
     </>

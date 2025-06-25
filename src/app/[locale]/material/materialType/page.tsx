@@ -37,6 +37,8 @@ export default function MaterialTypeList() {
   const [visible, setVisible] = useState<boolean>(false);
 
   const listStyle: React.CSSProperties = {
+    background: 'white',
+    border:'1px solid #ddd',
     borderRadius: token.borderRadiusLG,
     padding: 12,
   };

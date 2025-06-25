@@ -31,9 +31,8 @@ const StoreSearchForm: React.FC<Props> = ({ onSearch, type, warehouseID, onWareh
 
   const formStyle: React.CSSProperties = {
     maxWidth: 'none',
-    background: token.colorFillAlter,
-    borderRadius: token.borderRadiusLG,
     padding: 24,
+    background: '#fff',
   };
 
   useEffect(() => {

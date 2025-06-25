@@ -33,7 +33,8 @@ export default function StoreInList() {
   const [selectedWarehouses, setSelectedWarehouses] = useState<number[]>([]);
 
   const listStyle: React.CSSProperties = {
-    background: token.colorFillAlter,
+    background: 'white',
+    border:'1px solid #ddd',
     borderRadius: token.borderRadiusLG,
     padding: 12,
   };

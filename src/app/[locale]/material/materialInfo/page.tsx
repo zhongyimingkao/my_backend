@@ -41,6 +41,8 @@ export default function MaterialInfoList() {
   const [form] = Form.useForm();
 
   const listStyle: React.CSSProperties = {
+    background: 'white',
+    border:'1px solid #ddd',
     borderRadius: token.borderRadiusLG,
     padding: 12,
   };

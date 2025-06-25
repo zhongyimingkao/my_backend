@@ -61,7 +61,7 @@ export default function InventoryManagement() {
   const [inventoryVisible, setInventoryVisible] = useState<boolean>(false);
   const [form] = Form.useForm();
   const [materialOptions, setMaterialOptions] = useState<[]>([]);
-  const [managers, setManagers] = useState<string[]>();
+  const [managers, setManagers] = useState<string>();
 
   const onPageChange = (page: number) => {
     setCurrent(page);
@@ -70,11 +70,12 @@ export default function InventoryManagement() {
   const fetchManagers = async () => {
     try {
       const res = await getWarehouseManagers();
-      setManagers(res);
+      setManagers(res[warehouseID as string].map(item=>item.userName).join(','));
     } catch (error) {
       console.error('Failed to fetch managers detail:', error);
     }
   };
+
 
   const fetchWarehouseDetail = async () => {
     try {
@@ -302,7 +303,7 @@ export default function InventoryManagement() {
                   {warehouseInfo?.warehouseName} - 库存管理
                 </Title>
                 <Text strong>
-                  仓库管理员：{managers?.[String(warehouseID)]}
+                  仓库管理员：{managers}
                 </Text>
                 <Space>
                   <Button

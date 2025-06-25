@@ -24,6 +24,8 @@ export default function Door() {
   const [selectedWarehouses, setSelectedWarehouses] = useState<number[]>([]);
 
   const listStyle: React.CSSProperties = {
+    background: 'white',
+    border:'1px solid #ddd',
     borderRadius: token.borderRadiusLG,
     padding: 12,
   };

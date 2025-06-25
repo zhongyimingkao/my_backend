@@ -49,6 +49,8 @@ export default function StoreOutList() {
     useState<QueryPageOutboundReq>();
   const [selectedWarehouses, setSelectedWarehouses] = useState<number[]>([]);
   const listStyle: React.CSSProperties = {
+    background: 'white',
+    border:'1px solid #ddd',
     borderRadius: token.borderRadiusLG,
     padding: 12,
   };

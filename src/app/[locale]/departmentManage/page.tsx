@@ -15,6 +15,8 @@ import {
   Menu,
   Dropdown,
   Tooltip,
+  List,
+  Table,
 } from 'antd';
 import { EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import { DepartmentInfo, RoadPO } from './type';
@@ -27,7 +29,10 @@ import {
 } from './api';
 import WarehouseList from './WarehouseList';
 import { useRouter } from 'next/navigation';
-import { queryWareHouse } from '../storeManage/warehouse/api';
+import {
+  getWarehouseManagers,
+  queryWareHouse,
+} from '../storeManage/warehouse/api';
 
 const { Title } = Typography;
 
@@ -46,7 +51,8 @@ export default function DepartmentManage() {
   );
   const [warehouses, setWarehouses] = useState<any[]>([]);
   const [expandedKeys, setExpandedKeys] = useState<React.Key[]>([]);
-  const [selectedKeys, setSelectedKeys] = useState<React.Key[]>([]); // 添加选中的节点状态
+  const [selectedKeys, setSelectedKeys] = useState<React.Key[]>([]);
+  const [managers, setManagers] = useState<any[]>([]); // 添加管理员列表状态
   const router = useRouter();
 
   // 树节点展开处理
@@ -117,13 +123,23 @@ export default function DepartmentManage() {
 
     queryWareHouse(params)
       .then((data: any) => {
-        setWarehouses(data.records || []);
+        const warehouses = data.records || [];
+        setWarehouses(warehouses);
         setPagination({
           ...pagination,
           current: data.current,
           pageSize: data.size,
           total: data.total,
         });
+
+        // 默认选中第一项仓库
+        if (warehouses.length > 0) {
+          setSelectedWarehouse(warehouses[0].id);
+          // 获取第一项仓库的管理员
+          getWarehouseManagers()
+            .then((data) => setManagers(data[warehouses[0].id]))
+            .catch(() => message.error('获取管理员列表失败'));
+        }
       })
       .catch(() => message.error('获取仓库数据失败'));
   };
@@ -158,6 +174,10 @@ export default function DepartmentManage() {
   // 仓库点击处理
   const handleWarehouseClick = (id: number) => {
     setSelectedWarehouse(id);
+    // 获取选中仓库的管理员
+    getWarehouseManagers()
+      .then((data) => setManagers(data[id]))
+      .catch(() => message.error('获取管理员列表失败'));
   };
 
   // 部门操作处理
@@ -319,6 +339,8 @@ export default function DepartmentManage() {
           display: 'flex',
           height: 'calc(100vh - 112px)',
           minHeight: 600,
+          border: '1px solid #ddd',
+          borderRadius: 10,
         }}
       >
         {/* 左侧树形菜单 */}
@@ -326,7 +348,7 @@ export default function DepartmentManage() {
           style={{
             width: 300,
             marginRight: 24,
-            borderRight: '1px solid #f0f0f0',
+            borderRight: '2px solid #f0f0f0',
             paddingRight: 24,
             display: 'flex',
             flexDirection: 'column',
@@ -358,7 +380,7 @@ export default function DepartmentManage() {
             </Button>
           </div>
 
-          <div style={{ flex: 1, overflow: 'auto', background: '#d6e7f5' }}>
+          <div style={{ flex: 1, overflow: 'auto', background: '#FFF' }}>
             <Tree
               treeData={departmentList}
               onSelect={handleSelect}
@@ -366,6 +388,7 @@ export default function DepartmentManage() {
               onExpand={handleExpand}
               titleRender={renderTitle}
               selectedKeys={selectedKeys} // 设置选中的节点
+              style={{ background: '#FFF' }}
             />
           </div>
         </div>
@@ -402,6 +425,53 @@ export default function DepartmentManage() {
               pagination={pagination}
             />
           </div>
+
+          {/* 管理员列表 - 只在选中仓库时显示 */}
+          {selectedWarehouse && (
+            <div style={{ marginTop: 24, flex: 1, minHeight: '30%' }}>
+              <Title
+                level={4}
+                style={{ marginBottom: 16 }}
+              >
+                {`仓库管理员（${
+                  warehouses.find((item) => item.id === selectedWarehouse)
+                    .warehouseName
+                }）`}
+              </Title>
+              <Table
+                dataSource={managers}
+                columns={[
+                  {
+                    title: '用户名',
+                    dataIndex: 'userName',
+                    key: 'userName',
+                  },
+                  {
+                    title: '电话',
+                    dataIndex: 'phone',
+                    key: 'phone',
+                  },
+                  {
+                    title: '身份证号',
+                    dataIndex: 'idCard',
+                    key: 'idCard',
+                  },
+                  {
+                    title: '地址',
+                    dataIndex: 'address',
+                    key: 'address',
+                  },
+                  {
+                    title: '创建时间',
+                    dataIndex: 'createTime',
+                    key: 'createTime',
+                  },
+                ]}
+                rowKey="id"
+                pagination={false}
+              />
+            </div>
+          )}
         </div>
       </div>
 
