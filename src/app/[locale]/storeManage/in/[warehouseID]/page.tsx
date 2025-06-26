@@ -8,6 +8,7 @@ import { saveAs } from 'file-saver';
 import { useEffect, useState } from 'react';
 import { StoreIn } from '../../common/type';
 import { Button, List, message, Modal, Table, TableProps, theme } from 'antd';
+import { DownloadOutlined } from '@ant-design/icons';
 import StoreSearchForm from '../../common/Search';
 import {
   QueryPageInboundReq,
@@ -215,6 +216,7 @@ export default function StoreInList() {
                 onClick={handleExport}
               >
                 导出Excel
+                <DownloadOutlined style={{ marginLeft: 5 }} />
               </Button>
             </div>
             <h3>入库信息列表</h3>

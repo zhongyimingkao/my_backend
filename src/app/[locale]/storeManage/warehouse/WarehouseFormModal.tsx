@@ -184,13 +184,13 @@ export default function WarehouseFormModal({
           <Input />
         </Form.Item>
         <Form.Item
-          label="左摄像头ID"
+          label="仓库外摄像头ID"
           name="lCameraId"
         >
           <Input />
         </Form.Item>
         <Form.Item
-          label="右摄像头ID"
+          label="仓库内摄像头ID"
           name="rCameraId"
         >
           <Input />

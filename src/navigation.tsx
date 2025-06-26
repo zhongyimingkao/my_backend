@@ -23,9 +23,11 @@ export const pathnames = {
   '/userManage/webUserManage': '/webUserManage',
   '/userManage/role': '/role',
   '/departmentManage': '/departmentManage',
-
+  '/reportExport': '/reportExport',
   '/cameraManage': '/cameraManage',
   '/surveillance': '/surveillance',
+  '/surveillance/live': '/surveillance/live',
+  '/surveillance/playback': '/surveillance/playback',
   '/door': '/door',
   // '/client': '/client',
   // '/client/redirect': '/client/redirect',

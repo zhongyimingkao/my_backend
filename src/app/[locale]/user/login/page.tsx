@@ -46,17 +46,17 @@ export default function Login() {
   return (
     <main className={styles.loginWrap}>
       <div className={styles.leftBanner}>
-        <span className={styles.logo}>后台管理系统</span>
+        <span className={styles.logo}>贵州省公路管理局防冻物资智能控制系统</span>
         <div className={styles.banner}>
           <img
-            src="/logo_bg.svg"
+            src="/gonglu.png"
             alt=""
           />
         </div>
       </div>
       <div className={styles.content}>
         <div className={styles.innerContent}>
-          <h1>欢迎登录 物料中后台管理系统</h1>
+          <h1>欢迎登录 贵州省公路管理局防冻物资智能控制系统</h1>
           <Form
             name="basic"
             className={styles.form}

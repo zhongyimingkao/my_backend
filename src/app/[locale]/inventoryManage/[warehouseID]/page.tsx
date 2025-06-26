@@ -20,6 +20,8 @@ import {
 } from 'antd';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 
 import Layout from '@/components/Layout';
 import { TableProps } from 'antd/lib';
@@ -29,6 +31,7 @@ import {
   EditOutlined,
   PlusCircleOutlined,
   SaveOutlined,
+  DownloadOutlined,
 } from '@ant-design/icons';
 import {
   batchUpdateWareHouseInventory,
@@ -76,7 +79,6 @@ export default function InventoryManagement() {
     }
   };
 
-
   const fetchWarehouseDetail = async () => {
     try {
       const res = await queryWareHouse();
@@ -105,6 +107,77 @@ export default function InventoryManagement() {
       .catch(() => {
         message.error('库存查询失败');
       });
+  };
+
+  // 导出Excel功能
+  const handleExport = async () => {
+    try {
+      if (!warehouseInventory || warehouseInventory.length === 0) {
+        message.warning('暂无库存数据可导出');
+        return;
+      }
+
+      // 准备导出数据
+      const exportData = warehouseInventory.map((item, index) => ({
+        序号: index + 1,
+        物料名称: item.materialName,
+        物料库存: item.sl,
+        物料单位: item.unit,
+        预警值: item.threshold || 0,
+      }));
+
+      // 在表格顶部添加仓库信息
+      const headerInfo = [
+        [`仓库名称: ${warehouseInfo?.warehouseName || ''}`],
+        [`仓库管理员: ${managers || ''}`],
+        [''], // 空行
+      ];
+
+      // 创建空工作表
+      const worksheet = XLSX.utils.aoa_to_sheet([]);
+
+      // 先添加头部信息
+      XLSX.utils.sheet_add_aoa(worksheet, headerInfo, { origin: 'A1' });
+      
+      // 再添加数据（从第4行开始）
+      XLSX.utils.sheet_add_json(worksheet, exportData, { 
+        origin: 'A4',
+        skipHeader: false 
+      });
+
+      // 设置列宽
+      const colWidths = [
+        { wch: 8 },  // 序号
+        { wch: 20 }, // 物料名称
+        { wch: 12 }, // 物料库存
+        { wch: 12 }, // 物料单位
+        { wch: 12 }, // 预警值
+      ];
+      worksheet['!cols'] = colWidths;
+
+      // 创建工作簿
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, '库存管理');
+
+      // 生成Excel文件
+      const excelBuffer = XLSX.write(workbook, {
+        bookType: 'xlsx',
+        type: 'array',
+      });
+
+      // 下载文件
+      const data = new Blob([excelBuffer], {
+        type: 'application/octet-stream',
+      });
+      
+      const fileName = `${warehouseInfo?.warehouseName || '库存管理'}_${new Date().toISOString().slice(0, 10)}.xlsx`;
+      saveAs(data, fileName);
+
+      message.success('导出成功');
+    } catch (error) {
+      message.error('导出失败');
+      console.error('导出异常:', error);
+    }
   };
 
   useEffect(() => {
@@ -340,16 +413,25 @@ export default function InventoryManagement() {
                       <CloseCircleOutlined style={{ marginLeft: 10 }} />
                     </Button>
                   ) : (
-                    <Button
-                      style={{ fontSize: 14, fontWeight: 600, marginLeft: 10 }}
-                      type="primary"
-                      onClick={() => {
-                        setInventoryVisible(true);
-                      }}
-                    >
-                      新增库存
-                      <PlusCircleOutlined style={{ marginLeft: 5 }} />
-                    </Button>
+                    <>
+                      <Button
+                        style={{ fontSize: 14, fontWeight: 600, marginLeft: 10 }}
+                        type="primary"
+                        onClick={() => {
+                          setInventoryVisible(true);
+                        }}
+                      >
+                        新增库存
+                        <PlusCircleOutlined style={{ marginLeft: 5 }} />
+                      </Button>
+                      <Button
+                        style={{ fontSize: 14, fontWeight: 600, marginLeft: 10 }}
+                        onClick={handleExport}
+                      >
+                        导出Excel
+                        <DownloadOutlined style={{ marginLeft: 5 }} />
+                      </Button>
+                    </>
                   )}
                 </Space>
                 <Table

@@ -3,6 +3,7 @@ import Layout from '@/components/Layout';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import { Button, message, Select, Table, TableProps, theme } from 'antd';
+import { DownloadOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
 import DoorSearchForm from './Search';
 import { Niconne } from 'next/font/google';
@@ -182,6 +183,7 @@ export default function Door() {
             onClick={handleExport}
           >
             导出Excel
+            <DownloadOutlined style={{ marginLeft: 5 }} />
           </Button>
         </div>
         <div

@@ -73,7 +73,7 @@ export const getHomeNavList = (t: any) => {
       label: t('door'),
     },
     {
-      key: '/surveillance/:warehouseID',
+      key: '/surveillance',
       icon: (
         <Image
           src="/jiankong.svg"
@@ -84,6 +84,34 @@ export const getHomeNavList = (t: any) => {
         />
       ),
       label: t('surveillance'),
+      children: [
+        {
+          key: '/surveillance/live/:warehouseID',
+          icon: (
+            <Image
+              src="/jiankong.svg"
+              width={14}
+              height={14}
+              alt=""
+              style={commonStyle}
+            />
+          ),
+          label: t('liveSurveillance'),
+        },
+        {
+          key: '/surveillance/playback/:warehouseID',
+          icon: (
+            <Image
+              src="/jiankong.svg"
+              width={14}
+              height={14}
+              alt=""
+              style={commonStyle}
+            />
+          ),
+          label: t('playbackSurveillance'),
+        },
+      ],
     },
   ];
 };
@@ -235,7 +263,6 @@ export const getCommonNavList = (
       ),
       label: t('storeOut'),
     },
-
     {
       key: '/door/all',
       icon: (
@@ -248,6 +275,19 @@ export const getCommonNavList = (
         />
       ),
       label: t('door'),
+    },
+    {
+      key: '/reportExport',
+      icon: (
+        <Image
+          src="/store-out.svg"
+          width={14}
+          height={14}
+          alt=""
+          style={commonStyle}
+        />
+      ),
+      label: t('reportExport'),
     },
   ];
 

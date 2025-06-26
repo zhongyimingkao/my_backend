@@ -71,11 +71,11 @@ export default function Surveillance() {
         <Select
           options={[
             {
-              label: '左摄像头',
+              label: '仓库外摄像头',
               value: 'lCameraId',
             },
             {
-              label: '右摄像头',
+              label: '仓库内摄像头',
               value: 'rCameraId',
             },
           ]}
