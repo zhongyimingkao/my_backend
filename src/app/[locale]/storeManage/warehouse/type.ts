@@ -11,8 +11,6 @@ export interface Warehouse {
   warehouseAddr: string;
   warehouseCode: string;
   warehouseName: string;
-  lCameraCode: string;
-  rCameraCode: string;
   lCameraId: string;
   rCameraId: string;
   isValid: number;

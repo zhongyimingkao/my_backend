@@ -77,17 +77,17 @@ export default function MaterialInfoList() {
   };
   const columns: TableProps<MaterialInfo>['columns'] = [
     {
-      title: '物料编码',
+      title: '物资编码',
       dataIndex: 'materialCode',
       key: 'materialCode',
     },
     {
-      title: '物料名称',
+      title: '物资名称',
       dataIndex: 'materialName',
       key: 'materialName',
     },
     {
-      title: '物料类型',
+      title: '物资类型',
       dataIndex: 'materialTypeName',
       key: 'materialTypeName',
     },
@@ -122,11 +122,11 @@ export default function MaterialInfoList() {
               编辑
             </Button>
             <Popconfirm
-              title="删除物料"
-              description="确定要删除该物料数据吗?"
+              title="删除物资"
+              description="确定要删除该物资数据吗?"
               onConfirm={() => {
                 deleteMaterialInfo(record.id).then(() => {
-                  message.success('删除物料成功');
+                  message.success('删除物资成功');
                   queryMaterialInfoData();
                 });
               }}
@@ -160,7 +160,7 @@ export default function MaterialInfoList() {
         <div className={styles.content}>
           <Modal
             open={visible}
-            title={currentID ? '编辑物料' : '创建物料'}
+            title={currentID ? '编辑物资' : '创建物资'}
             onCancel={() => {
               setVisible(false);
             }}
@@ -178,30 +178,30 @@ export default function MaterialInfoList() {
                   ? { ...values, id: currentID }
                   : { ...values };
                 saveMaterialInfo(newValues).then(() => {
-                  message.success(`${currentID ? '编辑' : '创建'}物料成功`);
+                  message.success(`${currentID ? '编辑' : '创建'}物资成功`);
                   setVisible(false);
                   queryMaterialInfoData();
                 });
               }}
             >
               <Form.Item<Partial<MaterialInfo>>
-                label="物料编码"
+                label="物资编码"
                 name="materialCode"
-                rules={[{ required: true, message: '请输入物料编码!' }]}
+                rules={[{ required: true, message: '请输入物资编码!' }]}
               >
                 <Input />
               </Form.Item>
               <Form.Item<Partial<MaterialInfo>>
-                label="物料名称"
+                label="物资名称"
                 name="materialName"
-                rules={[{ required: true, message: '请输入物料名称!' }]}
+                rules={[{ required: true, message: '请输入物资名称!' }]}
               >
                 <Input />
               </Form.Item>
               <Form.Item<Partial<MaterialInfo>>
-                label="物料类型"
+                label="物资类型"
                 name="materialType"
-                rules={[{ required: true, message: '请选择物料类型!' }]}
+                rules={[{ required: true, message: '请选择物资类型!' }]}
               >
                 <Select
                   options={options}
@@ -253,7 +253,7 @@ export default function MaterialInfoList() {
                 marginBottom: 16,
               }}
             >
-              <h3>物料信息列表</h3>
+              <h3>物资信息列表</h3>
               <Button
                 type="primary"
                 onClick={() => {

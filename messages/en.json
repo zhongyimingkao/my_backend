@@ -27,6 +27,7 @@
         "webUserManage": "Admin User Management",
         "role": "Role Management",
         "departmentManage": "Department Management",
+        "dataManage": "Data Management",
         "warehouse": "Warehouse Management",
         "warehouseInfo": "Home",
         "cameraManage": "Camera Management",

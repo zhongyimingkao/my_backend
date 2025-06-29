@@ -42,6 +42,17 @@ export default function UserManage() {
   const onPageChange = (page: number, pageSize: number) => {
     setCurrent(page);
   };
+
+  // 检查是否可以删除系统管理员
+  const canDeleteAdmin = (userRole: number) => {
+    // 如果不是系统管理员，可以删除
+    if (userRole !== 2) return true;
+    
+    // 统计系统管理员的数量
+    const adminCount = userList.filter(user => user.role === 2).length;
+    return adminCount > 1; // 只有当系统管理员数量大于1时才能删除
+  };
+
   const columns: TableProps<UserInfo>['columns'] = [
     {
       title: '用户名',
@@ -81,6 +92,8 @@ export default function UserManage() {
     {
       title: '操作',
       render: (_, record) => {
+        const canDelete = canDeleteAdmin(record.role);
+        
         return (
           <>
             <Button
@@ -95,8 +108,16 @@ export default function UserManage() {
             </Button>
             <Popconfirm
               title="删除用户"
-              description="确定要删除该用户吗?"
+              description={
+                record.role === 2 && !canDelete 
+                  ? "不能删除最后一个系统管理员" 
+                  : "确定要删除该用户吗?"
+              }
               onConfirm={() => {
+                if (!canDelete) {
+                  message.error('不能删除最后一个系统管理员');
+                  return;
+                }
                 deleteUserInfo(Number(record.id)).then(() => {
                   message.success('删除用户成功');
                   updateUserList();
@@ -104,10 +125,12 @@ export default function UserManage() {
               }}
               okText="确定"
               cancelText="取消"
+              disabled={!canDelete}
             >
               <Button
                 type="link"
-                style={{ color: 'red' }}
+                style={{ color: canDelete ? 'red' : '#ccc' }}
+                disabled={!canDelete}
               >
                 删除
               </Button>
@@ -151,7 +174,7 @@ export default function UserManage() {
 
   return (
     <Layout
-      curActive="/webUserManage"
+      curActive="/userManage/webUserManage"
       defaultOpen={['/userManage']}
     >
       <div style={listStyle}>

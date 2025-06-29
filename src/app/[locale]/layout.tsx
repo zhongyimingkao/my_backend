@@ -22,6 +22,11 @@ export async function generateMetadata({
     // metadataBase: new URL('http://localhost:3000'),
     title: t('title'),
     description: t('desc'),
+    icons: {
+      icon: '/gonglu.png',
+      shortcut: '/gonglu.png',
+      apple: '/gonglu.png',
+    },
   };
 }
 
@@ -29,6 +34,9 @@ export default function BasicLayout({children, params: {locale}}: Readonly<Props
   return (
     <html lang={locale}>
       <head>
+        <link rel="icon" type="image/png" href="/gonglu.png" />
+        <link rel="shortcut icon" type="image/png" href="/gonglu.png" />
+        <link rel="apple-touch-icon" href="/gonglu.png" />
       </head>
       <body className={inter.className}>
         <AntdRegistry>{children}</AntdRegistry>

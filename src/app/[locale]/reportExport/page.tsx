@@ -19,13 +19,13 @@ import { saveAs } from 'file-saver';
 import { DownloadOutlined } from '@ant-design/icons';
 import Layout from '@/components/Layout';
 import { formatDate } from '@/utils';
+import { getUserAuthorizedWarehouses, getUserRole } from '@/utils/permission';
 
 // 导入相关API
 import { queryDoorInfo } from '../door/[warehouseID]/api';
 import { queryPageInbound, queryPageOutbound } from '../storeManage/common/api';
 import { queryWarehouseInventory, getWarehouseManagers } from '../storeManage/warehouse/api';
 import { queryWareHouse } from '../user/api';
-import { getWarehouseMenus } from '../userManage/role/api';
 
 const { Title, Text } = Typography;
 const { RangePicker } = DatePicker;
@@ -46,12 +46,12 @@ const reportTypes: ReportType[] = [
   {
     key: 'inbound',
     label: '入库记录',
-    description: '导出物料入库记录',
+    description: '导出物资入库记录',
   },
   {
     key: 'outbound',
     label: '出库记录',
-    description: '导出物料出库记录',
+    description: '导出物资出库记录',
   },
   {
     key: 'inventory',
@@ -73,16 +73,29 @@ export default function ReportExport() {
   const [selectedWarehouses, setSelectedWarehouses] = useState<number[]>([]);
   const [loading, setLoading] = useState(false);
   const [allWarehouses, setAllWarehouses] = useState<any[]>([]);
+  const [userRole, setUserRole] = useState<{role: number, isAdmin: boolean}>({
+    role: 0,
+    isAdmin: false
+  });
 
-  // 获取仓库列表
+  // 获取仓库列表 - 根据用户权限过滤
   const fetchWarehouses = async () => {
     try {
-      const [warehouseRes, menuRes] = await Promise.all([
-        queryWareHouse(),
-        getWarehouseMenus(),
-      ]);
+      // 获取用户角色信息
+      const roleInfo = await getUserRole();
+      setUserRole(roleInfo);
+
+      let warehouses: any[] = [];
       
-      const warehouses = warehouseRes.records || [];
+      if (roleInfo.isAdmin) {
+        // 超级管理员可以看到所有仓库
+        const warehouseRes = await queryWareHouse();
+        warehouses = warehouseRes.records || [];
+      } else {
+        // 普通管理员只能看到有权限的仓库
+        warehouses = await getUserAuthorizedWarehouses();
+      }
+      
       setAllWarehouses(warehouses);
       
       const options = warehouses.map((item: any) => ({
@@ -90,6 +103,10 @@ export default function ReportExport() {
         value: item.id,
       }));
       setWarehouseOptions(options);
+
+      if (options.length === 0) {
+        message.warning('您暂无任何仓库权限，请联系管理员');
+      }
     } catch (error) {
       console.error('获取仓库列表失败:', error);
       message.error('获取仓库列表失败');
@@ -195,9 +212,9 @@ export default function ReportExport() {
             序号: inventoryData.length + 1,
             仓库名称: warehouseName,
             仓库管理员: managers,
-            物料名称: item.materialName,
-            物料库存: item.sl,
-            物料单位: item.unit,
+            物资名称: item.materialName,
+            物资库存: item.sl,
+            物资单位: item.unit,
             预警值: item.threshold || 0,
           });
         });
@@ -334,17 +351,23 @@ export default function ReportExport() {
 
             <Col span={24}>
               <Form.Item
-                label="选择仓库"
+                label={`选择仓库 ${!userRole.isAdmin ? '(仅显示您有权限的仓库)' : ''}`}
                 name="warehouses"
                 rules={[{ required: true, message: '请选择仓库' }]}
               >
                 <Select
                   mode="multiple"
-                  placeholder="请选择要导出的仓库"
+                  placeholder={warehouseOptions.length === 0 ? '暂无可选仓库' : '请选择要导出的仓库'}
                   options={warehouseOptions}
                   style={{ width: '100%' }}
+                  disabled={warehouseOptions.length === 0}
                 />
               </Form.Item>
+              {!userRole.isAdmin && (
+                <Text type="secondary">
+                  提示：普通管理员只能导出有权限的仓库数据
+                </Text>
+              )}
             </Col>
 
             <Col span={24}>
@@ -368,7 +391,7 @@ export default function ReportExport() {
                   type="primary"
                   onClick={handleExport}
                   loading={loading}
-                  disabled={selectedReports.length === 0}
+                  disabled={selectedReports.length === 0 || warehouseOptions.length === 0}
                 >
                   导出Excel
                   <DownloadOutlined style={{ marginLeft: 5 }} />

@@ -31,9 +31,9 @@ const MaterialInfoSearchForm: React.FC<Props> = ({ onSearch }) => {
         >
           <Form.Item
             name="material"
-            label="物料"
+            label="物资"
           >
-            <Input placeholder="请输入物料信息" />
+            <Input placeholder="请输入物资信息" />
           </Form.Item>
         </Col>
       </Row>

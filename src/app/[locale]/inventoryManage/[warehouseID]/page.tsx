@@ -120,9 +120,9 @@ export default function InventoryManagement() {
       // 准备导出数据
       const exportData = warehouseInventory.map((item, index) => ({
         序号: index + 1,
-        物料名称: item.materialName,
-        物料库存: item.sl,
-        物料单位: item.unit,
+        物资名称: item.materialName,
+        物资库存: item.sl,
+        物资单位: item.unit,
         预警值: item.threshold || 0,
       }));
 
@@ -148,9 +148,9 @@ export default function InventoryManagement() {
       // 设置列宽
       const colWidths = [
         { wch: 8 },  // 序号
-        { wch: 20 }, // 物料名称
-        { wch: 12 }, // 物料库存
-        { wch: 12 }, // 物料单位
+        { wch: 20 }, // 物资名称
+        { wch: 12 }, // 物资库存
+        { wch: 12 }, // 物资单位
         { wch: 12 }, // 预警值
       ];
       worksheet['!cols'] = colWidths;
@@ -236,17 +236,17 @@ export default function InventoryManagement() {
 
   const inventoryColumns: TableProps<WarehouseInventory>['columns'] = [
     {
-      title: '物料名称',
+      title: '物资名称',
       dataIndex: 'materialName',
       key: 'materialName',
     },
     {
-      title: '物料库存',
+      title: '物资库存',
       dataIndex: 'sl',
       key: 'sl',
     },
     {
-      title: '物料单位',
+      title: '物资单位',
       dataIndex: 'unit',
       key: 'unit',
     },
@@ -332,14 +332,14 @@ export default function InventoryManagement() {
             }}
           >
             <Form.Item<Partial<WarehouseInventory>>
-              label="物料"
+              label="物资"
               name="materialId"
-              rules={[{ required: true, message: '请输入物料!' }]}
+              rules={[{ required: true, message: '请输入物资!' }]}
             >
               <Select options={materialOptions} />
             </Form.Item>
             <Form.Item<Partial<WarehouseInventory>>
-              label="物料库存"
+              label="物资库存"
               name="sl"
             >
               <InputNumber />

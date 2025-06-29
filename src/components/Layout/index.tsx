@@ -289,23 +289,40 @@ const CommonLayout: React.FC<IProps> = ({ children, curActive }) => {
           >
             <div className={styles.leftControl}>
               <Tooltip title="点击返回首页">
-                <span
+                <div
                   className={styles.logo}
                   onClick={() => {
                     router.push('/');
                   }}
                   style={{
-                    color: '#fff',
-                    fontWeight: 'bold',
-                    fontSize: '18px',
+                    display: 'flex',
+                    alignItems: 'center',
                     padding: '0 16px',
                     cursor: 'pointer',
                   }}
                 >
-                  {curWarehouseInfo
-                    ? '当前仓库：' + curWarehouseInfo.warehouseName
-                    : '物资后台管理'}
-                </span>
+                  {curWarehouseInfo ? (
+                    <span
+                      style={{
+                        color: '#fff',
+                        fontWeight: 'bold',
+                        fontSize: '18px',
+                      }}
+                    >
+                      当前仓库：{curWarehouseInfo.warehouseName}
+                    </span>
+                  ) : (
+                    <img
+                      src="/gonglu.png"
+                      alt="公路管理系统"
+                      style={{
+                        height: '40px',
+                        maxWidth: '200px',
+                        objectFit: 'contain',
+                      }}
+                    />
+                  )}
+                </div>
               </Tooltip>
 
               <Menu
@@ -350,7 +367,7 @@ const CommonLayout: React.FC<IProps> = ({ children, curActive }) => {
               {children}
             </div>
           </Content>
-        </Layout>
+      </Layout>
       </Layout>
     </ConfigProvider>
   );

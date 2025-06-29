@@ -7,7 +7,7 @@
  */
 export const parseImageUrls = (picUrl?: string): string[] => {
   if (!picUrl) return [];
-  return picUrl.split('|||').filter(url => url.trim() !== '');
+  return picUrl.split('|||').filter((url) => url.trim() !== '');
 };
 
 /**
@@ -17,21 +17,21 @@ export const parseImageUrls = (picUrl?: string): string[] => {
  */
 export const convertToAccessibleUrl = (localPath: string): string => {
   if (!localPath) return '';
-  
+
   // 如果已经是HTTP URL，直接返回
   if (localPath.startsWith('http://') || localPath.startsWith('https://')) {
     return localPath;
   }
-  
+
   // 如果是本地文件路径，转换为文件服务URL
   if (localPath.includes('C:\\') || localPath.includes('/')) {
     // 提取文件名
     const fileName = localPath.split(/[\\\/]/).pop() || '';
-    
+
     // 返回文件服务URL
     return `/api/files/${encodeURIComponent(fileName)}`;
   }
-  
+
   // 如果是相对路径，假设是相对于public目录
   return localPath.startsWith('/') ? localPath : `/${localPath}`;
 };
@@ -41,10 +41,14 @@ export const convertToAccessibleUrl = (localPath: string): string => {
  * @param url 图片URL
  * @returns Promise<boolean>
  */
-export const checkImageUrl = async (url: string): Promise<boolean> => {
+export const checkImageUrl = async (
+  url: string
+): Promise<boolean | undefined> => {
   try {
     const response = await fetch(url, { method: 'HEAD' });
-    return response.ok && response.headers.get('content-type')?.startsWith('image/');
+    return (
+      response.ok && response.headers.get('content-type')?.startsWith('image/')
+    );
   } catch {
     return false;
   }

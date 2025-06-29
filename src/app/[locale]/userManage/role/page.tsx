@@ -50,6 +50,16 @@ export default function RoleManage() {
     setCurrent(page);
   };
 
+  // 检查是否可以删除系统管理员
+  const canDeleteAdmin = (roleId: number) => {
+    // 如果不是系统管理员角色，可以删除
+    if (roleId !== 2) return true;
+    
+    // 统计系统管理员的数量
+    const adminCount = roleList.filter(role => role.id === 2).length;
+    return adminCount > 1; // 只有当系统管理员数量大于1时才能删除
+  };
+
   const columns: TableProps<RoleInfo>['columns'] = [
     {
       title: '角色名称',
@@ -75,13 +85,14 @@ export default function RoleManage() {
         <>
           <Button
             type="link"
+            disabled={record.id === 2} // 系统管理员不允许编辑权限
             onClick={() => {
               setEditingRole(record);
               setSelectedPermissions(permissions);
               setPermissionVisible(true);
             }}
           >
-            查看/编辑权限（{permissions.length}个）
+            {record.id === 2 ? '系统管理员' : `查看/编辑权限（${permissions.length}个）`}
           </Button>
         </>
       ),
@@ -89,10 +100,14 @@ export default function RoleManage() {
     {
       title: '操作',
       render: (_, record) => {
+        const isSystemAdmin = record.id === 2;
+        const canDelete = canDeleteAdmin(record.id);
+        
         return (
           <>
             <Button
               type="link"
+              disabled={isSystemAdmin} // 系统管理员不允许编辑
               onClick={() => {
                 setVisible(true);
                 setCurrentID(record.id);
@@ -103,8 +118,16 @@ export default function RoleManage() {
             </Button>
             <Popconfirm
               title="删除角色"
-              description="确定要删除该角色吗?"
+              description={
+                isSystemAdmin && !canDelete 
+                  ? "不能删除最后一个系统管理员" 
+                  : "确定要删除该角色吗?"
+              }
               onConfirm={() => {
+                if (!canDelete) {
+                  message.error('不能删除最后一个系统管理员');
+                  return;
+                }
                 deleteRoleInfo(record.id).then(() => {
                   message.success('删除角色成功');
                   updateRoleList();
@@ -112,10 +135,12 @@ export default function RoleManage() {
               }}
               okText="确定"
               cancelText="取消"
+              disabled={!canDelete}
             >
               <Button
                 type="link"
-                style={{ color: 'red' }}
+                style={{ color: canDelete ? 'red' : '#ccc' }}
+                disabled={!canDelete}
               >
                 删除
               </Button>
@@ -166,7 +191,7 @@ export default function RoleManage() {
 
   return (
     <Layout
-      curActive="/role"
+      curActive="/userManage/role"
       defaultOpen={['/userManage']}
     >
       <div style={listStyle}>

@@ -310,7 +310,7 @@ const WarehouseDashboard = () => {
           dataSource={detailData}
           columns={[
             {
-              title: '物料名称',
+              title: '物资名称',
               dataIndex: 'materialName',
               key: 'materialName',
             },

@@ -246,7 +246,12 @@ export default function StoreInList() {
                   <List.Item.Meta
                     title={
                       <span style={{ fontSize: 20 }}>
-                        {'物料名称: ' + item.materialName}
+                        {'物资名称: ' + item.materialName}
+                      title={
+                        <span style={{ fontSize: 20 }}>
+                          {'物资名称: ' + item.materialName}
+                        </span>
+                      }
                       </span>
                     }
                     description={

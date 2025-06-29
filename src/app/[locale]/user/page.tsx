@@ -1,6 +1,6 @@
 'use client';
 import { useTranslations } from 'next-intl';
-import { Table, theme } from 'antd';
+import { Table, theme, message } from 'antd';
 import { useRouter } from 'next/navigation';
 import AvaForm from './AvaForm';
 import { columns } from './column';
@@ -9,6 +9,7 @@ import styles from './index.module.less';
 import { useEffect, useState } from 'react';
 import { Warehouse } from './type';
 import { queryWareHouse } from './api';
+import { getUserAuthorizedWarehouses, getUserRole } from '@/utils/permission';
 
 const PAGE_SIZE = 10;
 
@@ -18,16 +19,63 @@ export default function User() {
   const [data, setData] = useState<Warehouse[]>([]);
   const [current, setCurrent] = useState<number>(1);
   const [total, setTotal] = useState<number>(0);
+  const [userRole, setUserRole] = useState<{role: number, isAdmin: boolean}>({
+    role: 0,
+    isAdmin: false
+  });
   
-  const queryWareHouseData = (searchParams?: Partial<Warehouse>) => {
-    queryWareHouse({
-      pageSize: PAGE_SIZE,
-      pageNum: current,
-      ...searchParams,
-    }).then((res) => {
-      setData(res.records);
-      setTotal(res.total);
-    });
+  const queryWareHouseData = async (searchParams?: Partial<Warehouse>) => {
+    try {
+      // 获取用户角色信息
+      const roleInfo = await getUserRole();
+      setUserRole(roleInfo);
+
+      let warehouses: Warehouse[] = [];
+      let totalCount = 0;
+
+      if (roleInfo.isAdmin) {
+        // 超级管理员可以看到所有仓库
+        const res = await queryWareHouse({
+          pageSize: PAGE_SIZE,
+          pageNum: current,
+          ...searchParams,
+        });
+        warehouses = res.records;
+        totalCount = res.total;
+      } else {
+        // 普通管理员只能看到有权限的仓库
+        const authorizedWarehouses = await getUserAuthorizedWarehouses();
+        
+        // 如果有搜索条件，进行本地过滤
+        if (searchParams && Object.keys(searchParams).length > 0) {
+          warehouses = authorizedWarehouses.filter(warehouse => {
+            return Object.entries(searchParams).every(([key, value]) => {
+              if (!value) return true;
+              const warehouseValue = warehouse[key as keyof Warehouse];
+              return String(warehouseValue).toLowerCase().includes(String(value).toLowerCase());
+            });
+          });
+        } else {
+          warehouses = authorizedWarehouses;
+        }
+
+        // 手动分页
+        totalCount = warehouses.length;
+        const startIndex = (current - 1) * PAGE_SIZE;
+        const endIndex = startIndex + PAGE_SIZE;
+        warehouses = warehouses.slice(startIndex, endIndex);
+      }
+
+      setData(warehouses);
+      setTotal(totalCount);
+
+      if (!roleInfo.isAdmin && warehouses.length === 0 && totalCount === 0) {
+        message.warning('您暂无任何仓库权限，请联系管理员');
+      }
+    } catch (error) {
+      console.error('获取仓库数据失败:', error);
+      message.error('获取仓库数据失败');
+    }
   };
 
   const onPageChange = (page: number, pageSize: number) => {
@@ -51,7 +99,14 @@ export default function User() {
         <div className={styles.content}>
           <AvaForm onSearch={queryWareHouseData} />
           <div style={listStyle}>
-            <h3>仓库列表</h3>
+            <h3>
+              仓库列表
+              {!userRole.isAdmin && (
+                <span style={{ fontSize: '14px', color: '#666', fontWeight: 'normal', marginLeft: '8px' }}>
+                  (仅显示您有权限的仓库)
+                </span>
+              )}
+            </h3>
             <Table
               columns={columns}
               dataSource={data}

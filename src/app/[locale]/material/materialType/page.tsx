@@ -80,11 +80,11 @@ export default function MaterialTypeList() {
               编辑
             </Button>
             <Popconfirm
-              title="删除物料类型"
-              description="确定要删除该物料数据吗?"
+              title="删除物资类型"
+              description="确定要删除该物资数据吗?"
               onConfirm={() => {
                 deleteMaterialType(record.id).then(() => {
-                  message.success('删除物料类型成功');
+                  message.success('删除物资类型成功');
                   queryMaterialTypeData();
                 });
               }}
@@ -117,7 +117,7 @@ export default function MaterialTypeList() {
         <div className={styles.content}>
           <Modal
             open={visible}
-            title={currentID ? '编辑物料类型' : '创建物料类型'}
+            title={currentID ? '编辑物资类型' : '创建物资类型'}
             onCancel={() => {
               setVisible(false);
             }}
@@ -135,16 +135,16 @@ export default function MaterialTypeList() {
                   ? { ...values, id: currentID }
                   : { ...values };
                 saveMaterialType(newValues).then(() => {
-                  message.success(`${currentID ? '编辑' : '创建'}物料类型成功`);
+                  message.success(`${currentID ? '编辑' : '创建'}物资类型成功`);
                   setVisible(false);
                   queryMaterialTypeData();
                 });
               }}
             >
               <Form.Item<Partial<MaterialType>>
-                label="物料类型名称"
+                label="物资类型名称"
                 name="typeName"
-                rules={[{ required: true, message: '请输入物料类型名称!' }]}
+                rules={[{ required: true, message: '请输入物资类型名称!' }]}
               >
                 <Input />
               </Form.Item>
@@ -175,7 +175,7 @@ export default function MaterialTypeList() {
                 marginBottom: 16,
               }}
             >
-              <h3>物料分类列表</h3>
+              <h3>物资分类列表</h3>
               <Button
                 type="primary"
                 onClick={() => {
