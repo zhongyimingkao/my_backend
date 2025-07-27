@@ -11,11 +11,11 @@ export const YS7_CONFIG = {
   // API路径
   ENDPOINTS: {
     TOKEN: '/lapp/token/get',
-    LIVE_ADDRESS: '/lapp/v2/live/address/get',
+    LIVE_ADDRESS: '/lapp/v2/live/address/get', // 获取直播和回放地址
     // 新的正确的录像查询接口
     LOCAL_RECORD_QUERY: '/v3/device/local/video/unify/query', // 本地录像查询
     VIDEO_BY_TIME: '/lapp/video/by/time', // 根据时间获取存储文件信息（云存储+本地）
-    PLAYBACK_ADDRESS: '/lapp/v2/video/rec/address/get',
+    PLAYBACK_ADDRESS: '/lapp/v2/live/address/get', // 获取录像回放地址（与直播地址接口相同）
   },
   
   // 默认参数
@@ -28,8 +28,14 @@ export const YS7_CONFIG = {
   
   // 播放器配置
   PLAYER: {
-    LIVE_TEMPLATE: 'pcLive',
-    PLAYBACK_TEMPLATE: 'pcRec',
+    LIVE_TEMPLATE: {
+      PC: 'pcLive',
+      MOBILE: 'mobileLive',
+    },
+    PLAYBACK_TEMPLATE: {
+      PC: 'pcRec',
+      MOBILE: 'mobileRec',
+    },
     USE_HARD_DEV: true,
     AUTO_PLAY: true,
   },

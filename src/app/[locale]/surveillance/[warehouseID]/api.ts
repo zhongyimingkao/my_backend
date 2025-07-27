@@ -200,20 +200,38 @@ export const getCloudRecordList = async (
   );
 };
 
-// 获取录像回放地址 - 保持原有接口
+// 获取录像回放地址 - 使用 /lapp/v2/live/address/get 接口
 export const getPlaybackUrl = async (accessToken: string, deviceSerial: string, channelNo: number = 1, startTime: string, endTime: string, source: number = 1) => {
   try {
+    // 根据文档，需要将时间格式转换为正确的格式
+    const formatTime = (timeStr: string) => {
+      // 如果已经是正确格式，直接返回
+      if (timeStr.includes('T') || timeStr.match(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/)) {
+        return timeStr;
+      }
+      // 否则尝试转换
+      const date = new Date(timeStr);
+      return timeUtils.dateToApiString(date);
+    };
+
+    // 使用 /lapp/v2/live/address/get 接口获取回放地址
+    // 关键参数：type=2 表示回放，添加 startTime 和 endTime 参数
+    const requestData = {
+      accessToken,
+      deviceSerial,
+      channelNo,
+      type: 2, // 2-回放，1-直播
+      startTime: formatTime(startTime),
+      endTime: formatTime(endTime),
+      source,
+      quality: YS7_CONFIG.DEFAULTS.QUALITY,
+    };
+
+    console.log('🎬 获取回放地址请求参数 (使用live/address/get接口):', requestData);
+
     const response = await axios.post(
-      buildApiUrl(YS7_CONFIG.ENDPOINTS.PLAYBACK_ADDRESS),
-      {
-        accessToken,
-        deviceSerial,
-        channelNo,
-        startTime,
-        endTime,
-        source,
-        quality: YS7_CONFIG.DEFAULTS.QUALITY,
-      },
+      buildApiUrl(YS7_CONFIG.ENDPOINTS.PLAYBACK_ADDRESS), // 现在指向 /lapp/v2/live/address/get
+      requestData,
       {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -221,16 +239,51 @@ export const getPlaybackUrl = async (accessToken: string, deviceSerial: string, 
       }
     );
     
-    console.log('录像回放地址API响应:', response.data);
+    console.log('📺 录像回放地址API响应:', response.data);
     
     if (response.data.code !== '200') {
-      throw new Error(getErrorMessage(response.data.code));
+      const errorMsg = getErrorMessage(response.data.code);
+      console.error('获取回放地址失败:', errorMsg);
+      throw new Error(errorMsg);
     }
+
+    // 检查返回的数据结构
+    if (!response.data.data) {
+      throw new Error('API返回数据格式错误：缺少data字段');
+    }
+
+    // 根据文档，返回的数据结构应该包含url字段
+    const playbackData = response.data.data;
     
-    return response.data;
-  } catch (error) {
-    console.error('获取录像回放地址失败:', error);
-    throw error;
+    // 验证必要的字段
+    if (!playbackData.url) {
+      console.error('回放地址数据异常:', playbackData);
+      throw new Error('获取的回放地址为空');
+    }
+
+    console.log('✅ 成功获取回放地址:', playbackData.url);
+    
+    return {
+      code: '200',
+      data: {
+        url: playbackData.url,
+        // 保留其他可能的字段
+        ...playbackData
+      }
+    };
+  } catch (error: any) {
+    console.error('❌ 获取录像回放地址失败:', error);
+    
+    // 提供更详细的错误信息
+    if (error.response) {
+      console.error('API响应错误:', error.response.data);
+      throw new Error(`API错误: ${error.response.data?.msg || error.response.statusText}`);
+    } else if (error.request) {
+      console.error('网络请求失败:', error.request);
+      throw new Error('网络请求失败，请检查网络连接');
+    } else {
+      throw error;
+    }
   }
 };
 

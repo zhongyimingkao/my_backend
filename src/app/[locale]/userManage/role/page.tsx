@@ -22,12 +22,16 @@ import {
 } from './api';
 import { RoleInfo } from './type';
 import { Station } from '../../user/type';
+import { useResponsive } from '@/hooks/useResponsive';
+import MobileCardList from '@/components/MobileCardList';
+import { EditOutlined, DeleteOutlined, SettingOutlined } from '@ant-design/icons';
 
 const PAGE_SIZE = 10;
 
 export default function RoleManage() {
   const [current, setCurrent] = useState<number>(1);
   const { token } = theme.useToken();
+  const { isMobile } = useResponsive();
   const [roleList, setRoleList] = useState<RoleInfo[]>([]);
   const [currentID, setCurrentID] = useState<number | string>();
   const [form] = Form.useForm();
@@ -295,17 +299,85 @@ export default function RoleManage() {
             新建角色
           </Button>
         </div>
-        <Table
-          pagination={{
-            pageSize: PAGE_SIZE,
-            current,
-            onChange: onPageChange,
-            total,
-          }}
-          rowKey="id"
-          dataSource={roleList}
-          columns={columns}
-        />
+        {isMobile ? (
+          <MobileCardList
+            items={roleList.map(role => {
+              const isSystemAdmin = role.id === 2;
+              const canDelete = canDeleteAdmin(role.id);
+              return {
+                id: role.id,
+                title: role.roleName,
+                subtitle: `创建时间: ${role.createTime}`,
+                description: role.roleDescription || '暂无描述',
+                tags: [
+                  {
+                    label: isSystemAdmin ? '系统管理员' : '普通角色',
+                    color: isSystemAdmin ? 'red' : 'blue'
+                  },
+                  {
+                    label: `权限: ${role.permissions?.length || 0}个`,
+                    color: 'green'
+                  }
+                ],
+                actions: [
+                  ...(!isSystemAdmin ? [{
+                    key: 'edit',
+                    label: '编辑',
+                    icon: <EditOutlined />,
+                    type: 'primary' as const,
+                    onClick: () => {
+                      setVisible(true);
+                      setCurrentID(role.id);
+                      form.setFieldsValue(role);
+                    }
+                  }] : []),
+                  ...(!isSystemAdmin ? [{
+                    key: 'permission',
+                    label: '权限',
+                    icon: <SettingOutlined />,
+                    onClick: () => {
+                      setEditingRole(role);
+                      setSelectedPermissions(role.permissions || []);
+                      setPermissionVisible(true);
+                    }
+                  }] : []),
+                  ...(canDelete ? [{
+                    key: 'delete',
+                    label: '删除',
+                    icon: <DeleteOutlined />,
+                    danger: true,
+                    onClick: () => {
+                      Modal.confirm({
+                        title: '删除角色',
+                        content: '确定要删除该角色吗?',
+                        onOk: () => {
+                          deleteRoleInfo(role.id).then(() => {
+                            message.success('删除角色成功');
+                            updateRoleList();
+                          });
+                        }
+                      });
+                    }
+                  }] : [])
+                ]
+              };
+            })}
+            emptyText="暂无角色数据"
+          />
+        ) : (
+          <Table
+            pagination={{
+              pageSize: PAGE_SIZE,
+              current,
+              onChange: onPageChange,
+              total,
+            }}
+            rowKey="id"
+            dataSource={roleList}
+            columns={columns}
+            size="middle"
+          />
+        )}
       </div>
     </Layout>
   );

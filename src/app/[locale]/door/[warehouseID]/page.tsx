@@ -11,6 +11,9 @@ import { handleDoorInfo, QueryDoorInfoReq } from './type';
 import { queryDoorInfo } from './api';
 import { formatDate } from '@/utils';
 import { useParams } from 'next/navigation';
+import { useResponsive } from '@/hooks/useResponsive';
+import MobileCardList from '@/components/MobileCardList';
+import { LockOutlined, UnlockOutlined } from '@ant-design/icons';
 const PAGE_SIZE = 10;
 
 export default function Door() {
@@ -18,6 +21,7 @@ export default function Door() {
   const [doorInfo, setDoorInfo] = useState<handleDoorInfo[]>([]);
   const [total, setTotal] = useState<number>(0);
   const { token } = theme.useToken();
+  const { isMobile } = useResponsive();
   const { warehouseID } = useParams();
 
   const [currentSearchParams, setCurrentSearchParams] =
@@ -195,16 +199,41 @@ export default function Door() {
         >
           <h3>开关门记录</h3>
         </div>
-        <Table
-          pagination={{
-            pageSize: PAGE_SIZE,
-            current,
-            onChange: onPageChange,
-            total,
-          }}
-          dataSource={doorInfo}
-          columns={columns}
-        />
+        {isMobile ? (
+          <MobileCardList
+            items={doorInfo.map(door => ({
+              id: door.warehouseCode,
+              title: door.warehouseName,
+              subtitle: `编码: ${door.warehouseCode}`,
+              description: `操作时间: ${door.time}`,
+              tags: [
+                {
+                  label: door.type === 'open' ? '开门' : '关门',
+                  color: door.type === 'open' ? 'green' : 'red'
+                }
+              ],
+              extra: (
+                <div style={{ fontSize: '12px', color: '#666', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  {door.type === 'open' ? <UnlockOutlined /> : <LockOutlined />}
+                  <span>操作人: {door.openUser}</span>
+                </div>
+              )
+            }))}
+            emptyText="暂无开关门记录"
+          />
+        ) : (
+          <Table
+            pagination={{
+              pageSize: PAGE_SIZE,
+              current,
+              onChange: onPageChange,
+              total,
+            }}
+            dataSource={doorInfo}
+            columns={columns}
+            size="middle"
+          />
+        )}
       </div>
     </Layout>
   );

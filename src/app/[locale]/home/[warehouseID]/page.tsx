@@ -44,6 +44,7 @@ import {
   queryPageOutbound,
 } from '../../storeManage/common/api';
 import { queryPageOutDetail } from '../../storeManage/common/api';
+import { useResponsive } from '@/hooks/useResponsive';
 
 const { Title, Text } = Typography;
 
@@ -55,6 +56,7 @@ const statusMap = new Map<number, string>([
 
 const WarehouseDashboard = () => {
   const { warehouseID } = useParams();
+  const { isMobile } = useResponsive();
   const [curUserInfo] = useAtom(userInfo);
   const [warehouseInfo, setWarehouseInfo] = useState<Partial<Warehouse>>();
   const [loading, setLoading] = useState(true);
@@ -337,10 +339,10 @@ const WarehouseDashboard = () => {
 
         <Row
           gutter={24}
-          style={{ height: 'calc(100vh - 112px)' }}
+          style={{ height: isMobile ? 'auto' : 'calc(100vh - 112px)' }}
         >
           {/* 第一列：仓库信息 */}
-          <Col span={8}>
+          <Col span={isMobile ? 24 : 8} style={{ marginBottom: isMobile ? 16 : 0 }}>
             <Card
               title="仓库信息"
               style={{ height: '100%', overflow: 'auto' }}
@@ -410,8 +412,8 @@ const WarehouseDashboard = () => {
 
           {/* 第二列：二维码和待审核出库单 */}
           <Col
-            span={8}
-            style={{ height: '100%' }}
+            span={isMobile ? 24 : 8}
+            style={{ height: isMobile ? 'auto' : '100%', marginBottom: isMobile ? 16 : 0 }}
           >
             <div
               style={{
@@ -546,8 +548,8 @@ const WarehouseDashboard = () => {
 
           {/* 第三列：统计数据和库存信息 */}
           <Col
-            span={8}
-            style={{ height: '100%' }}
+            span={isMobile ? 24 : 8}
+            style={{ height: isMobile ? 'auto' : '100%' }}
           >
             <div
               style={{

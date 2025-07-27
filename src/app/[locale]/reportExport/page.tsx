@@ -5,7 +5,6 @@ import {
   Card,
   Checkbox,
   Col,
-  DatePicker,
   Form,
   message,
   Row,
@@ -20,6 +19,8 @@ import { DownloadOutlined } from '@ant-design/icons';
 import Layout from '@/components/Layout';
 import { formatDate } from '@/utils';
 import { getUserAuthorizedWarehouses, getUserRole } from '@/utils/permission';
+import { useResponsive } from '@/hooks/useResponsive';
+import MobileSearchForm from '@/components/MobileSearchForm';
 
 // 导入相关API
 import { queryDoorInfo } from '../door/[warehouseID]/api';
@@ -28,7 +29,6 @@ import { queryWarehouseInventory, getWarehouseManagers } from '../storeManage/wa
 import { queryWareHouse } from '../user/api';
 
 const { Title, Text } = Typography;
-const { RangePicker } = DatePicker;
 
 // 报表类型定义
 interface ReportType {
@@ -68,6 +68,7 @@ const statusMap = new Map<number, string>([
 
 export default function ReportExport() {
   const [form] = Form.useForm();
+  const { isMobile } = useResponsive();
   const [selectedReports, setSelectedReports] = useState<string[]>([]);
   const [warehouseOptions, setWarehouseOptions] = useState<any[]>([]);
   const [selectedWarehouses, setSelectedWarehouses] = useState<number[]>([]);
@@ -323,7 +324,7 @@ export default function ReportExport() {
               >
                 <Row gutter={[16, 16]}>
                   {reportTypes.map((report) => (
-                    <Col span={12} key={report.key}>
+                    <Col span={isMobile ? 24 : 12} key={report.key}>
                       <Card
                         size="small"
                         style={{
@@ -334,10 +335,10 @@ export default function ReportExport() {
                       >
                         <Checkbox value={report.key}>
                           <div>
-                            <div style={{ fontWeight: 'bold' }}>
+                            <div style={{ fontWeight: 'bold', fontSize: isMobile ? '14px' : '16px' }}>
                               {report.label}
                             </div>
-                            <div style={{ fontSize: '12px', color: '#666' }}>
+                            <div style={{ fontSize: isMobile ? '11px' : '12px', color: '#666' }}>
                               {report.description}
                             </div>
                           </div>
@@ -371,18 +372,30 @@ export default function ReportExport() {
             </Col>
 
             <Col span={24}>
-              <Form.Item
-                label="时间范围（可选）"
-                name="timeRange"
-              >
-                <RangePicker
-                  style={{ width: '100%' }}
-                  placeholder={['开始时间', '结束时间']}
-                />
-              </Form.Item>
-              <Text type="secondary">
-                注意：时间范围仅对开关门记录、入库记录、出库记录有效，库存记录导出当前最新数据
-              </Text>
+              <div style={{ marginBottom: 16 }}>
+                <Text strong>时间范围（可选）</Text>
+                <div style={{ marginTop: 8 }}>
+                  <MobileSearchForm
+                    fields={[
+                      {
+                        name: 'timeRange',
+                        label: '时间范围',
+                        type: 'dateRange' as const,
+                        placeholder: '请选择时间范围'
+                      }
+                    ]}
+                    onSearch={(values) => {
+                      form.setFieldsValue({ timeRange: values.timeRange });
+                    }}
+                    onReset={() => {
+                      form.setFieldsValue({ timeRange: undefined });
+                    }}
+                  />
+                </div>
+                <Text type="secondary" style={{ fontSize: '12px' }}>
+                  注意：时间范围仅对开关门记录、入库记录、出库记录有效，库存记录导出当前最新数据
+                </Text>
+              </div>
             </Col>
 
             <Col span={24}>

@@ -8,7 +8,9 @@ import { saveAs } from 'file-saver';
 import { useEffect, useState } from 'react';
 import { StoreIn } from '../../common/type';
 import { Button, List, message, Modal, Table, TableProps, theme } from 'antd';
-import { DownloadOutlined } from '@ant-design/icons';
+import { DownloadOutlined, ImportOutlined, EyeOutlined } from '@ant-design/icons';
+import { useResponsive } from '@/hooks/useResponsive';
+import MobileCardList from '@/components/MobileCardList';
 import StoreSearchForm from '../../common/Search';
 import {
   QueryPageInboundReq,
@@ -24,6 +26,7 @@ const PAGE_SIZE = 10;
 export default function StoreInList() {
   const [data, setData] = useState<StoreIn[]>();
   const { token } = theme.useToken();
+  const { isMobile } = useResponsive();
   const [total, setTotal] = useState<number>(0);
   const { warehouseID } = useParams();
   const [current, setCurrent] = useState<number>(1);
@@ -220,17 +223,63 @@ export default function StoreInList() {
               </Button>
             </div>
             <h3>入库信息列表</h3>
-            <Table
-              columns={columns}
-              dataSource={data}
-              pagination={{
-                pageSize: PAGE_SIZE,
-                current,
-                onChange: onPageChange,
-                total,
-              }}
-              scroll={{ x: 1000 }}
-            />
+            {isMobile ? (
+              <MobileCardList
+                items={data?.map(storeIn => ({
+                  id: storeIn.djbh,
+                  title: storeIn.warehouseName,
+                  subtitle: `单据编号: ${storeIn.djbh}`,
+                  description: `入库人: ${storeIn.creatorName || storeIn.wxCreatorName}`,
+                  tags: [
+                    {
+                      label: (storeIn as any).manageStationName || '未知局',
+                      color: 'blue'
+                    },
+                    {
+                      label: (storeIn as any).manageRoadName || '未知路段',
+                      color: 'green'
+                    }
+                  ],
+                  extra: (
+                    <div style={{ fontSize: '12px', color: '#666' }}>
+                      入库时间: {storeIn.rkTime}
+                    </div>
+                  ),
+                  actions: [
+                    {
+                      key: 'detail',
+                      label: '查看明细',
+                      icon: <EyeOutlined />,
+                      type: 'primary' as const,
+                      onClick: () => {
+                        setModalVisible(true);
+                        queryPageInDetail(storeIn.djbh)
+                          .then((res) => {
+                            setDetail(res);
+                          })
+                          .catch(() => {
+                            message.error('查询入库单明细失败');
+                          });
+                      }
+                    }
+                  ]
+                })) || []}
+                emptyText="暂无入库记录"
+              />
+            ) : (
+              <Table
+                columns={columns}
+                dataSource={data}
+                pagination={{
+                  pageSize: PAGE_SIZE,
+                  current,
+                  onChange: onPageChange,
+                  total,
+                }}
+                scroll={{ x: 1000 }}
+                size="middle"
+              />
+            )}
           </div>
           <Modal
             open={modalVisible}

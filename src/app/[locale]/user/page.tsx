@@ -10,12 +10,17 @@ import { useEffect, useState } from 'react';
 import { Warehouse } from './type';
 import { queryWareHouse } from './api';
 import { getUserAuthorizedWarehouses, getUserRole } from '@/utils/permission';
+import { useResponsive } from '@/hooks/useResponsive';
+import MobileCardList from '@/components/MobileCardList';
+import { EyeOutlined } from '@ant-design/icons';
 
 const PAGE_SIZE = 10;
 
 export default function User() {
   const t = useTranslations('user');
   const { token } = theme.useToken();
+  const router = useRouter();
+  const { isMobile } = useResponsive();
   const [data, setData] = useState<Warehouse[]>([]);
   const [current, setCurrent] = useState<number>(1);
   const [total, setTotal] = useState<number>(0);
@@ -102,22 +107,55 @@ export default function User() {
             <h3>
               仓库列表
               {!userRole.isAdmin && (
-                <span style={{ fontSize: '14px', color: '#666', fontWeight: 'normal', marginLeft: '8px' }}>
+                <span style={{ fontSize: isMobile ? '12px' : '14px', color: '#666', fontWeight: 'normal', marginLeft: '8px' }}>
                   (仅显示您有权限的仓库)
                 </span>
               )}
             </h3>
-            <Table
-              columns={columns}
-              dataSource={data}
-              pagination={{
-                pageSize: PAGE_SIZE,
-                current,
-                onChange: onPageChange,
-                total,
-              }}
-              scroll={{ x: 1000 }}
-            />
+            
+            {isMobile ? (
+              <MobileCardList
+                items={data.map(warehouse => ({
+                  id: warehouse.id,
+                  title: warehouse.warehouseName,
+                  subtitle: `${warehouse.manageStationName} - ${warehouse.manageRoadName}`,
+                  description: `仓库ID: ${warehouse.id}`,
+                  tags: [
+                    {
+                      label: warehouse.status === 0 ? '开启' : '关闭',
+                      color: warehouse.status === 0 ? 'green' : 'red'
+                    },
+                    {
+                      label: warehouse.isValid === 1 ? '可用' : '停用',
+                      color: warehouse.isValid === 1 ? 'blue' : 'default'
+                    }
+                  ],
+                  actions: [
+                    {
+                      key: 'view',
+                      label: '查看详情',
+                      icon: <EyeOutlined />,
+                      type: 'primary' as const,
+                      onClick: () => router.push(`/home/${warehouse.id}`)
+                    }
+                  ]
+                }))}
+                emptyText={userRole.isAdmin ? '暂无仓库数据' : '您暂无仓库权限'}
+              />
+            ) : (
+              <Table
+                columns={columns}
+                dataSource={data}
+                pagination={{
+                  pageSize: PAGE_SIZE,
+                  current,
+                  onChange: onPageChange,
+                  total,
+                }}
+                scroll={{ x: 1000 }}
+                size="middle"
+              />
+            )}
           </div>
         </div>
       </main>

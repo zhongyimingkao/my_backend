@@ -41,9 +41,191 @@ h3 {
   color: rgb(26, 95, 156);
 }
 
-
 .ant-tree .ant-tree-node-content-wrapper.ant-tree-node-selected,
 .ant-tree .ant-tree-checkbox+span.ant-tree-node-selected {
   color: white;
   background-color: #1890ff !important;
+}
+
+/* 移动端适配 */
+@media screen and (max-width: 768px) {
+  /* 表格移动端适配 */
+  .ant-table {
+    font-size: 12px;
+  }
+  
+  .ant-table-thead > tr > th {
+    padding: 8px 4px;
+    font-size: 12px;
+  }
+  
+  .ant-table-tbody > tr > td {
+    padding: 8px 4px;
+    font-size: 12px;
+  }
+  
+  /* 按钮移动端适配 */
+  .ant-btn {
+    font-size: 12px;
+    height: 32px;
+    padding: 4px 8px;
+  }
+  
+  .ant-btn-sm {
+    height: 28px;
+    font-size: 11px;
+    padding: 2px 6px;
+  }
+  
+  /* 卡片移动端适配 */
+  .ant-card {
+    margin-bottom: 12px;
+  }
+  
+  .ant-card-head {
+    padding: 0 12px;
+    min-height: 40px;
+  }
+  
+  .ant-card-head-title {
+    font-size: 14px;
+    padding: 8px 0;
+  }
+  
+  .ant-card-body {
+    padding: 12px;
+  }
+  
+  /* 表单移动端适配 */
+  .ant-form-item {
+    margin-bottom: 16px;
+  }
+  
+  .ant-form-item-label > label {
+    font-size: 14px;
+  }
+  
+  /* 输入框移动端适配 */
+  .ant-input,
+  .ant-input-password,
+  .ant-select-selector {
+    font-size: 14px;
+  }
+  
+  /* 标题移动端适配 */
+  h1 {
+    font-size: 18px !important;
+  }
+  
+  h2 {
+    font-size: 16px !important;
+  }
+  
+  h3 {
+    font-size: 14px !important;
+  }
+  
+  h4 {
+    font-size: 13px !important;
+  }
+  
+  /* 统计卡片移动端适配 */
+  .ant-statistic-title {
+    font-size: 12px;
+  }
+  
+  .ant-statistic-content {
+    font-size: 16px;
+  }
+  
+  /* 标签移动端适配 */
+  .ant-tag {
+    font-size: 11px;
+    padding: 0 4px;
+  }
+  
+  /* 列表移动端适配 */
+  .ant-list-item {
+    padding: 8px 0;
+  }
+  
+  .ant-list-item-meta-title {
+    font-size: 13px;
+  }
+  
+  .ant-list-item-meta-description {
+    font-size: 11px;
+  }
+  
+  /* 分页移动端适配 */
+  .ant-pagination {
+    text-align: center;
+  }
+  
+  .ant-pagination-item,
+  .ant-pagination-prev,
+  .ant-pagination-next {
+    min-width: 28px;
+    height: 28px;
+    line-height: 26px;
+    font-size: 12px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  /* 超小屏幕适配 */
+  .ant-table {
+    font-size: 11px;
+  }
+  
+  .ant-table-thead > tr > th,
+  .ant-table-tbody > tr > td {
+    padding: 6px 2px;
+    font-size: 11px;
+  }
+  
+  .ant-btn {
+    font-size: 11px;
+    height: 28px;
+    padding: 2px 6px;
+  }
+  
+  .ant-card-head {
+    padding: 0 8px;
+    min-height: 36px;
+  }
+  
+  .ant-card-body {
+    padding: 8px;
+  }
+  
+  h1 {
+    font-size: 16px !important;
+  }
+  
+  h2 {
+    font-size: 14px !important;
+  }
+  
+  h3 {
+    font-size: 13px !important;
+  }
+}
+
+/* 确保表格在移动端可以横向滚动 */
+@media screen and (max-width: 768px) {
+  .ant-table-wrapper {
+    overflow-x: auto;
+  }
+  
+  .ant-table {
+    min-width: 600px;
+  }
+}
+
+/* 移动端隐藏不必要的列 */
+@media screen and (max-width: 480px) {
+  .mobile-hidden {
+    display: none !important;
+  }
 }

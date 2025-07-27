@@ -27,12 +27,16 @@ import {
   saveMaterialInfo,
 } from '../common/api';
 import MaterialInfoSearchForm from './Search';
+import { useResponsive } from '@/hooks/useResponsive';
+import MobileCardList from '@/components/MobileCardList';
+import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 
 const PAGE_SIZE = 10;
 
 export default function MaterialInfoList() {
   const [data, setData] = useState<MaterialInfo[]>();
   const { token } = theme.useToken();
+  const { isMobile } = useResponsive();
   const [current, setCurrent] = useState<number>(1);
   const [total, setTotal] = useState<number>(0);
   const [currentID, setCurrentID] = useState<number>();
@@ -266,17 +270,76 @@ export default function MaterialInfoList() {
               </Button>
             </div>
 
-            <Table
-              columns={columns}
-              dataSource={data}
-              pagination={{
-                pageSize: PAGE_SIZE,
-                current,
-                onChange: onPageChange,
-                total,
-              }}
-              scroll={{ x: 1000 }}
-            />
+            {isMobile ? (
+              <MobileCardList
+                items={data?.map(material => ({
+                  id: material.id,
+                  title: material.materialName,
+                  subtitle: `编码: ${material.materialCode}`,
+                  description: material.remark || '暂无描述',
+                  tags: [
+                    {
+                      label: material.materialTypeName,
+                      color: 'blue'
+                    },
+                    {
+                      label: `单位: ${material.unit || '未设置'}`,
+                      color: 'green'
+                    }
+                  ],
+                  extra: material.specification && (
+                    <div style={{ fontSize: '12px', color: '#666' }}>
+                      特殊说明: {material.specification}
+                    </div>
+                  ),
+                  actions: [
+                    {
+                      key: 'edit',
+                      label: '编辑',
+                      icon: <EditOutlined />,
+                      type: 'primary' as const,
+                      onClick: () => {
+                        form.setFieldsValue(material);
+                        setCurrentID(material.id);
+                        setVisible(true);
+                      }
+                    },
+                    {
+                      key: 'delete',
+                      label: '删除',
+                      icon: <DeleteOutlined />,
+                      danger: true,
+                      onClick: () => {
+                        Modal.confirm({
+                          title: '删除物资',
+                          content: '确定要删除该物资数据吗?',
+                          onOk: () => {
+                            deleteMaterialInfo(material.id).then(() => {
+                              message.success('删除物资成功');
+                              queryMaterialInfoData();
+                            });
+                          }
+                        });
+                      }
+                    }
+                  ]
+                })) || []}
+                emptyText="暂无物资数据"
+              />
+            ) : (
+              <Table
+                columns={columns}
+                dataSource={data}
+                pagination={{
+                  pageSize: PAGE_SIZE,
+                  current,
+                  onChange: onPageChange,
+                  total,
+                }}
+                scroll={{ x: 1000 }}
+                size="middle"
+              />
+            )}
           </div>
         </div>
       </main>

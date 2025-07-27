@@ -27,6 +27,9 @@ import {
 import { Warehouse } from './type';
 import CommonLayout from '@/components/Layout';
 import WarehouseFormModal from './WarehouseFormModal';
+import ResponsiveTable from '@/components/ResponsiveTable';
+import MobileCardList from '@/components/MobileCardList';
+import { useResponsive } from '@/hooks/useResponsive';
 import { queryDepartmentList } from '../../departmentManage/api';
 import Loading from '@/components/Loading';
 import { getUserAuthorizedWarehouses, getUserRole } from '@/utils/permission';
@@ -435,11 +438,11 @@ const WarehousePage: React.FC = () => {
           </Row>
         </Card>
 
-        <div style={{ display: 'flex', gap: 24 }}>
+        <div style={{ display: 'flex', flexDirection: window.innerWidth <= 768 ? 'column' : 'row', gap: 24 }}>
           {/* 仓库列表 */}
           <Card
             title={
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                 <span>仓库列表</span>
                 {selectedDepartment && (
                   <Tag color="blue">{selectedDepartment.stationName}</Tag>
@@ -448,7 +451,7 @@ const WarehousePage: React.FC = () => {
                 {!userRole.isAdmin && (
                   <span
                     style={{
-                      fontSize: '14px',
+                      fontSize: '12px',
                       color: '#666',
                       fontWeight: 'normal',
                     }}
@@ -458,12 +461,13 @@ const WarehousePage: React.FC = () => {
                 )}
               </div>
             }
-            style={{ flex: userRole.isAdmin ? 2 : 1 }}
+            style={{ flex: userRole.isAdmin && window.innerWidth > 768 ? 2 : 1 }}
             bodyStyle={{ padding: 0 }}
             extra={
               userRole.isAdmin && (
                 <Button
                   type="primary"
+                        size={window.innerWidth <= 768 ? 'small' : 'large'}
                   onClick={() => {
                     setEditingWarehouse(null);
                     setModalVisible(true);
@@ -479,7 +483,14 @@ const WarehousePage: React.FC = () => {
                 dataSource={warehouses}
                 columns={columns}
                 rowKey="id"
-                pagination={{ pageSize: 10 }}
+                pagination={{ 
+                  pageSize: window.innerWidth <= 768 ? 5 : 10,
+                  showSizeChanger: false,
+                  showQuickJumper: false,
+                  simple: window.innerWidth <= 480
+                }}
+                scroll={{ x: 'max-content' }}
+                        size={window.innerWidth <= 768 ? 'small' : 'large'}
               />
             ) : (
               <Empty
@@ -494,39 +505,44 @@ const WarehousePage: React.FC = () => {
           {/* 右侧信息栏 - 仅超级管理员可见 */}
           {userRole.isAdmin && (
             <Card
-              style={{ flex: 1, minWidth: 400 }}
+              style={{ 
+                flex: window.innerWidth <= 768 ? 'none' : 1, 
+                minWidth: window.innerWidth <= 768 ? 'auto' : 400 
+              }}
               bodyStyle={{ padding: 0 }}
             >
               <Tabs
                 defaultActiveKey="1"
                 style={{ padding: '0 16px' }}
+                        size={window.innerWidth <= 768 ? 'small' : 'large'}
               >
                 <TabPane
                   tab={
                     <span>
                       <WarningOutlined />
-                      告警信息
+                      {window.innerWidth <= 768 ? '告警' : '告警信息'}
                     </span>
                   }
                   key="1"
                 >
-                  <div style={{ maxHeight: '500px', overflowY: 'auto' }}>
+                  <div style={{ maxHeight: window.innerWidth <= 768 ? '300px' : '500px', overflowY: 'auto' }}>
                     {alerts.length > 0 ? (
                       <List
                         dataSource={alerts}
+                        size={window.innerWidth <= 768 ? 'small' : 'default'}
                         renderItem={(alert) => (
-                          <List.Item style={{ padding: '12px 0' }}>
+                          <List.Item style={{ padding: window.innerWidth <= 768 ? '8px 0' : '12px 0' }}>
                             <List.Item.Meta
                               avatar={
                                 <WarningOutlined style={{ color: '#ff4d4f' }} />
                               }
                               title={
-                                <span style={{ fontWeight: 500 }}>
+                                <span style={{ fontWeight: 500, fontSize: window.innerWidth <= 768 ? '12px' : '14px' }}>
                                   {alert.warehouseName} - {alert.materialName}
                                 </span>
                               }
                               description={
-                                <div style={{ fontSize: '12px' }}>
+                                <div style={{ fontSize: window.innerWidth <= 768 ? '11px' : '12px' }}>
                                   <div>
                                     库存:
                                     <span
@@ -559,18 +575,19 @@ const WarehousePage: React.FC = () => {
                   tab={
                     <span>
                       <DatabaseOutlined />
-                      出库动态
+                      {window.innerWidth <= 768 ? '出库' : '出库动态'}
                     </span>
                   }
                   key="2"
                 >
-                  <div style={{ maxHeight: '500px', overflowY: 'auto' }}>
+                  <div style={{ maxHeight: window.innerWidth <= 768 ? '300px' : '500px', overflowY: 'auto' }}>
                     {outboundRecords.length > 0 ? (
                       <List
                         dataSource={outboundRecords}
+                        size={window.innerWidth <= 768 ? 'small' : 'default'}
                         renderItem={(record) => (
                           <List.Item
-                            style={{ padding: '12px 0' }}
+                            style={{ padding: window.innerWidth <= 768 ? '8px 0' : '12px 0' }}
                             actions={[
                               <Button
                                 key="btn"
@@ -580,18 +597,18 @@ const WarehousePage: React.FC = () => {
                                   router.push('/storeManage/out/all')
                                 }
                               >
-                                查看详情
+                                详情
                               </Button>,
                             ]}
                           >
                             <List.Item.Meta
                               title={
-                                <span>
+                                <span style={{ fontSize: window.innerWidth <= 768 ? '12px' : '14px' }}>
                                   {record.warehouseName} - {record.djbh}
                                 </span>
                               }
                               description={
-                                <div style={{ fontSize: '12px' }}>
+                                <div style={{ fontSize: window.innerWidth <= 768 ? '11px' : '12px' }}>
                                   <div>
                                     出库人:{' '}
                                     {record.creatorName || record.wxCreatorName}
@@ -631,7 +648,7 @@ const WarehousePage: React.FC = () => {
                   tab={
                     <span>
                       <ShopOutlined />
-                      仓库情况
+                      {window.innerWidth <= 768 ? '仓库' : '仓库情况'}
                     </span>
                   }
                   key="3"
@@ -643,7 +660,7 @@ const WarehousePage: React.FC = () => {
                           <Statistic
                             title="在用仓库"
                             value={warehouseStats.active}
-                            valueStyle={{ color: '#3f8600' }}
+                            valueStyle={{ color: '#3f8600', fontSize: window.innerWidth <= 768 ? '16px' : '20px' }}
                             suffix="个"
                           />
                         </Card>
@@ -653,15 +670,12 @@ const WarehousePage: React.FC = () => {
                           <Statistic
                             title="免审核仓库"
                             value={warehouseStats.noNeedCheck}
-                            valueStyle={{ color: '#1890ff' }}
+                            valueStyle={{ color: '#1890ff', fontSize: window.innerWidth <= 768 ? '16px' : '20px' }}
                             suffix="个"
                           />
                         </Card>
                       </Col>
                     </Row>
-                    <div style={{ marginTop: 16, textAlign: 'center' }}>
-                      {/* 移除查看所有仓库按钮 */}
-                    </div>
                   </div>
                 </TabPane>
               </Tabs>

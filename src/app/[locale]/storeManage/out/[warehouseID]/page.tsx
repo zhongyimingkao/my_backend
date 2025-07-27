@@ -27,8 +27,12 @@ import {
   EyeOutlined,
   PictureOutlined,
   LeftOutlined,
-  RightOutlined
+  RightOutlined,
+  CheckOutlined,
+  CloseOutlined
 } from '@ant-design/icons';
+import { useResponsive } from '@/hooks/useResponsive';
+import MobileCardList from '@/components/MobileCardList';
 import StoreSearchForm from '../../common/Search';
 import {
   QueryPageOutboundReq,
@@ -57,6 +61,7 @@ const statusMap = new Map<number, string>([
 export default function StoreOutList() {
   const [data, setData] = useState<StoreOut[]>();
   const { token } = theme.useToken();
+  const { isMobile } = useResponsive();
   const [current, setCurrent] = useState<number>(1);
   const [total, setTotal] = useState<number>(0);
   const { warehouseID } = useParams();
@@ -331,17 +336,97 @@ export default function StoreOutList() {
               </Button>
             </div>
             <h3>出库信息列表</h3>
-            <Table
-              columns={columns}
-              dataSource={data}
-              pagination={{
-                pageSize: PAGE_SIZE,
-                current,
-                onChange: onPageChange,
-                total
-              }}
-              scroll={{ x: 1200 }}
-            />
+            {isMobile ? (
+              <MobileCardList
+                items={data?.map(storeOut => {
+                  const images = parseImageUrls(storeOut.picUrl);
+                  const statusColor = storeOut.status === 0 ? 'orange' : storeOut.status === 1 ? 'green' : 'red';
+                  
+                  return {
+                    id: storeOut.djbh,
+                    title: storeOut.warehouseName,
+                    subtitle: `单据编号: ${storeOut.djbh}`,
+                    description: `出库人: ${storeOut.creatorName || storeOut.wxCreatorName}`,
+                    tags: [
+                      {
+                        label: statusMap.get(storeOut.status) || '未知状态',
+                        color: statusColor
+                      },
+                      {
+                        label: `图片: ${images.length}张`,
+                        color: images.length > 0 ? 'blue' : 'default'
+                      }
+                    ],
+                    extra: (
+                      <div style={{ fontSize: '12px', color: '#666' }}>
+                        出库时间: {storeOut.ckTime}
+                      </div>
+                    ),
+                    actions: [
+                      {
+                        key: 'detail',
+                        label: '查看明细',
+                        icon: <EyeOutlined />,
+                        type: 'primary' as const,
+                        onClick: () => {
+                          setModalVisible(true);
+                          queryPageOutDetail(storeOut.djbh)
+                            .then((res) => {
+                              setDetail(res);
+                            })
+                            .catch(() => {
+                              message.error('查询出库单明细失败');
+                            });
+                        }
+                      },
+                      ...(images.length > 0 ? [{
+                        key: 'preview',
+                        label: '预览图片',
+                        icon: <PictureOutlined />,
+                        onClick: () => handleImagePreview(storeOut.picUrl)
+                      }] : []),
+                      ...(storeOut.status === 0 ? [{
+                        key: 'approve',
+                        label: '通过',
+                        icon: <CheckOutlined />,
+                        type: 'primary' as const,
+                        onClick: () => {
+                          checkOutBound({ id: storeOut.id, status: 1 }).then(() => {
+                            message.success('审核成功');
+                            setTimeout(() => queryStoreOutData(), 100);
+                          });
+                        }
+                      }, {
+                        key: 'reject',
+                        label: '拒绝',
+                        icon: <CloseOutlined />,
+                        danger: true,
+                        onClick: () => {
+                          checkOutBound({ id: storeOut.id, status: 2 }).then(() => {
+                            message.success('审核成功');
+                            setTimeout(() => queryStoreOutData(), 100);
+                          });
+                        }
+                      }] : [])
+                    ]
+                  };
+                }) || []}
+                emptyText="暂无出库记录"
+              />
+            ) : (
+              <Table
+                columns={columns}
+                dataSource={data}
+                pagination={{
+                  pageSize: PAGE_SIZE,
+                  current,
+                  onChange: onPageChange,
+                  total
+                }}
+                scroll={{ x: 1200 }}
+                size="middle"
+              />
+            )}
           </div>
 
           {/* 出库单明细弹窗 */}

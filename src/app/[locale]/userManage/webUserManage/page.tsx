@@ -18,11 +18,15 @@ import { useState, useEffect } from 'react';
 import { deleteUserInfo, queryWebUserList, updateUserInfo } from './api';
 import { queryRoleList } from '../role/api';
 import { RoleInfo } from '../role/type';
+import { useResponsive } from '@/hooks/useResponsive';
+import MobileCardList from '@/components/MobileCardList';
+import { EditOutlined, DeleteOutlined, UserOutlined } from '@ant-design/icons';
 const PAGE_SIZE = 10;
 
 export default function UserManage() {
   const [current, setCurrent] = useState<number>(1);
   const { token } = theme.useToken();
+  const { isMobile } = useResponsive();
   const [userList, setUserList] = useState<UserInfo[]>([]);
   const [currentID, setCurrentID] = useState<number | string>();
   const [roleList, setRoleList] = useState<{ label: string; value: number }[]>(
@@ -279,17 +283,76 @@ export default function UserManage() {
             新建用户
           </Button>
         </div>
-        <Table
-          pagination={{
-            pageSize: PAGE_SIZE,
-            current,
-            onChange: onPageChange,
-            total,
-          }}
-          rowKey="id"
-          dataSource={userList}
-          columns={columns}
-        />
+        {isMobile ? (
+          <MobileCardList
+            items={userList.map(user => {
+              const canDelete = canDeleteAdmin(user.role);
+              return {
+                id: user.id,
+                title: user.userName,
+                subtitle: `登录名: ${user.loginName}`,
+                description: `手机: ${user.phone || '未设置'} | 身份证: ${user.identityNum || '未设置'}`,
+                tags: [
+                  {
+                    label: user.roleName,
+                    color: user.role === 2 ? 'red' : 'blue'
+                  }
+                ],
+                extra: (
+                  <div style={{ fontSize: '12px', color: '#666' }}>
+                    <div>创建时间: {user.createTime}</div>
+                    <div>创建人: {user.creatorName}</div>
+                  </div>
+                ),
+                actions: [
+                  {
+                    key: 'edit',
+                    label: '编辑',
+                    icon: <EditOutlined />,
+                    type: 'primary' as const,
+                    onClick: () => {
+                      setVisible(true);
+                      form.setFieldsValue(user);
+                      setCurrentID(user.id);
+                    }
+                  },
+                  ...(canDelete ? [{
+                    key: 'delete',
+                    label: '删除',
+                    icon: <DeleteOutlined />,
+                    danger: true,
+                    onClick: () => {
+                      Modal.confirm({
+                        title: '删除用户',
+                        content: '确定要删除该用户吗?',
+                        onOk: () => {
+                          deleteUserInfo(Number(user.id)).then(() => {
+                            message.success('删除用户成功');
+                            updateUserList();
+                          });
+                        }
+                      });
+                    }
+                  }] : [])
+                ]
+              };
+            })}
+            emptyText="暂无用户数据"
+          />
+        ) : (
+          <Table
+            pagination={{
+              pageSize: PAGE_SIZE,
+              current,
+              onChange: onPageChange,
+              total,
+            }}
+            rowKey="id"
+            dataSource={userList}
+            columns={columns}
+            size="middle"
+          />
+        )}
       </div>
     </Layout>
   );

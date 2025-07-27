@@ -33,6 +33,8 @@ import {
   SaveOutlined,
   DownloadOutlined,
 } from '@ant-design/icons';
+import { useResponsive } from '@/hooks/useResponsive';
+import MobileCardList from '@/components/MobileCardList';
 import {
   batchUpdateWareHouseInventory,
   deleteWareHouseInventory,
@@ -54,6 +56,7 @@ const PAGE_SIZE = 10;
 
 export default function InventoryManagement() {
   const { warehouseID } = useParams();
+  const { isMobile } = useResponsive();
   const [warehouseInfo, setWarehouseInfo] = useState<Partial<Warehouse>>();
   const [warehouseInventory, setWarehouseInventory] =
     useState<WarehouseInventory[]>();
@@ -378,7 +381,11 @@ export default function InventoryManagement() {
                 <Text strong>
                   仓库管理员：{managers}
                 </Text>
-                <Space>
+                <Space 
+                  wrap={isMobile}
+                  size={isMobile ? [8, 8] : 'middle'}
+                  style={{ width: '100%' }}
+                >
                   <Button
                     style={{ fontSize: 14, fontWeight: 600 }}
                     onClick={() => {
@@ -403,7 +410,7 @@ export default function InventoryManagement() {
                   </Button>
                   {isEdit ? (
                     <Button
-                      style={{ fontSize: 14, fontWeight: 600, marginLeft: 10 }}
+                      style={{ fontSize: 14, fontWeight: 600 }}
                       onClick={() => {
                         setIsEdit(false);
                         setEditData([]);
@@ -415,7 +422,7 @@ export default function InventoryManagement() {
                   ) : (
                     <>
                       <Button
-                        style={{ fontSize: 14, fontWeight: 600, marginLeft: 10 }}
+                        style={{ fontSize: 14, fontWeight: 600 }}
                         type="primary"
                         onClick={() => {
                           setInventoryVisible(true);
@@ -425,7 +432,7 @@ export default function InventoryManagement() {
                         <PlusCircleOutlined style={{ marginLeft: 5 }} />
                       </Button>
                       <Button
-                        style={{ fontSize: 14, fontWeight: 600, marginLeft: 10 }}
+                        style={{ fontSize: 14, fontWeight: 600 }}
                         onClick={handleExport}
                       >
                         导出Excel
@@ -434,17 +441,91 @@ export default function InventoryManagement() {
                     </>
                   )}
                 </Space>
-                <Table
-                  columns={inventoryColumns}
-                  dataSource={warehouseInventory}
-                  pagination={{
-                    pageSize: PAGE_SIZE,
-                    current,
-                    onChange: onPageChange,
-                  }}
-                  scroll={{ x: 'max-content' }}
-                  style={{ width: '100%' }}
-                />
+                {isMobile ? (
+                  <MobileCardList
+                    items={warehouseInventory?.map(inventory => ({
+                      id: inventory.id,
+                      title: inventory.materialName,
+                      subtitle: `库存: ${inventory.sl} ${inventory.unit}`,
+                      description: `预警值: ${inventory.threshold || 0}`,
+                      tags: [
+                        {
+                          label: inventory.unit,
+                          color: 'blue'
+                        },
+                        {
+                          label: `预警: ${inventory.threshold || 0}`,
+                          color: (inventory.sl || 0) <= (inventory.threshold || 0) ? 'red' : 'green'
+                        }
+                      ],
+                      actions: isEdit ? [
+                        {
+                          key: 'edit-threshold',
+                          label: '编辑预警值',
+                          icon: <EditOutlined />,
+                          onClick: () => {
+                            Modal.confirm({
+                              title: '编辑预警值',
+                              content: (
+                                <div style={{ marginTop: 16 }}>
+                                  <InputNumber
+                                    defaultValue={inventory.threshold || 0}
+                                    onChange={(val) => {
+                                      if (val !== null) {
+                                        handleEditInventory({ ...inventory, threshold: val });
+                                      }
+                                    }}
+                                    style={{ width: '100%' }}
+                                    placeholder="请输入预警值"
+                                  />
+                                </div>
+                              ),
+                              onOk: () => {
+                                message.success('预警值已更新');
+                              }
+                            });
+                          }
+                        }
+                      ] : [
+                        {
+                          key: 'delete',
+                          label: '删除',
+                          icon: <DeleteOutlined />,
+                          danger: true,
+                          onClick: () => {
+                            Modal.confirm({
+                              title: '删除库存',
+                              content: '确认要删除该库存吗?',
+                              onOk: () => {
+                                deleteWareHouseInventory(inventory.id)
+                                  .then(() => {
+                                    message.success('库存删除成功');
+                                    queryWarehouseInventoryData(Number(warehouseID));
+                                  })
+                                  .catch(() => {
+                                    message.error('库存删除失败');
+                                  });
+                              }
+                            });
+                          }
+                        }
+                      ]
+                    })) || []}
+                    emptyText="暂无库存数据"
+                  />
+                ) : (
+                  <Table
+                    columns={inventoryColumns}
+                    dataSource={warehouseInventory}
+                    pagination={{
+                      pageSize: PAGE_SIZE,
+                      current,
+                      onChange: onPageChange,
+                    }}
+                    scroll={{ x: 'max-content' }}
+                    style={{ width: '100%' }}
+                  />
+                )}
               </Space>
             </Col>
           </Row>

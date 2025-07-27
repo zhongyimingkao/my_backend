@@ -51,7 +51,7 @@
     "clsx": "^2.1.1",
     "crypto": "^1.0.1",
     "d3-scale-chromatic": "^3.1.0",
-    "ezuikit-js": "7.7.X",
+    "ezuikit-js": "^8.1.12-beta.1",
     "file-saver": "^2.0.5",
     "http-proxy-middleware": "^3.0.0",
     "jotai": "^2.8.3",

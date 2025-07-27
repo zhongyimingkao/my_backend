@@ -27,6 +27,7 @@ import EZUIKit from 'ezuikit-js';
 import { useParams } from 'next/navigation';
 import { useAtom } from 'jotai';
 import { warehouseInfo } from '../../../store';
+import { useResponsive } from '@/hooks/useResponsive';
 import { 
   PlayCircleOutlined, 
   SearchOutlined, 
@@ -74,6 +75,7 @@ export default function PlaybackSurveillance() {
   const [recordType, setRecordType] = useState<number | undefined>(undefined);
 
   const playerRef = useRef<EZUIKit | null>(null);
+  const { isMobile } = useResponsive();
 
   // 格式化时间为萤石云API需要的格式
   const formatTimeForAPI = (date: Dayjs | Date) => {
@@ -234,6 +236,11 @@ export default function PlaybackSurveillance() {
       return;
     }
 
+    if (!cameraID) {
+      message.error('摄像头ID无效');
+      return;
+    }
+
     try {
       setSelectedRecord(record);
       setPlaybackVisible(true);
@@ -243,7 +250,8 @@ export default function PlaybackSurveillance() {
         channelNo,
         startTime: record.startTime,
         endTime: record.endTime,
-        source: record.source
+        source: record.source,
+        storageType: record.source === 1 ? '云存储' : '本地存储'
       });
 
       // 获取回放地址
@@ -261,29 +269,60 @@ export default function PlaybackSurveillance() {
       if (response.code === '200' && response.data?.url) {
         // 销毁之前的播放器
         if (playerRef.current) {
-          playerRef.current.stop();
+          try {
+            playerRef.current.stop();
+          } catch (e) {
+            console.warn('停止之前的播放器时出现警告:', e);
+          }
           playerRef.current = null;
         }
 
-        // 创建回放播放器
-        playerRef.current = new EZUIKit.EZUIKitPlayer({
-          id: 'ezuikit-playback-player',
-          url: response.data.url,
-          accessToken,
-          useHardDev: YS7_CONFIG.PLAYER.USE_HARD_DEV,
-          height: 400,
-          width: 600,
-          template: YS7_CONFIG.PLAYER.PLAYBACK_TEMPLATE,
-          autoplay: YS7_CONFIG.PLAYER.AUTO_PLAY,
-        });
+        // 等待DOM更新
+        setTimeout(() => {
+          try {
+            // 根据设备类型选择模板
+            const template = isMobile ? 'mobileRec' : 'pcRec';
+            
+            console.log('🎮 播放器配置:', {
+              template,
+              isMobile,
+              url: response.data.url
+            });
 
-        message.success('开始播放录像');
+            // 创建回放播放器
+            playerRef.current = new EZUIKit.EZUIKitPlayer({
+              id: 'ezuikit-playback-player',
+              url: response.data.url,
+              accessToken,
+              useHardDev: YS7_CONFIG.PLAYER.USE_HARD_DEV,
+              height: isMobile ? 250 : 400,
+              width: isMobile ? window.innerWidth * 0.85 : 600, // 移动端使用屏幕宽度的85%
+              template,
+              autoplay: YS7_CONFIG.PLAYER.AUTO_PLAY,
+              // 添加错误处理
+              error: (err: any) => {
+                console.error('播放器错误:', err);
+                message.error('播放器初始化失败');
+              },
+              success: () => {
+                console.log('✅ 播放器初始化成功');
+                message.success('开始播放录像');
+              }
+            });
+          } catch (playerError) {
+            console.error('❌ 创建播放器失败:', playerError);
+            message.error('创建播放器失败，请检查播放地址是否有效');
+          }
+        }, 100);
       } else {
-        message.error('获取回放地址失败');
+        console.error('回放地址响应异常:', response);
+        message.error('获取回放地址失败，请检查录像是否存在');
+        setPlaybackVisible(false);
       }
     } catch (error) {
       console.error('❌ 播放录像失败:', error);
       message.error(`播放录像失败: ${(error as Error)?.message || '未知错误'}`);
+      setPlaybackVisible(false);
     }
   };
 
@@ -431,8 +470,8 @@ export default function PlaybackSurveillance() {
                     <Select
                       style={{ width: 120 }}
                       options={[
-                        { label: '左摄像头', value: 'lCameraId' },
-                        { label: '右摄像头', value: 'rCameraId' },
+                        { label: '仓库外摄像头', value: 'lCameraId' },
+                        { label: '仓库内摄像头', value: 'rCameraId' },
                       ]}
                       onChange={(value) => setCameraType(value)}
                       value={cameraType}
@@ -594,7 +633,7 @@ export default function PlaybackSurveillance() {
               color: '#666'
             }}>
               <Space>
-                <span>摄像头: {cameraType === 'lCameraId' ? '左摄像头' : '右摄像头'}</span>
+                <span>摄像头: {cameraType === 'lCameraId' ? '仓库外摄像头' : '仓库内摄像头'}</span>
                 <span>通道: {channelNo}</span>
                 <span>存储类型: {storageType === 1 ? '云存储' : '本地存储'}</span>
                 <span>API类型: {storageType === 2 ? 'v3 本地录像API' : 'lapp/video/by/time API'}</span>
@@ -617,27 +656,29 @@ export default function PlaybackSurveillance() {
             }
           }}
           footer={null}
-          width={650}
+          width={isMobile ? '95%' : 650}
           destroyOnClose
+          centered={isMobile}
         >
           <div style={{ 
             backgroundColor: '#000', 
             borderRadius: '4px',
             padding: '10px',
-            minHeight: '420px',
+            minHeight: isMobile ? '300px' : '420px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center'
           }}>
-            <div id="ezuikit-playback-player"></div>
+            <div id="ezuikit-playback-player" style={{ width: '100%', height: '100%' }}></div>
           </div>
           {selectedRecord && (
             <div style={{ marginTop: '10px', fontSize: '12px', color: '#666' }}>
-              <Space>
+              <Space wrap>
                 <span>开始时间: {selectedRecord.startTime}</span>
                 <span>结束时间: {selectedRecord.endTime}</span>
                 <span>存储类型: {selectedRecord.source === 1 ? '云存储' : '本地存储'}</span>
                 {selectedRecord.localType && <span>录像类型: {selectedRecord.localType}</span>}
+                <span>模板: {isMobile ? 'mobileRec' : 'pcRec'}</span>
               </Space>
             </div>
           )}
