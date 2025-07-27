@@ -8,7 +8,7 @@ import { Warehouse } from '@/app/[locale]/user/type';
 export const getUserAuthorizedWarehouses = async (): Promise<Warehouse[]> => {
   try {
     // 获取用户信息
-    const userRes = await req.get('userController/getUserInfo');
+    const userRes = await req.get('userController/getUserInfo') as any;
     if (userRes.code !== 200) {
       throw new Error('获取用户信息失败');
     }
@@ -21,7 +21,7 @@ export const getUserAuthorizedWarehouses = async (): Promise<Warehouse[]> => {
       const warehouseRes = await req.post('/warehouseController/pageWarehouse', {
         pageNum: 1, 
         pageSize: 1000
-      });
+      }) as any;
       if (warehouseRes.code === 200) {
         return warehouseRes.data.records || [];
       }
@@ -32,7 +32,7 @@ export const getUserAuthorizedWarehouses = async (): Promise<Warehouse[]> => {
     if (userInfo.role) {
       const roleRes = await req.get(`/roleController/getRoleById`, {
         params: { id: userInfo.role }
-      });
+      }) as any;
       
       if (roleRes.code === 200 && roleRes.data.permissions) {
         // 权限数组中包含仓库ID，直接提取数字ID
@@ -45,7 +45,7 @@ export const getUserAuthorizedWarehouses = async (): Promise<Warehouse[]> => {
           const warehouseRes = await req.post('/warehouseController/pageWarehouse', {
             pageNum: 1,
             pageSize: 1000
-          });
+          }) as any;
           
           if (warehouseRes.code === 200) {
             // 过滤出有权限的仓库
@@ -87,7 +87,7 @@ export const checkWarehousePermission = async (warehouseId: number): Promise<boo
  */
 export const getUserRole = async (): Promise<{role: number, isAdmin: boolean}> => {
   try {
-    const userRes = await req.get('userController/getUserInfo');
+    const userRes = await req.get('userController/getUserInfo') as any;
     if (userRes.code === 200) {
       const userInfo = userRes.data;
       return {
