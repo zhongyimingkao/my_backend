@@ -11,6 +11,7 @@ import {
   Select,
   Space,
   Typography,
+  DatePicker,
 } from 'antd';
 import { useEffect, useState } from 'react';
 import * as XLSX from 'xlsx';
@@ -20,7 +21,6 @@ import Layout from '@/components/Layout';
 import { formatDate } from '@/utils';
 import { getUserAuthorizedWarehouses, getUserRole } from '@/utils/permission';
 import { useResponsive } from '@/hooks/useResponsive';
-import MobileSearchForm from '@/components/MobileSearchForm';
 
 // 导入相关API
 import { queryDoorInfo } from '../door/[warehouseID]/api';
@@ -372,30 +372,17 @@ export default function ReportExport() {
             </Col>
 
             <Col span={24}>
-              <div style={{ marginBottom: 16 }}>
-                <Text strong>时间范围（可选）</Text>
-                <div style={{ marginTop: 8 }}>
-                  <MobileSearchForm
-                    fields={[
-                      {
-                        name: 'timeRange',
-                        label: '时间范围',
-                        type: 'dateRange' as const,
-                        placeholder: '请选择时间范围'
-                      }
-                    ]}
-                    onSearch={(values) => {
-                      form.setFieldsValue({ timeRange: values.timeRange });
-                    }}
-                    onReset={() => {
-                      form.setFieldsValue({ timeRange: undefined });
-                    }}
-                  />
-                </div>
-                <Text type="secondary" style={{ fontSize: '12px' }}>
-                  注意：时间范围仅对开关门记录、入库记录、出库记录有效，库存记录导出当前最新数据
-                </Text>
-              </div>
+              <Form.Item
+                label="时间范围（可选）"
+                name="timeRange"
+                extra="注意：时间范围仅对开关门记录、入库记录、出库记录有效，库存记录导出当前最新数据"
+              >
+                <DatePicker.RangePicker
+                  style={{ width: '100%' }}
+                  placeholder={['开始时间', '结束时间']}
+                  format="YYYY-MM-DD"
+                />
+              </Form.Item>
             </Col>
 
             <Col span={24}>
